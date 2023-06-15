@@ -29,9 +29,9 @@
 ....
 
 .Debugging instructions
-[%header]
+[%header%autowidth.stretch]
 |===
-|Instruction |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
 |QUERY       |R |`000`    |`0000000` | I | - | - | -
 |DROP        |R |`000`    |`0000001` | C | - | - | -
 |RCUPDATE    |R |`000`    |`0000010` | I | 0 | I | -
@@ -48,9 +48,9 @@
 |===
 
 .Capability manipulation instructions
-[%header]
+[%header%autowidth.stretch]
 |===
-|Instruction |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
 |SHRINK      |R |`001`    |`0000100` | I | I | C | -
 |TIGHTEN     |R |`001`    |`0000110` | I | - | C | -
 |DELIN       |R |`001`    |`0000111` | - | - | C | -
@@ -69,9 +69,9 @@
 |===
 
 .Memory access instructions
-[%header]
+[%header%autowidth.stretch]
 |===
-|Instruction |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
 |LWC         |R |`001`    |`0001110` | C | - | C | -
 |LWS         |R |`001`    |`0010011` | C | - | I | -
 |SWC         |R |`001`    |`0001111` | C | C | - | -
@@ -86,9 +86,9 @@
 |===
 
 .Control flow instructions
-[%header]
+[%header%autowidth.stretch]
 |===
-|Instruction |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
 |CALL        |R |`001`    |`0000001` | - | I | C | -
 |RETURN      |R |`001`    |`0010100` | - | I | C | -
 |JMP         |R |`001`    |`0000010` | C | - | - | -
