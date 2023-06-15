@@ -15,11 +15,11 @@ $(CONTAINER_IMG): $(CONTAINER_DEF)
 
 $(OUTPUT_PDF): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
-	$(CONTAINER_IMG) -r asciidoctor-pdf -b pdf -o $@ $<
+	$(CONTAINER_IMG) -r asciidoctor-pdf -r asciidoctor-diagram -b pdf -o $@ $<
 
 $(OUTPUT_HTML): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
-	$(CONTAINER_IMG) -b html5 -o $@ $<
+	$(CONTAINER_IMG) -r asciidoctor-diagram -b html5 -o $@ $<
 
 clean:
 	rm -rf $(OUTPUT_DIR)

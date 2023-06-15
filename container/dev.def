@@ -4,7 +4,9 @@ From: ubuntu:22.04
 %post
     apt-get -y update
     apt-get -y upgrade
-    apt-get -y install asciidoctor ruby-asciidoctor-pdf
+    apt-get -y install ruby-rubygems npm
+    gem install asciidoctor asciidoctor-pdf asciidoctor-diagram
+    npm install -g wavedrom-cli
 
 %runscript
     #!/bin/bash
