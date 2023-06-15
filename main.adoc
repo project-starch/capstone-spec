@@ -40,6 +40,10 @@ include::parts/int-except.adoc[]
 
 <<<
 
+include::parts/mem-consistency.adoc[]
+
+<<<
+
 include::parts/insn-list.adoc[]
 
 <<<
