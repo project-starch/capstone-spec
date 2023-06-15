@@ -1,5 +1,6 @@
-== Introduction
 :reproducible:
+
+== Introduction
 
 The Capstone project is an effort to explore the design of
 a new CPU instruction set architecture that achieves multiple
