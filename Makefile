@@ -21,4 +21,7 @@ $(OUTPUT_HTML): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
 	$(CONTAINER_IMG) -b html5 -o $@ $<
 
-.PHONY: all
+clean:
+	rm -rf $(OUTPUT_DIR)
+
+.PHONY: all clean
