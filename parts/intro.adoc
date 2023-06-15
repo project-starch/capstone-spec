@@ -1,0 +1,91 @@
+== Introduction
+:reproducible:
+
+The Capstone project is an effort to explore the design of
+a new CPU instruction set architecture that achieves multiple
+security goals including memory safety and isolation with
+one unified hardware abstraction.
+
+=== Goals
+
+The ultimate goal of Capstone is to unify the numerous hardware abstracts
+that have been added as extensions to existing architectures as afterthought
+mitigations to security vulnerabilities. This goal requires a high level
+of flexibility and extensibility of the Capstone architecture.
+More specifically, we aim to support the following in a unified manner.
+
+Exclusive access:: Software should be guaranteed exclusive access to
+    certain memory regions if needed. This is in spite of the existence
+    of software traditionally entitled to higher privileges such as the
+    OS kernel and the hypervisor.
+
+Revocable delegation:: Software components should be able to delegate
+    authority to other components in a revocable manner. For example,
+    after an untrusted library function has been granted access to a
+    memory region, the caller should be able to revoke this access.
+
+Dynamically extensible hierarchy:: The hierarchy of authority should
+    be dynamically extensible, unlike traditional platforms which
+    follow a static hierarchy of hypervisor-kernel-user. This makes it
+    possible to use the same set of abstractions for memory isolation
+    and memory sharing regardless of where a software component lies in
+    the hierarchy.
+
+Safe context switching:: A mechanism of context switching without trusting
+any other software component should be provided. This allows for
+a minimal TCB if necessary in case of a highly security-critical application.
+
+=== Major Design Elements
+
+The Capstone architecture design is based on the idea of capabilities,
+which are unforgeable tokens that represent authority to perform
+memory accesses and control flow transfers.
+Capstone extends the traditional capability model with new capability
+types including the following.
+
+Linear capabilities:: Linear capabilities are guaranteed not to
+    alias with other capabilities. Operations on linear capabilities
+    maintain this property. For example, linear capabilities cannot
+    be duplicated. Instead, they can only be moved around across different
+    registers or between registers and memory.
+    They can hence enable safe
+    exclusive access to memory regions. Capabilities that do
+    not have this property are called _non-linear_ capabilities.
+Revocation capabilities:: 
+    Revocation capabilities cannot be used to perform memory accesses
+    or control flow transfers. Instead, they convey the authority to revoke other capabilities. Each revocation capability is derived from a linear
+    capability and can later be used to revoke (i.e., invalidate) capability
+    derived from the same linear capability. This mechanism enables
+    revocable and arbitrarily extensible chains of delegation of authority.
+Uninitialised capabilities::
+    Uninitialised capabilities convey write-only authority to memory.
+    They can be turned into linear capabilities after the memory region has
+    been "initialised", that is, when the whole memory region has been
+    overwritten with fresh data. Uninitialised capabilities enable
+    safe initialisation of memory regions and prevent secret leakage without
+    incurring extra performance overhead.
+
+=== Capstone-RISC-V ISA Overview
+
+While Capstone does not assume any specific modern ISA, we choose to propose
+a Capstone extension to RISC-V due to its open nature and the availability
+of toolchains and simulators. 
+
+The Capstone-RISC-V ISA is a 64-bit RISC-V extension that makes the following
+types of changes to the base architecture:
+
+* Each general-purpose register is extended to 129 bits to accomodate 128-bit capabilities.
+* New instructions for manipulating capabilities are added.
+* New instructions for memory accesses using capabilities are added.
+* New instructions for control flow transfers using capabilities are added.
+* Semantics of a small number of existing instructions are changed to support capabilities.
+* Semantics of interrupts and exceptions are changed to support capabilities.
+
+=== Bibliography
+
+The initial design of Capstone has been discussed in the following paper:
+
+* https://www.usenix.org/conference/usenixsecurity23/presentation/yu-jason[Capstone: A Capability-based Foundation for Trustless Secure Memory Access]
+  by Jason Zhijingcheng Yu, Conrad Watt, Aditya Badole, Trevor E. Carlson, Prateek Saxena.
+  In _Proceedings of the 32nd USENIX Security Symposium_.
+  Annaheim, CA, USA. August 2023.

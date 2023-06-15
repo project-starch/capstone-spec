@@ -1,0 +1,14 @@
+BootStrap: docker
+From: ubuntu:22.04
+
+%post
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get -y install asciidoctor ruby-asciidoctor-pdf
+
+%runscript
+    #!/bin/bash
+    asciidoctor $@
+
+%labels
+    Author Jason Yu
