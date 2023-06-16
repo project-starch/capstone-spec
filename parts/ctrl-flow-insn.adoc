@@ -1,5 +1,5 @@
 :reproducible:
 
-## Control Flow Instructions
+= Control Flow Instructions
 
 TODO

@@ -1,6 +1,6 @@
 :reproducible:
 
 [appendix]
-## Abstract Binary Interface (Non-Normative)
+= Abstract Binary Interface (Non-Normative)
 
 TODO

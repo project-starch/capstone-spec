@@ -16,6 +16,15 @@ The rendered results can be found in the `output` folder.
 The top-level file is `main.adoc`, which includes files for each part
 of the documentation inside the `parts` folder.
 
+### Regarding Implementations
+
+Note that the current implementations might not reflect the draft in this
+repository.
+The implementations will need to be revised to match the draft once it is
+ready.
+We will be versioning the specification and the implementations in the future
+to avoid confusions.
+
 ### Contributing
 
 Contributions are welcome! Feel free to submit issues or pull requests.

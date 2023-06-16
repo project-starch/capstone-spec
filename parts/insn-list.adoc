@@ -1,7 +1,7 @@
 :reproducible:
 
 [appendix]
-## Instruction Listing
+= Instruction Listing
 
 .Instruction format: R-type
 [wavedrom,,svg]
@@ -72,18 +72,16 @@
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
-|LWC         |R |`001`    |`0010000` | C | - | C | -
-|SWC         |R |`001`    |`0010001` | C | C | - | -
-|LWS         |R |`001`    |`0010010` | C | - | I | -
-|SWS         |R |`001`    |`0010011` | C | - | I | -
-|L32S        |R |`001`    |`0010100` | C | - | I | -
-|S32S        |R |`001`    |`0010101` | C | I | - | -
-|L16S        |R |`001`    |`0010110` | C | - | I | -
-|S16S        |R |`001`    |`0010111` | C | I | - | -
-|LHS         |R |`001`    |`0011000` | C | - | I | -
-|SHS         |R |`001`    |`0011001` | C | I | - | -
-|LBS         |R |`001`    |`0011010` | C | - | I | -
-|SBS         |R |`001`    |`0011011` | C | I | - | -
+|LDC         |R |`001`    |`0010000` | C | - | C | -
+|STC         |R |`001`    |`0010001` | C | C | - | -
+|LDD         |R |`001`    |`0010010` | C | - | I | -
+|STD         |R |`001`    |`0010011` | C | - | I | -
+|LDW        |R |`001`    |`0010100` | C | - | I | -
+|STW        |R |`001`    |`0010101` | C | I | - | -
+|LDH        |R |`001`    |`0010110` | C | - | I | -
+|STH        |R |`001`    |`0010111` | C | I | - | -
+|LDB         |R |`001`    |`0011000` | C | - | I | -
+|STB         |R |`001`    |`0011001` | C | I | - | -
 |===
 
 .Control flow instructions

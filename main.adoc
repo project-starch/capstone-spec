@@ -8,48 +8,52 @@
 
 <<<
 
-include::parts/contributors.adoc[]
+include::parts/contributors.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/intro.adoc[]
+include::parts/intro.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/prog-model.adoc[]
+include::parts/prog-model.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/cap-man-insn.adoc[]
+include::parts/cap-man-insn.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/mem-access-insn.adoc[]
+include::parts/mem-access-insn.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/ctrl-flow-insn.adoc[]
+include::parts/ctrl-flow-insn.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/existing-insn.adoc[]
+include::parts/existing-insn.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/int-except.adoc[]
+include::parts/int-except.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/mem-consistency.adoc[]
+include::parts/mem-consistency.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/insn-list.adoc[]
+include::parts/debug-insn.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/asm-examples.adoc[]
+include::parts/insn-list.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/abi.adoc[]
+include::parts/asm-examples.adoc[leveloffset=+1]
+
+<<<
+
+include::parts/abi.adoc[leveloffset=+1]

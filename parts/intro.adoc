@@ -1,13 +1,13 @@
 :reproducible:
 
-== Introduction
+= Introduction
 
 The Capstone project is an effort to explore the design of
 a new CPU instruction set architecture that achieves multiple
 security goals including memory safety and isolation with
 one unified hardware abstraction.
 
-=== Goals
+== Goals
 
 The ultimate goal of Capstone is to unify the numerous hardware abstracts
 that have been added as extensions to existing architectures as afterthought
@@ -36,7 +36,7 @@ Safe context switching:: A mechanism of context switching without trusting
 any other software component should be provided. This allows for
 a minimal TCB if necessary in case of a highly security-critical application.
 
-=== Major Design Elements
+== Major Design Elements
 
 The Capstone architecture design is based on the idea of capabilities,
 which are unforgeable tokens that represent authority to perform
@@ -66,7 +66,7 @@ Uninitialised capabilities::
     safe initialisation of memory regions and prevent secret leakage without
     incurring extra performance overhead.
 
-=== Capstone-RISC-V ISA Overview
+== Capstone-RISC-V ISA Overview
 
 While Capstone does not assume any specific modern ISA, we choose to propose
 a Capstone extension to RISC-V due to its open nature and the availability
@@ -82,7 +82,7 @@ types of changes to the base architecture:
 * Semantics of a small number of existing instructions are changed to support capabilities.
 * Semantics of interrupts and exceptions are changed to support capabilities.
 
-=== Bibliography
+== Bibliography
 
 The initial design of Capstone has been discussed in the following paper:
 
