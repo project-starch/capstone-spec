@@ -34,7 +34,7 @@
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
 |QUERY       |R |`000`    |`0000000` | I | - | - | -
 |DROP        |R |`000`    |`0000001` | C | - | - | -
-|RCUPDATE    |R |`000`    |`0000010` | I | 0 | I | -
+|RCUPDATE    |R |`000`    |`0000010` | I | - | I | -
 |ALLOC       |R |`000`    |`0000011` | I | - | I | -
 |REVOKET     |R |`000`    |`0000100` | I | - | - | -
 |CAPCREATE   |R |`000`    |`0000101` | - | - | C | -
