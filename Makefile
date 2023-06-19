@@ -5,8 +5,8 @@ PARTS_DIR?=parts
 ADOC_PARTS_SRC=$(wildcard parts/*.adoc)
 ADOC_TOP_SRC=main.adoc
 OUTPUT_DIR?=output
-OUTPUT_PDF=$(OUTPUT_DIR)/$(ADOC_TOP_SRC:.adoc=.pdf)
-OUTPUT_HTML=$(OUTPUT_DIR)/$(ADOC_TOP_SRC:.adoc=.html)
+OUTPUT_PDF=$(OUTPUT_DIR)/main.pdf
+OUTPUT_HTML=$(OUTPUT_DIR)/index.html
 
 all: $(OUTPUT_PDF) $(OUTPUT_HTML)
 

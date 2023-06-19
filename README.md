@@ -4,6 +4,8 @@ This repository contains the source code for the Capstone-RISC-V ISA Reference.
 The reference is written in [AsciiDoc](https://asciidoc.org/) and can be built
 using [Asciidoctor](https://asciidoctor.org/).
 
+A public version of the built reference can be found at https://jason.kisp.ml/specs/.
+
 ### Rendering to PDF and HTML5
 
 The easy way to do this is to use the Makefile, which relies on an

@@ -7,6 +7,12 @@ a new CPU instruction set architecture that achieves multiple
 security goals including memory safety and isolation with
 one unified hardware abstraction.
 
+ifdef::backend-html5[]
+*Other formats:* This document is also available in the following formats:
+
+* link:main.pdf[PDF]
+endif::backend-html5[]
+
 == Goals
 
 The ultimate goal of Capstone is to unify the numerous hardware abstracts

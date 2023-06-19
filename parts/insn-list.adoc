@@ -4,29 +4,10 @@
 = Instruction Listing
 
 .Instruction format: R-type
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd' },
-    {bits: 3, name: 'func3' },
-    {bits: 5, name: 'rs1' },
-    {bits: 5, name: 'rs2' },
-    {bits: 7, name: 'func7' }
-]}
-....
+include::r-type-format.adoc[]
 
 .Instruction format: I-type
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd' },
-    {bits: 3, name: 'func3' },
-    {bits: 5, name: 'rs1' },
-    {bits: 12, name: 'imm[11:0]' }
-]}
-....
+include::i-type-format.adoc[]
 
 .Debugging instructions
 [%header%autowidth.stretch]

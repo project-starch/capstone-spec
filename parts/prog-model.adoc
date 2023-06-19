@@ -74,4 +74,22 @@ also store a capability.
 The type of data contained in a memory location is maintained and
 confusion of the type is not allowed.
 
+== Instruction Set
 
+The Capstone-RISC-V instruction set is based on the RV64G instruction set.
+The (uncompressed) instructions are fixed 32-bit wide, and laid out in memory
+in little-endian order. In the encoding space of the RV64G instruction set,
+Capstone-RISC-V instructions occupies the "custom-2" subset, i.e., the opcode
+of all Capstone-RISC-V instructions is `0b1011011`.
+
+Capstone-RISC-V instruction encodings follow two basic formats: R-type and I-type,
+as described below (more details are also provided in the _RISC-V ISA Manual_).
+
+.R-type instruction format
+include::r-type-format.adoc[]
+
+.I-type instruction format
+include::i-type-format.adoc[]
+
+R-type instructions receive up to three register operands, and I-type instructions
+receive up to two register operands and a 12-bit-wide immediate operand.
