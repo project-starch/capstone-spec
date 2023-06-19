@@ -32,7 +32,7 @@ include::i-type-format.adoc[]
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
-|REVOKE      |R |`001`    |`0000000` | C | - | - | -
+|link:#revcap-creation[REVOKE]      |R |`001`    |`0000000` | C | - | - | -
 |SHRINK      |R |`001`    |`0000001` | I | I | C | -
 |TIGHTEN     |R |`001`    |`0000010` | I | - | C | -
 |DELIN       |R |`001`    |`0000011` | - | - | C | -
@@ -40,13 +40,13 @@ include::i-type-format.adoc[]
 |SCC         |R |`001`    |`0000101` | I | - | C | -
 |SPLIT       |R |`001`    |`0000110` | C | I | C | -
 |SEAL        |R |`001`    |`0000111` | - | - | C | -
-|MREV        |R |`001`    |`0001000` | C | - | C | -
+|link:#rev-op[MREV]        |R |`001`    |`0001000` | C | - | C | -
 |INIT        |R |`001`    |`0001001` | - | - | C | -
 |MOVC        |R |`001`    |`0001010` | C | - | C | -
 |DROPI       |R |`001`    |`0001011` | C | - | - | -
 |CAPGET      |R |`001`    |`0001100` | - | - | C | -
-|CINCOFFSET  |R |`001`    |`0001101` | C | C | C | -
-|CINCOFFSETIMM |I |`011`    | - | C | - | C | S
+|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001101` | C | C | C | -
+|link:#cursor-inc[CINCOFFSETIMM] |I |`011`    | - | C | - | C | S
 |===
 
 .Memory access instructions

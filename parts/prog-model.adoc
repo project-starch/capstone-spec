@@ -33,7 +33,7 @@ Each capability has the following architecturally-visible fields:
 `3` = read-write, `4` = read-write-execute
 |===
 
-.NOTE
+.Note
 ****
 Implementations are free to maintain additional fields to
 capabilities or compress the representation of the above
