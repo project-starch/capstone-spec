@@ -2,4 +2,76 @@
 
 = Programming Model
 
-TODO
+The Capstone-RISC-V ISA has extended the part of the machine state,
+including both some registers and the memory, to
+enable the storage and handling of capabilities.
+
+== Width of Capability
+
+The width of a capability is 128 bits. We represent this as
+`CLEN = 128`. Note that this does not affect the width of a
+raw address, which is `XLEN = 64` bits.
+
+== Extension to General-Purpose Registers
+
+The Capstone-RISC-V ISA extends each of the 32 general-purpose
+registers, so it contains either a capability or a raw `XLEN`-bit
+integer.
+The type of data contained in a register is maintained and confusion
+of the type is not allowed.
+In assembly code, the type of data expected in a register operand
+is indicated by the alias used for the register, as summarised
+in the following table.
+
+[%header%authowidth.stretch]
+|===
+| `XLEN`-bit integer | Capability
+| `x0`/`zero` | `c0`/`cnull` 
+| `x1`/`ra` | `c1`/`cra`
+| `x2`/`sp` | `c2`/`csp`
+| `x3`/`gp` | `c3`/`cgp`
+| `x4`/`tp` | `c4`/`ctp`
+| `x5`/`t0` | `c5`/`ct0`
+| `x6`/`t1` | `c6`/`ct1`
+| `x7`/`t2` | `c7`/`ct2`
+| `x8`/`s0`/`fp` | `c8`/`cs0`/`cfp`
+| `x9`/`s1` | `c9`/`cs1`
+| `x10`/`a0` | `c10`/`ca0`
+| `x11`/`a1` | `c11`/`ca1`
+| `x12`/`a2` | `c12`/`ca2`
+| `x13`/`a3` | `c13`/`ca3`
+| `x14`/`a4` | `c14`/`ca4`
+| `x15`/`a5` | `c15`/`ca5`
+| `x16`/`a6` | `c16`/`ca6`
+| `x17`/`a7` | `c17`/`ca7`
+| `x18`/`s2` | `c18`/`cs2`
+| `x19`/`s3` | `c19`/`cs3`
+| `x20`/`s4` | `c20`/`cs4`
+| `x21`/`s5` | `c21`/`cs5`
+| `x22`/`s6` | `c22`/`cs6`
+| `x23`/`s7` | `c23`/`cs7`
+| `x24`/`s8` | `c24`/`cs8`
+| `x25`/`s9` | `c25`/`cs9`
+| `x26`/`s10` | `c26`/`cs10`
+| `x27`/`s11` | `c27`/`cs11`
+| `x28`/`t3` | `c28`/`ct3`
+| `x29`/`t4` | `c29`/`ct4`
+| `x30`/`t5` | `c30`/`ct5`
+| `x31`/`t6` | `c31`/`ct6`
+|===
+
+== Extension to Other Registers
+
+The program counter (`pc`) register is extended to contain a
+capability.
+
+== Extension to Memory
+
+The memory is addressed using an `XLEN`-bit integer at byte-level
+granularity.
+In addition to raw integers, each `CLEN`-bit aligned address can
+also store a capability.
+The type of data contained in a memory location is maintained and
+confusion of the type is not allowed.
+
+
