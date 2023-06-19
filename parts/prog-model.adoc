@@ -6,11 +6,39 @@ The Capstone-RISC-V ISA has extended the part of the machine state,
 including both some registers and the memory, to
 enable the storage and handling of capabilities.
 
-== Width of Capability
+== Capabilities
+
+=== Width
 
 The width of a capability is 128 bits. We represent this as
 `CLEN = 128`. Note that this does not affect the width of a
 raw address, which is `XLEN = 64` bits.
+
+=== Fields
+
+Each capability has the following architecturally-visible fields:
+
+.Fields in a capability
+[%header,%autowidth.stretch]
+|===
+|Name |Range |Description
+|`type` | `0..5` | The type of the capability:
+`0` = linear, `1` = non-linear, `2` = revocation,
+`3` = uninitialised, `4` = sealed, `5` = sealed-return
+|`cursor` | `0..2^XLEN-1` |  The memory address the capability points to (to be used for the next memory access)
+|`base` | `0..2^XLEN-1` | The base memory address of the memory region associated with the capability
+|`length` | `0..2^XLEN-1` | The length of the memory region associated with the capability
+|`perms` | `0..4` | The permissions associated with the capability:
+`0` = no access, `1` = read-only, `2` = read-execute,
+`3` = read-write, `4` = read-write-execute
+|===
+
+.NOTE
+****
+Implementations are free to maintain additional fields to
+capabilities or compress the representation of the above
+fields, as long as each capability fits in `CLEN` bits.
+****
 
 == Extension to General-Purpose Registers
 
