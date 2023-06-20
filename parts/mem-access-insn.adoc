@@ -2,4 +2,8 @@
 
 = Memory Access Instructions
 
-TODO
+[#load-store-with-cap]
+== Load/Store with Capabilities
+
+[#load-store-cap]
+== Load/Store Capabilities

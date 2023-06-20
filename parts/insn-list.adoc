@@ -53,29 +53,29 @@ include::i-type-format.adoc[]
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
-|LDC         |R |`001`    |`0010000` | C | - | C | -
-|STC         |R |`001`    |`0010001` | C | C | - | -
-|LDD         |R |`001`    |`0010010` | C | - | I | -
-|STD         |R |`001`    |`0010011` | C | - | I | -
-|LDW        |R |`001`    |`0010100` | C | - | I | -
-|STW        |R |`001`    |`0010101` | C | I | - | -
-|LDH        |R |`001`    |`0010110` | C | - | I | -
-|STH        |R |`001`    |`0010111` | C | I | - | -
-|LDB         |R |`001`    |`0011000` | C | - | I | -
-|STB         |R |`001`    |`0011001` | C | I | - | -
+|link:#load-store-cap[LDC]         |R |`001`    |`0010000` | C | - | C | -
+|link:#load-store-cap[STC]         |R |`001`    |`0010001` | C | C | - | -
+|link:#load-store-with-cap[LDD]         |R |`001`    |`0010010` | C | - | I | -
+|link:#load-store-with-cap[STD]         |R |`001`    |`0010011` | C | - | I | -
+|link:#load-store-with-cap[LDW]        |R |`001`    |`0010100` | C | - | I | -
+|link:#load-store-with-cap[STW]        |R |`001`    |`0010101` | C | I | - | -
+|link:#load-store-with-cap[LDH]        |R |`001`    |`0010110` | C | - | I | -
+|link:#load-store-with-cap[STH]        |R |`001`    |`0010111` | C | I | - | -
+|link:#load-store-with-cap[LDB]         |R |`001`    |`0011000` | C | - | I | -
+|link:#load-store-with-cap[STB]         |R |`001`    |`0011001` | C | I | - | -
 |===
 
 .Control flow instructions
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
-|CALL        |R |`001`    |`0100000` | - | I | C | -
-|RETURN      |R |`001`    |`0100001` | - | I | C | -
-|JMP         |R |`001`    |`0100010` | C | - | - | -
-|JNZ         |R |`001`    |`0100011` | C | I | - | -
-|CAPENTER    |R |`001`    |`0100100` | C | - | - | -
-|CAPEXIT     |R |`001`    |`0100101` | - | I | C | -
-|CAPEXITSEAL |R |`001`    |`0100110` | - | I | C | -
+|link:#domain-cross[CALL]        |R |`001`    |`0100000` | - | I | C | -
+|link:#domain-cross[RETURN]      |R |`001`    |`0100001` | - | I | C | -
+|link:#jmp-cap[JMP]         |R |`001`    |`0100010` | C | - | - | -
+|link:#jmp-cap[JNZ]         |R |`001`    |`0100011` | C | I | - | -
+|link:#world-switch[CAPENTER]    |R |`001`    |`0100100` | C | - | - | -
+|link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | - | I | C | -
+|link:#world-switch[CAPEXITSEAL] |R |`001`    |`0100110` | - | I | C | -
 |===
 
 .Note

@@ -2,4 +2,11 @@
 
 = Control Flow Instructions
 
-TODO
+[#jmp-cap]
+== Jump to Capabilities
+
+[#domain-cross]
+== Domain Crossing
+
+[#world-switch]
+== World Switching

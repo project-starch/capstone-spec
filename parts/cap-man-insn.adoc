@@ -10,10 +10,10 @@
 [#cursor-inc]
 === Cursor Increment
 
-The `CINCOFFSET` and `CINCOFFSETIMM` instructions increment the `cursor` of a
+The CINCOFFSET and CINCOFFSETIMM instructions increment the `cursor` of a
 capability by a give amount.
 
-.`CINCOFFSET` instruction format
+.CINCOFFSET instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -26,7 +26,7 @@ capability by a give amount.
 ]}
 ....
 
-.`CINCOFFSETIMM` instruction format
+.CINCOFFSETIMM instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -69,9 +69,9 @@ capability by a give amount.
 [#revcap-creation]
 === Revocation Capability Creation
 
-The `MREV` instruction creates a revocation capability.
+The MREV instruction creates a revocation capability.
 
-.`MREV` instruction format
+.MREV instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -87,5 +87,5 @@ The `MREV` instruction creates a revocation capability.
 [#rev-operation]
 === Revocation Operation
 
-The `REVOKE` instruction revokes a capability.
+The REVOKE instruction revokes a capability.
 
