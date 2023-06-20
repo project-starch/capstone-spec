@@ -2,7 +2,10 @@
 
 = Capability Manipulation Instructions
 
-== Cursor and Bounds Manipulation
+== Cursor, Bounds, and Permissions Manipulation
+
+[#cap-mov]
+=== Capability Movement
 
 [#cursor-inc]
 === Cursor Increment
@@ -43,6 +46,23 @@ capability by a give amount.
 
 [#split]
 === Bounds Splitting
+
+[#tighten]
+=== Permission Tightening
+
+== Type Manipulation
+
+[#delin]
+=== Delinearisation
+
+[#init]
+=== Initialisation
+
+[#seal]
+=== Sealing
+
+[#drop]
+== Dropping
 
 == Revocation
 
