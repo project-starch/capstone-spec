@@ -1,6 +1,3 @@
-CONTAINER_DEF=container/dev.def
-CONTAINER_IMG=container/dev.sif
-
 PARTS_DIR?=parts
 ADOC_PARTS_SRC=$(wildcard parts/*.adoc)
 ADOC_TOP_SRC=main.adoc
@@ -10,8 +7,15 @@ OUTPUT_HTML=$(OUTPUT_DIR)/index.html
 
 all: $(OUTPUT_PDF) $(OUTPUT_HTML)
 
+ifndef EXTERNAL_CONTAINER_IMG
+CONTAINER_DEF=container/dev.def
+CONTAINER_IMG=container/dev.sif
+
 $(CONTAINER_IMG): $(CONTAINER_DEF)
 	apptainer build -F $@ $<
+else
+CONTAINER_IMG=$(EXTERNAL_CONTAINER_IMG)
+endif
 
 $(OUTPUT_PDF): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
