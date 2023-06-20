@@ -5,6 +5,8 @@ The reference is written in [AsciiDoc](https://asciidoc.org/) and can be built
 using [Asciidoctor](https://asciidoctor.org/).
 
 A public version of the built reference can be found at https://jason.kisp.ml/specs/.
+This version is automatically built from the `master` branch.
+Builds for other pushed revisions can be found at https://jason.kisp.ml/specs-revs/.
 
 ### Rendering to PDF and HTML5
 

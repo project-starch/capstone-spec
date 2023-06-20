@@ -14,5 +14,5 @@ jobs:
         env:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
         if: ${{ env.BRANCH_NAME == 'master' }}
-        run: ln -sf "$DOC_REV_PREFIX"/"$GITHUB_SHA" "$DOC_TARGET"
+        run: ln -sfn "$DOC_REV_PREFIX"/"$GITHUB_SHA" "$DOC_TARGET"
       
