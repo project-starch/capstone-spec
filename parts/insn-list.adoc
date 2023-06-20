@@ -33,14 +33,14 @@ include::i-type-format.adoc[]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
 |link:#revcap-creation[REVOKE]      |R |`001`    |`0000000` | C | - | - | -
-|SHRINK      |R |`001`    |`0000001` | I | I | C | -
+|link:#shrink[SHRINK]      |R |`001`    |`0000001` | I | I | C | -
 |TIGHTEN     |R |`001`    |`0000010` | I | - | C | -
 |DELIN       |R |`001`    |`0000011` | - | - | C | -
-|LCC         |R |`001`    |`0000100` | C | - | I | -
-|SCC         |R |`001`    |`0000101` | I | - | C | -
-|SPLIT       |R |`001`    |`0000110` | C | I | C | -
+|link:#cursor-set-get[LCC]         |R |`001`    |`0000100` | C | - | I | -
+|link:#cursor-set-get[SCC]         |R |`001`    |`0000101` | I | - | C | -
+|link:#split[SPLIT]       |R |`001`    |`0000110` | C | I | C | -
 |SEAL        |R |`001`    |`0000111` | - | - | C | -
-|link:#rev-op[MREV]        |R |`001`    |`0001000` | C | - | C | -
+|link:#rev-operation[MREV]        |R |`001`    |`0001000` | C | - | C | -
 |INIT        |R |`001`    |`0001001` | - | - | C | -
 |MOVC        |R |`001`    |`0001010` | C | - | C | -
 |DROPI       |R |`001`    |`0001011` | C | - | - | -

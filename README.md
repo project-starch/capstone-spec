@@ -6,7 +6,10 @@ using [Asciidoctor](https://asciidoctor.org/).
 
 A public version of the built reference can be found at https://jason.kisp.ml/specs/.
 This version is automatically built from the `master` branch.
-Builds for other pushed revisions can be found at https://jason.kisp.ml/specs-revs/.
+Builds for other pushed revisions can be found at https://jason.kisp.ml/specs-revs/,
+which are also listed by branch names and build dates at
+https://jason.kisp.ml/specs-revs/by-branch/ and https://jason.kisp.ml/specs-revs/by-date/
+respectively.
 
 ### Rendering to PDF and HTML5
 

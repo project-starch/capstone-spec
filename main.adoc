@@ -12,6 +12,10 @@ include::parts/contributors.adoc[leveloffset=+1]
 
 <<<
 
+include::parts/version.adoc[leveloffset=+1]
+
+<<<
+
 include::parts/intro.adoc[leveloffset=+1]
 
 <<<

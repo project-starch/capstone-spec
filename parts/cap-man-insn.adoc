@@ -7,9 +7,42 @@
 [#cursor-inc]
 === Cursor Increment
 
+The `CINCOFFSET` and `CINCOFFSETIMM` instructions increment the `cursor` of a
+capability by a give amount.
+
+.`CINCOFFSET` instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: '0b0001101' }
+]}
+....
+
+.`CINCOFFSETIMM` instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b011' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
 [#cursor-set-get]
 === Cursor Setter and Getter
 
+[#shrink]
+=== Bounds Shrinking
+
+[#split]
+=== Bounds Splitting
 
 == Revocation
 
@@ -18,13 +51,14 @@
 
 The `MREV` instruction creates a revocation capability.
 
+.`MREV` instruction format
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd' },
+    {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1' },
+    {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: '*' },
     {bits: 7, name: '0b0001000' }
 ]}

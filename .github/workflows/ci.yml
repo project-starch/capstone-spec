@@ -10,6 +10,12 @@ jobs:
         run: cd "$GITHUB_WORKSPACE"; make EXTERNAL_CONTAINER_IMG="$DOC_CONTAINER_IMG"
       - name: Publish-revision
         run: cd "$GITHUB_WORKSPACE"; rsync -av --delete --exclude='.asciidoctor/' output/ "$DOC_REV_PREFIX"/"$GITHUB_SHA"/
+      - name: Publish-revision-by-date
+        run: ln -sfn "$DOC_REV_PREFIX"/"$GITHUB_SHA" "$DOC_REV_PREFIX"/by-date/$(date -Iseconds)
+      - name: Publish-revision-by-branch
+        env:
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+        run: ln -sfn "$DOC_REV_PREFIX"/"$GITHUB_SHA" "$DOC_REV_PREFIX"/by-branch/"$BRANCH_NAME"
       - name: Publish-master
         env:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 

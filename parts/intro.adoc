@@ -88,6 +88,29 @@ types of changes to the base architecture:
 * Semantics of a small number of existing instructions are changed to support capabilities.
 * Semantics of interrupts and exceptions are changed to support capabilities.
 
+== Assembly Mnemonics
+
+Each Capstone-RISC-V instruction is given a mnemonic prefixed with `CS.`.
+In contexts where it is clear we are discussing Capstone-RISC-V instructions,
+we will omit the `CS.` prefix for brevity.
+
+In assembly code, the list of operands to an instruction is supplied following the
+instruction mnemonic, with the operands separated by commas, in the order of
+`rd`, `rs1`, `rs2`, `imm` for any operand the instruction expects.
+
+== Notations
+
+When specifying the semantics of instructions, we use the following notations
+to represent the type of each operand:
+
+I:: Integer register.
+
+C:: Capability register.
+
+S:: Sign-extended immediate.
+
+Z:: Zero-extended immediate.
+
 == Bibliography
 
 The initial design of Capstone has been discussed in the following paper:
