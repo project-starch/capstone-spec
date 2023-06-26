@@ -2,16 +2,43 @@
 
 = Capability Manipulation Instructions
 
+Capstone provides instructions for creating, modifying, and destroying capabilities.
+Note that due to the guarantee of provenance of capabilities, those instructions are
+the _only_ way to manipulate capabilities. In particular, it is not possible to manipulate
+capabilities by manipulating the content of a memory location or register using
+other instructions.
+
 == Cursor, Bounds, and Permissions Manipulation
 
 [#cap-mov]
 === Capability Movement
 
+Capabilities can be moved between registers with the MOVC instruction.
+
+.MOVC instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001010' }
+]}
+....
+
+If `rs1` does not contain a capability, the instruction will trap. Otherwise,
+if `rs1` is the same register as `rd`, the instruction is a no-op. If `rs1` is
+not the same register as `rd`, `rd` will contain the original content of
+`rs1`, and if the content is a linear capability, `rs1` will be set to the content
+of `cnull`.
+
 [#cursor-inc]
 === Cursor Increment
 
 The CINCOFFSET and CINCOFFSETIMM instructions increment the `cursor` of a
-capability by a give amount.
+capability by a give amount (offset).
 
 .CINCOFFSET instruction format
 [wavedrom,,svg]
@@ -38,31 +65,200 @@ capability by a give amount.
 ]}
 ....
 
+For CINCOFFSET, the offset is read from `rs2`.
+For CINCOFFSETIMM, the offset is the 12-bit sign-extended immediate field
+`imm`. If the offset is zero, the instructions are semantically equivalent to
+`MOVC rd, rs1`. Otherwise, the instructions are equal to an atomic execution
+of `MOVC rd, rs1` followed by an increment of the `cursor` field of `rd` by
+the offset.
+
 [#cursor-set-get]
 === Cursor Setter and Getter
+
+The `cursor` field of a capability can also be directly set and read with
+the SCC and LCC instructions respectively.
+
+.SCC instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0000101' }
+]}
+....
+
+.LCC instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0000100' }
+]}
+....
+
 
 [#shrink]
 === Bounds Shrinking
 
+The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRINK instruction.
+
+.SHRINK instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: '0b0000001' }
+]}
+....
+
+The instruction reads `rs1` and `rs2` and attempts to set the bounds of the capability in
+`rd` to `[rs1, rs2)`.
+If `rd` does not originally contain a capability or `rs1 > rs2`, the instruction will trap.
+If the original bounds of the capability in `rd` are `[base, end)` and
+`rs1 < base` or `rs2 > end`, the instruction will also trap.
+Otherwise, the instruction will set the bounds of the capability in `rd` to `[rs1, rs2)`.
+
 [#split]
 === Bounds Splitting
+
+The SPLIT instruction can split a capability into two by splitting the bounds.
+
+.SPLIT instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: '0b0000110' }
+]}
+....
+
+TODO: describe this
 
 [#tighten]
 === Permission Tightening
 
+The TIGHTEN instruction tightens the permissions (`perms` field) of a capability.
+
+.TIGHTEN instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0000010' }
+]}
+....
+
+The instruction reads the new permissions from `rs1` and attempts to set the `perms` field
+of the capability in `rd` to `rs1`. If `rd` does not originally contain a capability or
+the content of `rs1` is outside the range of `perms`, the instruction will trap.
+If the original `perms` field of the capability in `rd` is `p` and `rs1 <= p` does not hold,
+the instruction will also trap.
+Otherwise, the `perms` field of the capability in `rd` is set to `rs1`.
+
 == Type Manipulation
+
+Some instructions affect the `type` field of a capability. 
+// In general, the `type` field
+// cannot be set arbitrarily. Instead, it is changed as the side effect of certain semantically
+// significant operations.
 
 [#delin]
 === Delinearisation
 
+The DELIN instruction delinearises a linear capability.
+
+.DELIN instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: '*' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0000011' }
+]}
+....
+
+The instruction expects a linear capability in `rd`. If `rd` does not contain
+a capability, or the `type` field of the capability in `rd` is not `0` (linear),
+the instruction will trap. Otherwise, the `type` field of the capability in `rd`
+is set to `1` (non-linear).
+
 [#init]
 === Initialisation
+
+The INIT instruction transforms an uninitialised capability into a linear capability
+after its associated memory region has been fully initialised (written with new data).
+
+.INIT instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: '*' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001001' }
+]}
+....
+
+The instruction expects an uninitialized capability in `rd`. If `rd` does not contain
+a capability, or the `type` field of the capability in `rd` is not `3` (uninitialised),
+the instruction will trap. If the `end` field and the `cursor` field 
+of the capability in `rd` are not equal, the instruction will also trap.
+Otherwise, the `type` field of the capability in `rd` is set to `0` (linear).
+
+TODO: for other instructions that change the cursor, it is also necessary to check the `type` field.
 
 [#seal]
 === Sealing
 
+The SEAL instruction seals a linear capability.
+
+.SEAL instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: '*' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0000111' }
+]}
+....
+
+The instruction expects a linear capability in `rd`. If `rd` does not contain
+a capability, or the `type` field of the capability in `rd` is not `0` (linear),
+the instruction will trap. Otherwise, the `type` field of the capability in `rd`
+is set to `2` (sealed).
+
 [#drop]
 == Dropping
+
+TODO: check whether dropping is actually necessary.
 
 == Revocation
 

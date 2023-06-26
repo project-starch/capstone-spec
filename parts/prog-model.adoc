@@ -27,17 +27,26 @@ Each capability has the following architecturally-visible fields:
 `3` = uninitialised, `4` = sealed, `5` = sealed-return
 |`cursor` | `0..2^XLEN-1` |  The memory address the capability points to (to be used for the next memory access)
 |`base` | `0..2^XLEN-1` | The base memory address of the memory region associated with the capability
-|`length` | `0..2^XLEN-1` | The length of the memory region associated with the capability
+|`end` | `0..2^XLEN-1` | The end memory address of the memory region associated with the capability
 |`perms` | `0..4` | The permissions associated with the capability:
 `0` = no access, `1` = read-only, `2` = read-execute,
 `3` = read-write, `4` = read-write-execute
 |===
+
+The range of the `perms` field has a partial order `<=` defined as follows:
+....
+<= = { (0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (0, 1), (0, 2), (0, 3), (0, 4),
+       (1, 2), (1, 3), (1, 4), (2, 4), (3, 4)}
+....
 
 .Note
 ****
 Implementations are free to maintain additional fields to
 capabilities or compress the representation of the above
 fields, as long as each capability fits in `CLEN` bits.
+
+TODO: describe the allowed behaviour of compression. In particular,
+what should happen if an operation will result in loss of precision.
 ****
 
 == Extension to General-Purpose Registers
@@ -87,6 +96,8 @@ in the following table.
 | `x30`/`t5` | `c30`/`ct5`
 | `x31`/`t6` | `c31`/`ct6`
 |===
+
+TODO: talk about what `cnull` is.
 
 == Extension to Other Registers
 

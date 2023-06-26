@@ -39,7 +39,7 @@ include::i-type-format.adoc[]
 |link:#cursor-set-get[LCC]         |R |`001`    |`0000100` | C | - | I | -
 |link:#cursor-set-get[SCC]         |R |`001`    |`0000101` | I | - | C | -
 |link:#split[SPLIT]       |R |`001`    |`0000110` | C | I | C | -
-|link:seal[SEAL]        |R |`001`    |`0000111` | - | - | C | -
+|link:#seal[SEAL]        |R |`001`    |`0000111` | - | - | C | -
 |link:#rev-operation[MREV]        |R |`001`    |`0001000` | C | - | C | -
 |link:#init[INIT]        |R |`001`    |`0001001` | - | - | C | -
 |link:#cap-mov[MOVC]        |R |`001`    |`0001010` | C | - | C | -
