@@ -22,6 +22,7 @@ Each capability has the following architecturally-visible fields:
 [%header,%autowidth.stretch]
 |===
 |Name |Range |Description
+|`valid` | `0..1` | Whether the capability is valid: `0` = invalid, `1` = valid
 |`type` | `0..5` | The type of the capability:
 `0` = linear, `1` = non-linear, `2` = revocation,
 `3` = uninitialised, `4` = sealed, `5` = sealed-return
@@ -36,7 +37,7 @@ Each capability has the following architecturally-visible fields:
 The range of the `perms` field has a partial order `<=` defined as follows:
 ....
 <= = { (0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (0, 1), (0, 2), (0, 3), (0, 4),
-       (1, 2), (1, 3), (1, 4), (2, 4), (3, 4)}
+       (1, 2), (1, 3), (1, 4), (2, 4), (3, 4) }
 ....
 
 .Note
@@ -44,9 +45,17 @@ The range of the `perms` field has a partial order `<=` defined as follows:
 Implementations are free to maintain additional fields to
 capabilities or compress the representation of the above
 fields, as long as each capability fits in `CLEN` bits.
+It is not required to be able to represent capabilities with
+all combinations of field values, as long as the following
+conditions are satisfied:
 
-TODO: describe the allowed behaviour of compression. In particular,
-what should happen if an operation will result in loss of precision.
+* For load and store instructions that move a capability between
+a register and memory, the value of the capability is preserved.
+* The resulting capability values of any operation are not more
+powerful than when the same operation is performed on a Capstone-RISC-V
+implementation without compression. More specifically, if an execution
+trace is valid (i.e., without exceptions) on the compressed implementation,
+then it must also be valid on the uncompressed implementation.
 ****
 
 == Extension to General-Purpose Registers
@@ -55,7 +64,7 @@ The Capstone-RISC-V ISA extends each of the 32 general-purpose
 registers, so it contains either a capability or a raw `XLEN`-bit
 integer.
 The type of data contained in a register is maintained and confusion
-of the type is not allowed.
+of the type is not allowed, except for `x0`/`c0` as discussed below.
 In assembly code, the type of data expected in a register operand
 is indicated by the alias used for the register, as summarised
 in the following table.
@@ -97,7 +106,13 @@ in the following table.
 | `x31`/`t6` | `c31`/`ct6`
 |===
 
-TODO: talk about what `cnull` is.
+`x0`/`c0` is a read-only register that can be used both as an
+integer and as a capability, depending on the context. When used
+as an integer, it has the value `0`.
+When used as a capability, it has the value
+`{ valid = 0, type = 0, cursor = 0, base = 0, end = 0, perms = 0 }`.
+Any attempt to write to `x0`/`c0` will be silently ignored (no
+exceptions are raised).
 
 == Extension to Other Registers
 
