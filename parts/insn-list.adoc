@@ -45,7 +45,7 @@ include::i-type-format.adoc[]
 |link:#cap-mov[MOVC]        |R |`001`    |`0001010` | C | - | C | -
 |link:#drop[DROPI]       |R |`001`    |`0001011` | C | - | - | -
 |CAPGET      |R |`001`    |`0001100` | - | - | C | -
-|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001101` | C | C | C | -
+|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001101` | C | I | C | -
 |link:#cursor-inc[CINCOFFSETIMM] |I |`011`    | - | C | - | C | S
 |===
 
@@ -56,7 +56,7 @@ include::i-type-format.adoc[]
 |link:#load-store-cap[LDC]         |R |`001`    |`0010000` | C | - | C | -
 |link:#load-store-cap[STC]         |R |`001`    |`0010001` | C | C | - | -
 |link:#load-store-with-cap[LDD]         |R |`001`    |`0010010` | C | - | I | -
-|link:#load-store-with-cap[STD]         |R |`001`    |`0010011` | C | - | I | -
+|link:#load-store-with-cap[STD]         |R |`001`    |`0010011` | C | I | - | -
 |link:#load-store-with-cap[LDW]        |R |`001`    |`0010100` | C | - | I | -
 |link:#load-store-with-cap[STW]        |R |`001`    |`0010101` | C | I | - | -
 |link:#load-store-with-cap[LDH]        |R |`001`    |`0010110` | C | - | I | -
