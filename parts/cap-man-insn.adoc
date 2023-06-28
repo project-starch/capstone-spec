@@ -173,7 +173,20 @@ The SPLIT instruction can split a capability into two by splitting the bounds.
 ]}
 ....
 
-TODO: describe this
+The instruction reads a capability from `rs1` and an integer from `rs2` and attempts to split
+the capability into two capabilities, one with bounds `[base, rs2)` and the other with bounds
+`[rs2, end)`, assuming the original bounds were `[base, end)`.
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain a capability
+* `rs2` does not contain an integer
+* The `type` field of the capability in `rs1` is `3` (uninitialised)
+* The original bounds of the capability in `rs1` are `[base, end)` and `rs2 < base` or `rs2 > end`
+
+*If no exception is raised:* The capability in `rs1` has its `end` field set to `rs2`. A new
+capability is created with `base = rs2` and the other fields equal to those of the original
+capability in `rs1`. The new capability is written to `rd`.
 
 [#tighten]
 === Permission Tightening
