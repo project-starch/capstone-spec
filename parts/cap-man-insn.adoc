@@ -28,9 +28,13 @@ Capabilities can be moved between registers with the MOVC instruction.
 ]}
 ....
 
-If `rs1` does not contain a capability, the instruction will trap. Otherwise,
-if `rs1` is the same register as `rd`, the instruction is a no-op. If `rs1` is
-not the same register as `rd`, `rd` will contain the original content of
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain a capability
+
+*If no exception is raised:*
+If `rs1` is the same register as `rd`, the instruction is a no-op.
+If `rs1` is not the same register as `rd`, `rd` will contain the original content of
 `rs1`, and if the content is a linear capability, `rs1` will be set to the content
 of `cnull`.
 
@@ -65,9 +69,16 @@ capability by a give amount (offset).
 ]}
 ....
 
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain a capability
+* `rs2` does not contain an integer (for CINCOFFSET)
+* The capability in `rs1` has `type = 3` (uninitialised)
+
+*If no exception is raised:*
 For CINCOFFSET, the offset is read from `rs2`.
 For CINCOFFSETIMM, the offset is the 12-bit sign-extended immediate field
-`imm`. If the offset is zero, the instructions are semantically equivalent to
+`imm`. If the offset is `0`, the instructions are semantically equivalent to
 `MOVC rd, rs1`. Otherwise, the instructions are equal to an atomic execution
 of `MOVC rd, rs1` followed by an increment of the `cursor` field of `rd` by
 the offset.
@@ -104,6 +115,15 @@ the SCC and LCC instructions respectively.
 ]}
 ....
 
+*For SCC, an exception is raised if any of the following conditions are met:*
+
+* `rd` does not contain a capability
+* `rs1` does not contain an integer
+* The capability in `rd` has `type = 3` (uninitialised)
+
+*For LCC, an exception is raised if any of the following conditions are met:*
+
+* `rs1` does not contain a capability
 
 [#shrink]
 === Bounds Shrinking
@@ -125,10 +145,15 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 
 The instruction reads `rs1` and `rs2` and attempts to set the bounds of the capability in
 `rd` to `[rs1, rs2)`.
-If `rd` does not originally contain a capability or `rs1 > rs2`, the instruction will trap.
-If the original bounds of the capability in `rd` are `[base, end)` and
-`rs1 < base` or `rs2 > end`, the instruction will also trap.
-Otherwise, the instruction will set the bounds of the capability in `rd` to `[rs1, rs2)`.
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rd` does not contain a capability
+* `rs1` does not contain an integer
+* `rs2` does not contain an integer
+* `rs1 > rs2`
+* The original bounds of the capability in `rd` are `[base, end)` and
+`rs1 < base` or `rs2 > end`
 
 [#split]
 === Bounds Splitting
@@ -169,11 +194,14 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 ....
 
 The instruction reads the new permissions from `rs1` and attempts to set the `perms` field
-of the capability in `rd` to `rs1`. If `rd` does not originally contain a capability or
-the content of `rs1` is outside the range of `perms`, the instruction will trap.
-If the original `perms` field of the capability in `rd` is `p` and `rs1 <= p` does not hold,
-the instruction will also trap.
-Otherwise, the `perms` field of the capability in `rd` is set to `rs1`.
+of the capability in `rd` to `rs1`.
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rd` does not contain a capability
+* `rs1` does not contain an integer
+* The content of `rs1` is outside the range of `perms`
+* The `perms` field of the capability in `rd` is `p` and `rs1 <= p` does not hold
 
 == Type Manipulation
 
@@ -200,9 +228,12 @@ The DELIN instruction delinearises a linear capability.
 ]}
 ....
 
-The instruction expects a linear capability in `rd`. If `rd` does not contain
-a capability, or the `type` field of the capability in `rd` is not `0` (linear),
-the instruction will trap. Otherwise, the `type` field of the capability in `rd`
+*An exception is raised when any of the following conditions are met:*
+
+* `rd` does not contain a capability
+* The `type` field of the capability in `rd` is not `0` (linear)
+
+*If no exception is raised:* The `type` field of the capability in `rd`
 is set to `1` (non-linear).
 
 [#init]
@@ -224,13 +255,14 @@ after its associated memory region has been fully initialised (written with new 
 ]}
 ....
 
-The instruction expects an uninitialized capability in `rd`. If `rd` does not contain
-a capability, or the `type` field of the capability in `rd` is not `3` (uninitialised),
-the instruction will trap. If the `end` field and the `cursor` field 
-of the capability in `rd` are not equal, the instruction will also trap.
-Otherwise, the `type` field of the capability in `rd` is set to `0` (linear).
+*An exception is raised when any of the following conditions are met:*
 
-TODO: for other instructions that change the cursor, it is also necessary to check the `type` field.
+* `rd` does not contain a capability
+* The `type` field of the capability in `rd` is not `3` (uninitialised)
+* The `end` field and the `cursor` field of the capability in `rd` are not equal
+
+*If no exception is raised:* The `type` field of the capability in `rd`
+is set to `0` (linear).
 
 [#seal]
 === Sealing
@@ -250,9 +282,12 @@ The SEAL instruction seals a linear capability.
 ]}
 ....
 
-The instruction expects a linear capability in `rd`. If `rd` does not contain
-a capability, or the `type` field of the capability in `rd` is not `0` (linear),
-the instruction will trap. Otherwise, the `type` field of the capability in `rd`
+*An exception is raised when any of the following conditions are met:*
+
+* `rd` does not contain a capability
+* The `type` field of the capability in `rd` is not `0` (linear)
+
+*If no exception is raised:* The `type` field of the capability in `rd`
 is set to `2` (sealed).
 
 [#drop]
@@ -279,6 +314,15 @@ The MREV instruction creates a revocation capability.
     {bits: 7, name: '0b0001000' }
 ]}
 ....
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain a capability
+* The `type` field of the capability in `rs1` is not `0` (linear)
+
+*If no exception is raised:* A new capability is created in `rd` with the same
+`base`, `end`, `perms`, `cursor`, and `offset` fields as the capability in `rs1`.
+The `type` field of the new capability is set to `2` (revocation).
 
 [#rev-operation]
 === Revocation Operation

@@ -56,6 +56,9 @@ powerful than when the same operation is performed on a Capstone-RISC-V
 implementation without compression. More specifically, if an execution
 trace is valid (i.e., without exceptions) on the compressed implementation,
 then it must also be valid on the uncompressed implementation.
+For example, a trivial yet useless compression would be to store
+nothing and always return a capability with `valid = 0` (TODO:
+double-check this claim).
 ****
 
 == Extension to General-Purpose Registers
