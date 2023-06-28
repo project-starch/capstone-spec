@@ -308,6 +308,28 @@ is set to `2` (sealed).
 
 TODO: check whether dropping is actually necessary.
 
+The DROP instruction invalidates a capability.
+
+.DROP instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: '*' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001011' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rd` does not contain a capability
+
+*If no exception is raised:* The `valid` field of the capability in `rd`
+is set to `0` (invalid).
+
 == Revocation
 
 [#revcap-creation]
@@ -341,4 +363,6 @@ The `type` field of the new capability is set to `2` (revocation).
 === Revocation Operation
 
 The REVOKE instruction revokes a capability.
+
+TODO: define this
 
