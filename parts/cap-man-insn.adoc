@@ -394,8 +394,8 @@ if any of the following conditions are met:
 and `c` aliases with `rd`
 * The type field of `c` is `2` (revocation), the `valid` field of `c` is `1` (valid), and `rd <t c`
 
-If any `c` that is not a non-linear capability (i.e. `c.type != 1`) is invalidated,
-then the `type` field of `rd` is set to `3` (uninitialised), and its `cursur` field is set
+If any `c` that is not a non-linear capability (i.e., `c.type != 1`) is invalidated,
+then the `type` field of `rd` is set to `3` (uninitialised), and its `cursor` field is set
 to `base`.
 Otherwise, the `type` field of `rd` is set to `0` (linear).
 
