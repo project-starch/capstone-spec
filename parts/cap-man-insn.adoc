@@ -35,8 +35,8 @@ Capabilities can be moved between registers with the MOVC instruction.
 *If no exception is raised:*
 If `rs1` is the same register as `rd`, the instruction is a no-op.
 If `rs1` is not the same register as `rd`, `rd` will contain the original content of
-`rs1`, and if the content is a linear capability, `rs1` will be set to the content
-of `cnull`.
+`rs1`, and if the content is not a non-linear capability (i.e., `type != 1`),
+`rs1` will be set to the content of `cnull`.
 
 [#cursor-inc]
 === Cursor Increment
@@ -355,6 +355,7 @@ The MREV instruction creates a revocation capability.
 
 * `rs1` does not contain a capability
 * The `type` field of the capability in `rs1` is not `0` (linear)
+* The `valid` field of the capability in `rs1` is `0` (invalid)
 
 *If no exception is raised:* A new capability is created in `rd` with the same
 `base`, `end`, `perms`, `cursor`, and `offset` fields as the capability in `rs1`.
@@ -382,7 +383,7 @@ The REVOKE instruction revokes a capability.
 
 * `rd` does not contain a capability
 * The `type` field of the capability in `rd` is not `2` (revocation)
-* The `valid` field of the capability in `rd` is not `1` (valid)
+* The `valid` field of the capability in `rd` is `0` (invalid)
 
 *If no exception is raised:*
 For all capabilities `c` in the system (in either a register or
