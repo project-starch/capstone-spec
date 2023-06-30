@@ -330,6 +330,7 @@ The DROP instruction invalidates a capability.
 *If no exception is raised:* The `valid` field of the capability in `rd`
 is set to `0` (invalid).
 
+[#revocation]
 == Revocation
 
 [#revcap-creation]
@@ -364,5 +365,39 @@ The `type` field of the new capability is set to `2` (revocation).
 
 The REVOKE instruction revokes a capability.
 
-TODO: define this
+.REVOKE instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: '*' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0000000' }
+]}
+....
 
+*An exception is raised when any of the following conditions are met:*
+
+* `rd` does not contain a capability
+* The `type` field of the capability in `rd` is not `2` (revocation)
+* The `valid` field of the capability in `rd` is not `1` (valid)
+
+*If no exception is raised:*
+For all capabilities `c` in the system (in either a register or
+memory location), its `valid` field is set to `0` (invalid)
+if any of the following conditions are met:
+
+* The type field of `c` is not `2` (revocation), the `valid` field of `c` is `1` (valid),
+and `c` aliases with `rd`
+* The type field of `c` is `2` (revocation), the `valid` field of `c` is `1` (valid), and `rd <t c`
+
+If any `c` that is not a non-linear capability (i.e. `c.type != 1`) is invalidated,
+then the `type` field of `rd` is set to `3` (uninitialised), and its `cursur` field is set
+to `base`.
+Otherwise, the `type` field of `rd` is set to `0` (linear).
+
+// REVOKE is a bit difficult to describe.
+// We preferably should use a more straightforward
+// way to describe REVOKE than the one in the paper.

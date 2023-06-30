@@ -40,8 +40,28 @@ The range of the `perms` field has a partial order `<=` defined as follows:
        (1, 2), (1, 3), (1, 4), (2, 4), (3, 4) }
 ....
 
+We say a capability `c` aliases with a capability `d` if and only if the intersection
+between `[c.base, c.end)` and `[d.base, d.end)` is non-empty.
+
+For two revocation capabilities `c` and `d` (i.e., `c.type = d.type = 2`),
+we say `c <t d` if and only if
+
+* `c` aliases with `d`
+* The creation of `c` was earlier than the creation of `d`
+
+In addition to the above fields, an implementation also needs to maintain
+sufficient metadata to test the `<t` relation.
+It will be clear that for any pair of revocation capabilities that alias,
+the order of their creations is well-defined.
+
 .Note
 ****
+The `valid` field is involved in link:#revocation[revocation],
+where it might be changed due to a link:#rev-operation[revocation operation]
+on a different capability.
+A performant implementation, therefore, may prefer not to maintain
+the `valid` field inline with the other fields.
+
 Implementations are free to maintain additional fields to
 capabilities or compress the representation of the above
 fields, as long as each capability fits in `CLEN` bits.
