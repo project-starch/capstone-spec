@@ -68,13 +68,13 @@ include::i-type-format.adoc[]
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
-|link:#domain-cross[CALL]        |R |`001`    |`0100000` | - | I | C | -
-|link:#domain-cross[RETURN]      |R |`001`    |`0100001` | - | I | C | -
+|link:#domain-cross[CALL]        |R |`001`    |`0100000` | C | I | - | -
+|link:#domain-cross[RETURN]      |R |`001`    |`0100001` | C | I | - | -
 |link:#jmp-cap[JMP]         |R |`001`    |`0100010` | C | - | - | -
 |link:#jmp-cap[JNZ]         |R |`001`    |`0100011` | C | I | - | -
 |link:#world-switch[CAPENTER]    |R |`001`    |`0100100` | C | - | - | -
-|link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | - | I | C | -
-|link:#world-switch[CAPEXITSEAL] |R |`001`    |`0100110` | - | I | C | -
+|link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | C | I | - | -
+|link:#world-switch[CAPEXITSEAL] |R |`001`    |`0100110` | C | I | - | -
 |===
 
 .Note
