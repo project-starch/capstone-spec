@@ -319,7 +319,7 @@ The DROP instruction invalidates a capability.
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: '*' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C) },
+    {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: '*' },
     {bits: 7, name: '0b0001011' }
 ]}
