@@ -36,7 +36,7 @@ setting the program counter to a given capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs1` does not contain a capability
+* `rs1` does not contain a capability.
 
 *If no exception is raised:*
 For JMP instruction, the program counter (`pc`)
@@ -50,6 +50,37 @@ The behaviour of JNZ depends on the content of `rs2`:
 
 [#domain-cross]
 == Domain Crossing
+
+_Domains_ in Capstone-RISC-V are individual software compartments that
+are protected by a safe context switching mechanism, i.e., domain crossing.
+The mechanism is provided by the CALL and RETURN instructions.
+
+.CALL instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: '0b0100000' }
+]}
+....
+
+.RETURN instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: '0b0100001' }
+]}
+....
+
 
 [#world-switch]
 == World Switching
