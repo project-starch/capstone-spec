@@ -35,7 +35,7 @@ The end memory address of the memory region associated with the capability
 The permissions associated with the capability:
 `0` = no access, `1` = read-only, `2` = read-execute,
 `3` = read-write, `4` = read-write-execute
-|`count` | `0..31` | Only applicable when `type = 4` (sealed).
+|`count` | `0..31` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
 The number of register values sealed in the region.
 |`reg` | `0..31` | Only applicable when `type = 5` (sealed-return).
 The index of the general-purpose register to restore the capability to.

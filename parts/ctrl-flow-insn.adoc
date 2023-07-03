@@ -63,7 +63,7 @@ The mechanism is provided by the CALL and RETURN instructions.
     {bits: 5, name: '*' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
+    {bits: 5, name: '*' },
     {bits: 7, name: '0b0100000' }
 ]}
 ....
@@ -80,6 +80,36 @@ The mechanism is provided by the CALL and RETURN instructions.
     {bits: 7, name: '0b0100001' }
 ]}
 ....
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain a capability.
+* The `valid` field of the capability in `rs1` is `0` (invalid).
+* The `type` field of the capability in `rs1` is not `4` (sealed).
+
+For RETURN, an exception is raised also when any of the following conditions are met:
+
+* `rs2` does not contain an integer
+
+*If no exception is raised:*
+For RETURN, replace the `cursor` field of the program counter (`pc`) with the
+content of `rs2`.
+
+Swap the content of `pc` with the content at the memory location `[base, base + CLEN)`,
+where `base` is the `base` field of the capability in `rs1`.
+
+Then for `i = 1, 2, ..., count`, swap the content of `x[i]` (the `i`-th general-purpose
+register) with the content at the memory location `[base + i * CLEN, base + (i + 1) * CLEN)`,
+where `count` is the `count` field of the capability in `rs1`.
+
+For CALL,
+set the `type` field of the capability in `rs1` to `5` (sealed-return),
+the `reg` field to `rs1` (the index of the register), and write the capability
+to the register `cra`.
+
+For RETURN,
+set the `type` field of the capability in `rs1` to `4` (sealed),
+and write the capability to the register `x[reg]`.
 
 
 [#world-switch]
