@@ -139,8 +139,8 @@ exceptions are raised).
 
 == Extension to Other Registers
 
-The program counter (`pc`) register is extended to contain a
-capability.
+Similar to the general-purpose registers, the program counter (`pc`)
+is also extended to contain a capability or an integer.
 
 == Extension to Memory
 
