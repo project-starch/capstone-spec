@@ -19,7 +19,7 @@ Otherwise, if the core is executing in the secure world,
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLEN)`.
-. For `i = 1, 2, ..., 32`, store the content of the `i`-ith general purpose
+. For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + i * CLEN, switch_cap.base + (i + 1) * CLEN)`.
 . Set the `worldswitched` field of `switch_cap` to `0` (no world switch involved),
 the `reg` field to `0`.
