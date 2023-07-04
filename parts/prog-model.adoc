@@ -149,6 +149,12 @@ exceptions are raised).
 Similar to the general-purpose registers, the program counter (`pc`)
 is also extended to contain a capability or an integer.
 
+== Added Registers
+
+The Capstone-RISC-V ISA adds the following registers:
+
+* `ceh`: the sealed capability for the exception handler
+
 == Extension to Memory
 
 The memory is addressed using an `XLEN`-bit integer at byte-level

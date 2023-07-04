@@ -92,25 +92,46 @@ For RETURN, an exception is raised also when any of the following conditions are
 * `rs2` does not contain an integer
 
 *If no exception is raised:*
-For RETURN, replace the `cursor` field of the program counter (`pc`) with the
-content of `rs2`.
 
-Swap the content of `pc` with the content at the memory location `[base, base + CLEN)`,
-where `base` is the `base` field of the capability in `rs1`.
+For CALL:
 
-Then for `i = 1, 2, ..., count`, swap the content of `x[i]` (the `i`-th general-purpose
-register) with the content at the memory location `[base + i * CLEN, base + (i + 1) * CLEN)`,
-where `count` is the `count` field of the capability in `rs1`.
+. Load the content at the memory location `[base, base + CLEN)`,
+where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
+. For `i = 1, 2, ..., count`, load the content at the memory location
+`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the
+capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
+. Store the old `pc` value to the memory location `[base, base + CLEN)`, and the old
+`sp` value to the memory location `[base + CLEN, base + 2 * CLEN)`.
+. Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
+capability to the register `cra`.
 
-For CALL,
-set the `type` field of the capability in `rs1` to `5` (sealed-return),
-the `reg` field to `rs1` (the index of the register), and write the capability
-to the register `cra`.
+For RETURN when the content of `rs1` is `0`:
 
-For RETURN,
-set the `type` field of the capability in `rs1` to `4` (sealed),
-and write the capability to the register `x[reg]`.
+. Load the content at the memory location `[base, base + CLEN)`,
+where `base` is the `base` field of the capability in `cra`, to the program counter (`pc`).
+. For `i = 1, 2, ..., 31`, load the content at the memory location
+`[base + i * CLEN, base + (i + 1) * CLEN)`, to `x[i]` (the `i`-th general-purpose register).
+. Write the old `pc` value with the `cursor field replaced with the content of `rs2` to
+the memory location `[base, base + CLEN)`.
+. For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
+to the memory location
+`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `rs1`.
+. Set the `type` field of the capability in `cra` to `4` (sealed), and write the
+capability to the exception handler register `ceh`.
 
+For RETURN when the content of `rs1` is not `0`:
+
+. Load the content at the memory location `[base, base + CLEN)`,
+where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
+. Load the content at the memory location `[base + CLEN, base + 2 * CLEN)`,
+where `base` is the `base` field of the capability in `rs1`, to the stack pointer (`sp`).
+. Write the old `pc` value with the `cursor field replaced with the content of `rs2` to
+the memory location `[base, base + CLEN)`.
+. For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
+to the memory location
+`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `rs1`.
+. Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
+capability to the register `X[reg]` where `reg` is the `reg` field of the capability in `rs1`.
 
 [#world-switch]
 == World Switching
