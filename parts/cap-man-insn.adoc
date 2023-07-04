@@ -35,7 +35,8 @@ Capabilities can be moved between registers with the MOVC instruction.
 *If no exception is raised:*
 If `rs1` is the same register as `rd`, the instruction is a no-op.
 If `rs1` is not the same register as `rd`, `rd` will contain the original content of
-`rs1`, and if the content is not a non-linear capability (i.e., `type != 1`),
+`rs1`, and if the content is not a non-linear capability (i.e., `type != 1`) or
+an exit capability (i.e., `type != 6`),
 `rs1` will be set to the content of `cnull`.
 
 [#cursor-inc]
@@ -73,7 +74,7 @@ capability by a give amount (offset).
 
 * `rs1` does not contain a capability.
 * `rs2` does not contain an integer (for CINCOFFSET).
-* The capability in `rs1` has `type = 3` (uninitialised).
+* The capability in `rs1` does not have `type = 0` (linear) or `type = 1` (non-linear).
 
 *If no exception is raised:*
 For CINCOFFSET, the offset is read from `rs2`.
@@ -119,13 +120,13 @@ the SCC and LCC instructions respectively.
 
 * `rd` does not contain a capability.
 * `rs1` does not contain an integer.
-* The capability in `rd` has `type = 3` (uninitialised), `type = 4` (sealed), or `type = 5` 
-(sealed-return).
+* The capability in `rd` does not have `type = 0` (linear) or `type = 1` (non-linear).
 
 *For LCC, an exception is raised if any of the following conditions are met:*
 
 * `rs1` does not contain a capability.
-* The capability in `rs1` has `type = 4` (sealed) or `type = 5` (sealed-return).
+* The capability in `rs1` does not have `type = 0` (linear), `type = 1` (non-linear),
+or `type = 3` (uninitialised).
 
 [#shrink]
 === Bounds Shrinking

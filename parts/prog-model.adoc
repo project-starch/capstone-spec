@@ -26,12 +26,15 @@ Each capability has the following architecturally-visible fields:
 |`type` | `0..6` | The type of the capability:
 `0` = linear, `1` = non-linear, `2` = revocation,
 `3` = uninitialised, `4` = sealed, `5` = sealed-return, `6` = exit
-|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
+|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
+`type = 6` (exit).
 The memory address the capability points to (to be used for the next memory access)
-|`base` | `0..2^XLEN-1` | The base memory address of the memory region associated with the capability
-|`end` | `0..2^XLEN-1` | Not applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
+|`base` | `0..2^XLEN-1` | Not applicable when `type = 6` (exit). The base memory address of the memory region associated with the capability
+|`end` | `0..2^XLEN-1` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
+`type = 6` (exit).
 The end memory address of the memory region associated with the capability
-|`perms` | `0..4` | Not applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
+|`perms` | `0..4` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return) or
+`type = 6` (exit).
 The permissions associated with the capability:
 `0` = no access, `1` = read-only, `2` = read-execute,
 `3` = read-write, `4` = read-write-execute
