@@ -21,8 +21,7 @@ Otherwise, if the core is executing in the secure world,
 `[switch_cap.base, switch_cap.base + CLEN)`.
 . For `i = 1, 2, ..., 32`, store the content of the `i`-ith general purpose
 to the memory location `[switch_cap.base + i * CLEN, switch_cap.base + (i + 1) * CLEN)`.
-. Set the `worldswitched` field of `switch_cap` to `0` (no world switch involved),
-the `reg` field to `0`.
+. Set the `reg` field of `switch_cap` to `0` (asynchronous),
 . Store the content of `switch_cap` to the memory location
 `[ceh.base + CLEN, ceh.base + 2 * CLEN)`.
 . Write the content of `ceh` to the register `x[reg]` where `reg` is the original
@@ -45,3 +44,11 @@ content of the `reg` field of `switch_cap`.
 . Set the `cwrld` register to `0` (normal world).
 . Trigger the exception handling in the normal world.
 
+.Note
+****
+Compare this with link:#world-switch[CAPEXIT]. We require that CAPEXIT be provided
+with a valid sealed-return capability rather than use the latent capability in
+`switch_cap`. This allows us to enforce containment of domains in the secure world, so
+that a domain is prevented from escaping
+from the secure world when such a behaviour is undesired.
+****

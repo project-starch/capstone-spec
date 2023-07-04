@@ -173,16 +173,54 @@ world into the normal world.
 
 The CAPENTER instruction can only be used in the normal world, whereas
 the CAPEXIT instruction can only be used in the secure world.
-In addition, the CAPEXIT instruction can only be used when the `worldswitched` field
-of the sealed-return instruction is `1` (world switch involved).
-Attempting to use those instructions in the wrong world or with the wrong
-`worldswitched` field content will cause an exception.
+In addition, the CAPEXIT instruction can only be used when an exit capability
+is provided.
+Attempting to use those instructions in the wrong world or without the
+required capability will cause an exception.
 The behaviours of those 
 instructions roughly correspond to the CALL and RETURN instructions
 respectively.
-The differences:
 
-* The CAPENTER instruction sets the `worldswitched` field of the sealed-return capability
-to `1` (world switch involved), and change the `cwrld` register to `1` (secure world).
-* The CAPEXIT instruction changes the `cwrld` register to `0` (normal world).
+=== CAPENTER
 
+*An exception is raised when any of the following conditions are met:*
+
+* `cwrld` is `1` (secure world).
+* `rs1` does not contain a capability.
+* The `valid` field of the capability in `rs1` is `0` (invalid).
+* The `type` field of the capability in `rs1` is not `4` (sealed).
+
+*If no exception is raised:*
+
+. Load the content at the memory location `[base, base + CLEN)`,
+where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
+. For `i = 1, 2, ..., count`, load the content at the memory location
+`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the
+capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
+. Store the old `pc` value to `normal_pc`, and the old
+`sp` value to `normal_sp`.
+. Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
+capability to the register `switch_cap`.
+. Write `rs1` to the register `switch_reg`.
+. Create a capability of `type = 6` (exit) in `cra`.
+
+=== CAPEXIT
+
+*An exception is raised when any of the following conditions are met:*
+
+* `cwrld` is `0` (normal world).
+* `rs1` does not contain a capability.
+* The `valid` field of the capability in `rs1` is `0` (invalid).
+* The `type` field of the capability in `rs1` is not `6` (exit).
+* `rs2` does not contain an integer.
+* The `valid` field of the capability in `switch_cap` is `0` (invalid).
+
+*If no exception is raised:*
+
+. Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
+. Write the old `pc` content with the `cursor` field replaced with the content of `rs2` to
+the memory location `[base, base + CLEN)`, where `base` is the `base` field of the capability in `switch_cap`.
+. For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register) to
+the memory location
+`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `switch_cap`.
+. Set the `type` field of `switch_cap` to `4` (sealed) and write it to `x[switch_reg]`.
