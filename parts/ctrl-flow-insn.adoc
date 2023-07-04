@@ -108,15 +108,15 @@ capability to the register `cra`.
 For RETURN when the content of `rs1` is `0`:
 
 . Load the content at the memory location `[base, base + CLEN)`,
-where `base` is the `base` field of the capability in `cra`, to the program counter (`pc`).
+where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
 . For `i = 1, 2, ..., 31`, load the content at the memory location
 `[base + i * CLEN, base + (i + 1) * CLEN)`, to `x[i]` (the `i`-th general-purpose register).
-. Write the old `pc` value with the `cursor field replaced with the content of `rs2` to
+. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
 the memory location `[base, base + CLEN)`.
 . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
 to the memory location
 `[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `rs1`.
-. Set the `type` field of the capability in `cra` to `4` (sealed), and write the
+. Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the exception handler register `ceh`.
 
 For RETURN when the content of `rs1` is not `0`:
@@ -125,13 +125,13 @@ For RETURN when the content of `rs1` is not `0`:
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
 . Load the content at the memory location `[base + CLEN, base + 2 * CLEN)`,
 where `base` is the `base` field of the capability in `rs1`, to the stack pointer (`sp`).
-. Write the old `pc` value with the `cursor field replaced with the content of `rs2` to
+. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
 the memory location `[base, base + CLEN)`.
 . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
 to the memory location
 `[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `rs1`.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
-capability to the register `X[reg]` where `reg` is the `reg` field of the capability in `rs1`.
+capability to the register `x[reg]` where `reg` is the `reg` field of the capability in `rs1`.
 
 [#world-switch]
 == World Switching
@@ -139,6 +139,9 @@ capability to the register `X[reg]` where `reg` is the `reg` field of the capabi
 TransCapstone-RISC-V is an extended version of Capstone-RISC-V which adds
 a pair of extra instructions CAPENTER and CAPEXIT to support switching
 between the secure world and the normal world. 
+The CAPENTER instruction causes an entry into the secure world from the
+normal world, and the CAPEXIT instruction causes an exit from the secure
+world into the normal world.
 
 .CAPENTER instruction format
 [wavedrom,,svg]
@@ -165,3 +168,20 @@ between the secure world and the normal world.
     {bits: 7, name: '0b0100101' }
 ]}
 ....
+
+The CAPENTER instruction can only be used in the normal world, whereas
+the CAPEXIT instruction can only be used in the secure world.
+In addition, the CAPEXIT instruction can only be used when the `worldswitch` field
+of the sealed-return instruction is `1` (world switch involved).
+Attempting to use those instructions in the wrong world or with the wrong
+`worldswitch` field content will cause an exception.
+The behaviours of those 
+instructions roughly correspond to the CALL and RETURN instructions
+respectively.
+The differences:
+
+* The CAPENTER instruction sets the `worldswitch` field of the sealed-return capability
+to `1` (world switch involved), and change the `cwrld` register to `1` (secure world).
+* The CAPEXIT instruction changes the `cwrld` register to `0` (normal world).
+
+TODO: add relevant checks to CALL and EXIT as well.

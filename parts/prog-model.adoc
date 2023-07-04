@@ -36,9 +36,11 @@ The permissions associated with the capability:
 `0` = no access, `1` = read-only, `2` = read-execute,
 `3` = read-write, `4` = read-write-execute
 |`count` | `0..31` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
-The number of register values sealed in the region.
+The number of register values sealed in the region
 |`reg` | `0..31` | Only applicable when `type = 5` (sealed-return).
-The index of the general-purpose register to restore the capability to.
+The index of the general-purpose register to restore the capability to
+|`worldswitched` | `0..1` | Only applicable when `type = 5` (sealed-return). Whether a world
+switch is involved. `0` = no world switch, `1` = world switch
 |===
 
 The range of the `perms` field has a partial order `<=` defined as follows:
@@ -153,7 +155,10 @@ is also extended to contain a capability or an integer.
 
 The Capstone-RISC-V ISA adds the following registers:
 
-* `ceh`: the sealed capability for the exception handler
+* `ceh`: the sealed capability for the exception handler.
+* `cwrld`: the currently executed world. `0` = normal world, `1` = secure world.
+
+TODO: talk about how to read/write those registers.
 
 == Extension to Memory
 
