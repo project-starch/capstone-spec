@@ -157,6 +157,9 @@ The Capstone-RISC-V ISA adds the following registers:
 
 * `ceh`: the sealed capability for the exception handler.
 * `cwrld`: the currently executed world. `0` = normal world, `1` = secure world.
+* `normal_pc`: the program counter for the normal world before the secure world is entered.
+* `normal_sp`: the stack pointer for the normal world before the secure world is entered.
+* `switch_cap`: the capability used to store contexts when switching worlds.
 
 TODO: talk about how to read/write those registers.
 

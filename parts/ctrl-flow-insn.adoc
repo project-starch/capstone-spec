@@ -173,16 +173,16 @@ world into the normal world.
 
 The CAPENTER instruction can only be used in the normal world, whereas
 the CAPEXIT instruction can only be used in the secure world.
-In addition, the CAPEXIT instruction can only be used when the `worldswitch` field
+In addition, the CAPEXIT instruction can only be used when the `worldswitched` field
 of the sealed-return instruction is `1` (world switch involved).
 Attempting to use those instructions in the wrong world or with the wrong
-`worldswitch` field content will cause an exception.
+`worldswitched` field content will cause an exception.
 The behaviours of those 
 instructions roughly correspond to the CALL and RETURN instructions
 respectively.
 The differences:
 
-* The CAPENTER instruction sets the `worldswitch` field of the sealed-return capability
+* The CAPENTER instruction sets the `worldswitched` field of the sealed-return capability
 to `1` (world switch involved), and change the `cwrld` register to `1` (secure world).
 * The CAPEXIT instruction changes the `cwrld` register to `0` (normal world).
 

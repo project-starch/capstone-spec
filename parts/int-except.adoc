@@ -2,4 +2,45 @@
 
 = Interrupts and Exceptions
 
-TODO
+TODO: add support for nesting
+
+TODO: Note that it is safe to delegate exception handling but not safe to
+delegate interrupt handling. Hence we need to distinguish between
+exceptions and interrupts
+
+When an interrupt or exception occurs, the behaviour of a processor core
+depends on which world it is currently executing in (i.e., the content of
+the `cwrld` register).
+If the core is executing in the normal world, the behaviour is entirely
+inherited from RISC-V.
+Otherwise, if the core is executing in the secure world,
+
+*If the content in `ceh` is a valid sealed capability and the content in `switch_cap` is a valid sealed-return capability:*
+
+. Store the current value of the program counter (`pc`) to the memory location
+`[switch_cap.base, switch_cap.base + CLEN)`.
+. For `i = 1, 2, ..., 32`, store the content of the `i`-ith general purpose
+to the memory location `[switch_cap.base + i * CLEN, switch_cap.base + (i + 1) * CLEN)`.
+. Set the `worldswitched` field of `switch_cap` to `0` (no world switch involved),
+the `reg` field to `0`.
+. Store the content of `switch_cap` to the memory location
+`[ceh.base + CLEN, ceh.base + 2 * CLEN)`.
+. Write the content of `ceh` to the register `x[reg]` where `reg` is the original
+content of the `reg` field of `switch_cap`.
+. Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
+`normal_sp` respectively.
+. Scrub the other general-purpose registers.
+. Set the `cwrld` register to `0` (normal world).
+. Trigger exception handling in the normal world.
+
+// Something similar to try-catch can be considered
+
+*Otherwise:*
+. Write `cnull` to the register `x[reg]` where `reg` is the original
+content of the `reg` field of `switch_cap`.
+. Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
+`normal_sp` respectively.
+. Scrub the other general-purpose registers.
+. Set the `cwrld` register to `0` (normal world).
+. Trigger the exception handling in the normal world.
+
