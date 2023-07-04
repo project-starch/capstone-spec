@@ -36,6 +36,7 @@ content of the `reg` field of `switch_cap`.
 // Something similar to try-catch can be considered
 
 *Otherwise:*
+
 . Write `cnull` to the register `x[reg]` where `reg` is the original
 content of the `reg` field of `switch_cap`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
