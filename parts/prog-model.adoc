@@ -99,7 +99,7 @@ In assembly code, the type of data expected in a register operand
 is indicated by the alias used for the register, as summarised
 in the following table.
 
-[%header%authowidth.stretch]
+[%header%autowidth.stretch]
 |===
 | `XLEN`-bit integer | Capability
 | `x0`/`zero` | `c0`/`cnull` 

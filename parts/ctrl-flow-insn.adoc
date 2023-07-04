@@ -138,7 +138,7 @@ capability to the register `X[reg]` where `reg` is the `reg` field of the capabi
 
 TransCapstone-RISC-V is an extended version of Capstone-RISC-V which adds
 a pair of extra instructions CAPENTER and CAPEXIT to support switching
-bewteen the secure world and the normal world. 
+between the secure world and the normal world. 
 
 .CAPENTER instruction format
 [wavedrom,,svg]

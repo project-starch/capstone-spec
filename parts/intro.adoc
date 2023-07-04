@@ -81,7 +81,7 @@ of toolchains and simulators.
 The Capstone-RISC-V ISA is a 64-bit RISC-V extension that makes the following
 types of changes to the base architecture:
 
-* Each general-purpose register is extended to 129 bits to accomodate 128-bit capabilities.
+* Each general-purpose register is extended to 129 bits to accommodate 128-bit capabilities.
 * New instructions for manipulating capabilities are added.
 * New instructions for memory accesses using capabilities are added.
 * New instructions for control flow transfers using capabilities are added.
@@ -118,4 +118,4 @@ The initial design of Capstone has been discussed in the following paper:
 * https://www.usenix.org/conference/usenixsecurity23/presentation/yu-jason[Capstone: A Capability-based Foundation for Trustless Secure Memory Access]
   by Jason Zhijingcheng Yu, Conrad Watt, Aditya Badole, Trevor E. Carlson, Prateek Saxena.
   In _Proceedings of the 32nd USENIX Security Symposium_.
-  Annaheim, CA, USA. August 2023.
+  Anaheim, CA, USA. August 2023.
