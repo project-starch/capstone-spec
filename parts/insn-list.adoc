@@ -74,7 +74,6 @@ include::i-type-format.adoc[]
 |link:#jmp-cap[JNZ]         |R |`001`    |`0100011` | C | I | - | -
 |link:#world-switch[CAPENTER]    |R |`001`    |`0100100` | C | - | - | -
 |link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | C | I | - | -
-|link:#world-switch[CAPEXITSEAL] |R |`001`    |`0100110` | C | I | - | -
 |===
 
 .Note
