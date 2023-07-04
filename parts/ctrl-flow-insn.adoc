@@ -36,6 +36,7 @@ setting the program counter to a given capability.
 
 *An exception is raised when any of the following conditions are met:*
 
+* `cwrld` is `0` (normal world).
 * `rs1` does not contain a capability.
 
 *If no exception is raised:*
@@ -83,6 +84,7 @@ The mechanism is provided by the CALL and RETURN instructions.
 
 *An exception is raised when any of the following conditions are met:*
 
+* `cwrld` is `0` (normal world).
 * `rs1` does not contain a capability.
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * The `type` field of the capability in `rs1` is not `4` (sealed).
@@ -184,4 +186,3 @@ The differences:
 to `1` (world switch involved), and change the `cwrld` register to `1` (secure world).
 * The CAPEXIT instruction changes the `cwrld` register to `0` (normal world).
 
-TODO: add relevant checks to CALL and EXIT as well.
