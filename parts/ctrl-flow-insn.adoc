@@ -165,8 +165,8 @@ world into the normal world.
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: '*' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: '*' },
     {bits: 7, name: '0b0100101' }
 ]}
 ....
@@ -183,6 +183,12 @@ respectively.
 The differences:
 
 * The CAPENTER instruction sets the `worldswitched` field of the sealed-return capability
-to `1` (world switch involved), and change the `cwrld` register to `1` (secure world).
+to `1` (world switch involved), and changes the `cwrld` register to `1` (secure world).
+* The CAPENTER instruction stores the program counter (`pc`) and the stack pointer (`sp`)
+to `normal_pc` and `normal_sp` respectively, rather than to a sealed-return capability.
+* The CAPEXIT restores the program counter (`pc`) and the stack pointer (`sp`) from
+`normal_pc` and `normal_sp` respectively, rather than from a sealed-return capability.
+* The CAPEXIT instruction re-seals the context in `switch_cap` rather than a sealed-return
+capability specified as an operand.
 * The CAPEXIT instruction changes the `cwrld` register to `0` (normal world).
 

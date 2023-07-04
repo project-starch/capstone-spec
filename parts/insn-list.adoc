@@ -73,7 +73,7 @@ include::i-type-format.adoc[]
 |link:#jmp-cap[JMP]         |R |`001`    |`0100010` | C | - | - | - | S
 |link:#jmp-cap[JNZ]         |R |`001`    |`0100011` | C | I | - | - | S
 |link:#world-switch[CAPENTER]    |R |`001`    |`0100100` | C | - | - | - | N
-|link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | C | I | - | - | S
+|link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | I | - | - | - | S
 |===
 
 .Note
