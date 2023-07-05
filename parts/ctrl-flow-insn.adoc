@@ -97,41 +97,41 @@ For RETURN, an exception is raised also when any of the following conditions are
 
 For CALL:
 
-. Load the content at the memory location `[base, base + CLEN)`,
+. Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
 . For `i = 1, 2, ..., count`, load the content at the memory location
-`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the
 capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
-. Store the old `pc` value to the memory location `[base, base + CLEN)`, and the old
-`sp` value to the memory location `[base + CLEN, base + 2 * CLEN)`.
+. Store the old `pc` value to the memory location `[base, base + CLENBYTES)`, and the old
+`sp` value to the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`.
 . Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
 capability to the register `cra`.
 
 For RETURN when the content of `rs1` is `0`:
 
-. Load the content at the memory location `[base, base + CLEN)`,
+. Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
 . For `i = 1, 2, ..., 31`, load the content at the memory location
-`[base + i * CLEN, base + (i + 1) * CLEN)`, to `x[i]` (the `i`-th general-purpose register).
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLEN)`.
+the memory location `[base, base + CLENBYTES)`.
 . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
 to the memory location
-`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `rs1`.
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `rs1`.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the exception handler register `ceh`.
 
 For RETURN when the content of `rs1` is not `0`:
 
-. Load the content at the memory location `[base, base + CLEN)`,
+. Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-. Load the content at the memory location `[base + CLEN, base + 2 * CLEN)`,
+. Load the content at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the stack pointer (`sp`).
 . Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLEN)`.
+the memory location `[base, base + CLENBYTES)`.
 . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
 to the memory location
-`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `rs1`.
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `rs1`.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the register `x[reg]` where `reg` is the `reg` field of the capability in `rs1`.
 
@@ -192,10 +192,10 @@ respectively.
 
 *If no exception is raised:*
 
-. Load the content at the memory location `[base, base + CLEN)`,
+. Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
 . For `i = 1, 2, ..., count`, load the content at the memory location
-`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the
 capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
 . Store the old `pc` value to `normal_pc`, and the old
 `sp` value to `normal_sp`.
@@ -219,8 +219,8 @@ capability to the register `switch_cap`.
 
 . Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
 . Write the old `pc` content with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLEN)`, where `base` is the `base` field of the capability in `switch_cap`.
+the memory location `[base, base + CLENBYTES)`, where `base` is the `base` field of the capability in `switch_cap`.
 . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register) to
 the memory location
-`[base + i * CLEN, base + (i + 1) * CLEN)`, where `count` is the `count` field of the capability in `switch_cap`.
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `switch_cap`.
 . Set the `type` field of `switch_cap` to `4` (sealed) and write it to `x[switch_reg]`.

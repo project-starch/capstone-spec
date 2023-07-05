@@ -312,7 +312,7 @@ The SEAL instruction seals a linear capability.
 * The `type` field of the capability in `rd` is not `0` (linear).
 * The `perms` field of the capability in `rd` is not `3` (read-write) or `4` (read-write-execute).
 * The size of the memory region associated with the capability in `rd` is smaller than
-`CLEN * 32`. That is, `end - base < CLEN * 32`.
+`CLENBYTES * 32` bytes. That is, `end - base < CLENBYTES * 32`.
 * `rs1` does not contain an integer.
 * The integer contained in `rs1` is larger than `31`.
 
