@@ -3,4 +3,11 @@
 [appendix]
 = Debugging Instructions (Non-Normative)
 
-TODO
+== World Switching
+
+The instructions SETWORLD and ONPARTITION are related to world switching
+in TransCapstone-RISC-V. SETWORLD directly sets the core to the specified
+world (`1` for secure world, and `0` for normal world) without any other
+side effect. ONPARTITION switches on (`1`) or off (`0`) the world partitioning
+in memory.
+

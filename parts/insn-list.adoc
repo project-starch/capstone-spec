@@ -26,6 +26,7 @@ include::i-type-format.adoc[]
 |TAGSET      |R |`000`    |`0001010` | I | I | - | - | *
 |TAGGET      |R |`000`    |`0001011` | I | - | I | - | *
 |SETWORLD    |R |`000`    |`0001100` | I | - | - | - | *
+|ONPARTITION |R |`000`    |`0001101` | I | - | - | - | *
 |===
 
 .Capability manipulation instructions
