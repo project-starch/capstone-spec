@@ -72,7 +72,7 @@ are defined as `XLEN/2`, `XLEN/4`, and `XLEN/8` bits respectively.
 *An exception is raised when any of the following conditions are met:*
 
 * `rs1` does not contain a capability.
-* The `type` field of the capability in `rs1` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
+* The `type` field of the capability in `rs1` is neither `0` (linear) nor `1` (non-linear).
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * The `perms` field of the capability in `rs1` is `0` (no access).
 * The bound of the capability in `rs1` is `[base, end)`, and the `cursor` field of the capability in `rs1` is
@@ -155,7 +155,7 @@ where `cursor` is the `cursor` field of the capability in `rs1` and `size` is th
 (i.e., `XLEN`, `XLEN/2`, `XLEN/4`, or `XLEN/8` bits for STD, STW, STH, and STB respectively). The `cursor`
 field of the capability in `rs1` is set to `cursor + size`. The data contained in the `CLEN`-bit aligned
 memory location `[cbase, cend)`, which alias with memory location `[cursor, cursor + size)`
-(i.e. `cbase = cursor & ~(CLEN - 1)` and `cend = cbase + CLEN`), will be interpreted as an integer type.
+(i.e., `cbase = cursor & ~(CLEN - 1)` and `cend = cbase + CLEN`), will be interpreted as an integer type.
 
 [#load-store-cap]
 == Load/Store Capabilities
@@ -182,7 +182,7 @@ The LDC instruction loads a capability from memory.
 *An exception is raised when any of the following conditions are met:*
 
 * `rs1` does not contain a capability.
-* The `type` field of the capability in `rs1` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
+* The `type` field of the capability in `rs1` is neither `0` (linear) nor `1` (non-linear).
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * The `perms` field of the capability in `rs1` is `0` (no access).
 * The bound of the capability in `rs1` is `[base, end)`, and the `cursor` field of the capability in `rs1` is
@@ -193,9 +193,9 @@ field of the capability in `rs1`, is not a capability.
 * The capability being loaded is not a non-linear capability (i.e., `type != 1`), and the `perms` field of
 the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
 
-*If no exception is raised:* Load the capability at the memory location `[cursor, cursor + XLEN)`, where `cursor`
+*If no exception is raised:* Load the capability at the memory location `[cursor, cursor + CLEN)`, where `cursor`
 is the `cursor` field of the capability in `rs1`, into `rd`. If the capability being loaded is a linear capability,
-the data contained in the memory location `[cursor, cursor + XLEN)` will be set to the content of `cnull`.
+the data contained in the memory location `[cursor, cursor + CLEN)` will be set to the content of `cnull`.
 
 *STC:*
 
@@ -225,6 +225,6 @@ not in the range `[base, end]` (i.e., `cursor < base` or `cursor >= end`).
 * The `cursor` field of the capability in `rs1` is not aligned to `CLEN` bits.
 * `rs2` does not contain a capability.
 
-*If no exception is raised:* Store the capability in `rs2` to the memory location `[cursor, cursor + XLEN)`,
+*If no exception is raised:* Store the capability in `rs2` to the memory location `[cursor, cursor + CLEN)`,
 where `cursor` is the `cursor` field of the capability in `rs1`. The `cursor` field of the capability in `rs1`
-is set to `cursor + XLEN`.
+is set to `cursor + CLEN`.
