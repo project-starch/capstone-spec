@@ -10,7 +10,7 @@ Capstone provides instructions to load from and store to memory regions using ca
 Capstone offers a set of instructions for loading and storing integers of various sizes
 using capabilities.
 
-Load:
+*Load:*
 
 The LDD, LDW, LDH, LDB instructions load an integer in the size of doubleword, word, 
 halfword, and byte respectively.
@@ -75,15 +75,15 @@ are defined as `XLEN/2`, `XLEN/4`, and `XLEN/8` bits respectively.
 * The `type` field of the capability in `rs1` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * The `perms` field of the capability in `rs1` is `0` (no access).
-* The bound of the capability in `rs1` is `[base, end)` and the `cursor` field of the capabiliy in `rs1` is
-not in the range `[base, end]` (i.e. `cursor < base` or `cursor >= end`).
+* The bound of the capability in `rs1` is `[base, end)`, and the `cursor` field of the capability in `rs1` is
+not in the range `[base, end]` (i.e., `cursor < base` or `cursor >= end`).
 * The `cursor` field of the capability in `rs1` is not aligned to the size of the integer being loaded.
 
-*If no exception is raised:* Load the content at the memory location `[cursor, cursor + size)`,
+*If no exception is raised:* Load the content at the memory location `[cursor, cursor + size)` as an integer,
 where `cursor` is the `cursor` field of the capability in `rs1` and `size` is the size of the integer
-(i.e. `XLEN`, `XLEN/2`, `XLEN/4`, or `XLEN/8` bits for LDD, LDW, LDH, and LDB respectively), to `rd`.
+(i.e., `XLEN`, `XLEN/2`, `XLEN/4`, or `XLEN/8` bits for LDD, LDW, LDH, and LDB respectively), to `rd`.
 
-Store:
+*Store:*
 
 The STD, STW, STH, STB instructions store an integer in the size of doubleword, word, halfword, and byte respectively.
 
@@ -145,14 +145,86 @@ The STD, STW, STH, STB instructions store an integer in the size of doubleword, 
 * The `type` field of the capability in `rs1` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * The `perms` field of the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
-* The bound of the capability in `rs1` is `[base, end)` and the `cursor` field of the capabiliy in `rs1` is
-not in the range `[base, end]` (i.e. `cursor < base` or `cursor >= end`).
+* The bound of the capability in `rs1` is `[base, end)`, and the `cursor` field of the capability in `rs1` is
+not in the range `[base, end]` (i.e., `cursor < base` or `cursor >= end`).
 * The `cursor` field of the capability in `rs1` is not aligned to the size of the scalar value being loaded.
 * `rs2` does not contain an integer.
 
 *If no exception is raised:* Store the integer in `rs2` to the memory location `[cursor, cursor + size)`,
 where `cursor` is the `cursor` field of the capability in `rs1` and `size` is the size of the integer
-(i.e. `XLEN`, `XLEN/2`, `XLEN/4`, or `XLEN/8` bits for STD, STW, STH, and STB respectively).
+(i.e., `XLEN`, `XLEN/2`, `XLEN/4`, or `XLEN/8` bits for STD, STW, STH, and STB respectively). The `cursor`
+field of the capability in `rs1` is set to `cursor + size`. The data contained in the `CLEN`-bit aligned
+memory location `[cbase, cend)`, which alias with memory location `[cursor, cursor + size)`
+(i.e. `cbase = cursor & ~(CLEN - 1)` and `cend = cbase + CLEN`), will be interpreted as an integer type.
 
 [#load-store-cap]
 == Load/Store Capabilities
+
+In Capstone, two specific instructions (i.e., LDC and LTC) are used to load and store capabilities.
+
+*LDC:*
+
+The LDC instruction loads a capability from memory.
+
+.LDC instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0010000' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain a capability.
+* The `type` field of the capability in `rs1` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
+* The `valid` field of the capability in `rs1` is `0` (invalid).
+* The `perms` field of the capability in `rs1` is `0` (no access).
+* The bound of the capability in `rs1` is `[base, end)`, and the `cursor` field of the capability in `rs1` is
+not in the range `[base, end]` (i.e., `cursor < base` or `cursor >= end`).
+* The `cursor` field of the capability in `rs1` is not aligned to `CLEN` bits.
+* The data contained in the memory location `[cursor, cursor + CLEN)`, where `cursor` is the `cursor`
+field of the capability in `rs1`, is not a capability.
+* The capability being loaded is not a non-linear capability (i.e., `type != 1`), and the `perms` field of
+the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
+
+*If no exception is raised:* Load the capability at the memory location `[cursor, cursor + XLEN)`, where `cursor`
+is the `cursor` field of the capability in `rs1`, into `rd`. If the capability being loaded is a linear capability,
+the data contained in the memory location `[cursor, cursor + XLEN)` will be set to the content of `cnull`.
+
+*STC:*
+
+The STC instruction stores a capability to memory.
+
+.STD instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (C)' },
+    {bits: 7, name: '0b0010001' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain a capability.
+* The `type` field of the capability in `rs1` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
+* The `valid` field of the capability in `rs1` is `0` (invalid).
+* The `perms` field of the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
+* The bound of the capability in `rs1` is `[base, end)`, and the `cursor` field of the capability in `rs1` is
+not in the range `[base, end]` (i.e., `cursor < base` or `cursor >= end`).
+* The `cursor` field of the capability in `rs1` is not aligned to `CLEN` bits.
+* `rs2` does not contain a capability.
+
+*If no exception is raised:* Store the capability in `rs2` to the memory location `[cursor, cursor + XLEN)`,
+where `cursor` is the `cursor` field of the capability in `rs1`. The `cursor` field of the capability in `rs1`
+is set to `cursor + XLEN`.
