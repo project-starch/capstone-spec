@@ -156,7 +156,7 @@ The instruction reads `rs1` and `rs2` and attempts to set the bounds of the capa
 * The `type` field of the capability in `rd` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
 * `rs1` does not contain an integer.
 * `rs2` does not contain an integer.
-* `rs1 > rs2`.
+* `rs1 >= rs2`.
 * The original bounds of the capability in `rd` are `[base, end)` and
 `rs1 < base` or `rs2 > end`.
 
@@ -188,7 +188,7 @@ the capability into two capabilities, one with bounds `[base, rs2)` and the othe
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * `rs2` does not contain an integer.
 * The `type` field of the capability in `rs1` is neither `0` nor `1` (neither linear nor non-linear).
-* The original bounds of the capability in `rs1` are `[base, end)` and `rs2 < base` or `rs2 > end`.
+* The original bounds of the capability in `rs1` are `[base, end)` and `rs2 \<= base` or `rs2 >= end`.
 
 *If no exception is raised:* The capability in `rs1` has its `end` field set to `rs2`. A new
 capability is created with `base = rs2` and the other fields equal to those of the original
@@ -314,7 +314,7 @@ The SEAL instruction seals a linear capability.
 * The size of the memory region associated with the capability in `rd` is smaller than
 `CLEN * 32`. That is, `end - base < CLEN * 32`.
 * `rs1` does not contain an integer.
-* The integer contained in `rs1` is not larger than `31`.
+* The integer contained in `rs1` is larger than `31`.
 
 *If no exception is raised:* The `type` field of the capability in `rd`
 is set to `2` (sealed).
@@ -376,7 +376,7 @@ The MREV instruction creates a revocation capability.
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 
 *If no exception is raised:* A new capability is created in `rd` with the same
-`base`, `end`, `perms`, `cursor`, and `valid` fields as the capability in `rs1`.
+`base`, `end`, `perms` and `cursor` fields as the capability in `rs1`.
 The `type` field of the new capability is set to `2` (revocation).
 
 [#rev-operation]
@@ -404,6 +404,7 @@ The REVOKE instruction revokes a capability.
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 
 *If no exception is raised:*
+
 For all capabilities `c` in the system (in either a register or
 memory location), its `valid` field is set to `0` (invalid)
 if any of the following conditions are met:
@@ -412,10 +413,13 @@ if any of the following conditions are met:
 and `c` aliases with `rs1`
 * The type field of `c` is `2` (revocation), the `valid` field of `c` is `1` (valid), and `rs1 <t c`
 
-If all invalidated `c` are either non-linear capabilities (i.e., `c.type != 1`)
-or capabilities without a write permission (i.e., `c.perms <= 2`),
-then the `type` field of `rs1` is set to `0` (linear).
-Otherwise, the `type` field of `rs1` is set to `3` (uninitialised),
+The `type` field of the capability in `rs1` is set to `0` (linear)
+if any of the following conditions are met for each invalidated `c`:
+
+* The type of `c` is non-linear (i.e., `c.type != 1`)
+* The `perms` field of `c` is not `3` (read-write) or `4` (read-write-execute)
+
+Otherwise, the `type` field of the capability in `rs1` is set to `3` (uninitialised),
 and its `cursor` field is set to `base`.
 
 // REVOKE is a bit difficult to describe.
