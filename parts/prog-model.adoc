@@ -150,8 +150,12 @@ exceptions are raised).
 
 == Extension to Other Registers
 
-Similar to the general-purpose registers, the program counter (`pc`)
-is also extended to contain a capability or an integer.
+=== Program Counter
+
+* Pure Capstone: The program counter (`pc`) is extended to contain a capability.
+* TransCapstone: Similar to the general-purpose registers,
+the program counter (`pc`) is also extended to contain a capability or an integer.
+
 When `pc` contains a capability, some of the fields of the capability
 are checked before each instruction fetch.
 An exception is raised when any of the following conditions are met:
@@ -171,12 +175,28 @@ field of the capability in `pc` is then incremented by `4` (i.e.,
 
 The Capstone-RISC-V ISA adds the following registers:
 
-* `ceh`: the sealed capability for the exception handler.
-* `cwrld`: the currently executed world. `0` = normal world, `1` = secure world.
-* `normal_pc`: the program counter for the normal world before the secure world is entered.
-* `normal_sp`: the stack pointer for the normal world before the secure world is entered.
-* `switch_reg`: the index of the general-purpose register used when switching worlds.
-* `switch_cap`: the capability used to store contexts when switching worlds.
+
+.Additional Registers in Capstone-RISC-V ISA
+[cols="1,3a"]
+|===
+|*Capstone Variant*   | *Additional Registers*
+|Pure Capstone|
+[cols="1,3"]
+!===
+! `ceh`  ! The sealed capability for the exception handler
+!===
+
+|TransCapstone|
+[cols="1,3"]
+!===
+! `ceh`  ! The sealed capability for the exception handler
+! `cwrld`! The currently executed world. `0` = normal world, `1` = secure world
+! `normal_pc`! The program counter for the normal world before the secure world is entered
+! `normal_sp`! The stack pointer for the normal world before the secure world is entered
+! `switch_reg`! The index of the general-purpose register used when switching worlds
+! `switch_cap`! The capability used to store contexts when switching worlds
+!===
+|===
 
 TODO: talk about how to read/write those registers.
 
