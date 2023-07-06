@@ -77,7 +77,7 @@ are defined as `XLENBYTES/2`, `XLENBYTES/4`, and `XLENBYTES/8` bytes respectivel
 * The `perms` field of the capability in `rs1` is `0` (no access).
 * The bound of the capability in `rs1` is `[base, end)`, where `base` and `end` are the `base`
 and `end` fields of the capability in `rs1`, and the `cursor` field of the capability in `rs1` is
-not in the range `[base, end-size)` (i.e., `cursor < base` or `cursor >= end-size`), where `size`
+not in the range `[base, end-size]` (i.e., `cursor < base` or `cursor > end-size`), where `size`
 is the size (in bytes) of the integer being loaded.
 * The `cursor` field of the capability in `rs1` is not aligned to the size of the integer being loaded.
 
@@ -149,7 +149,7 @@ The STD, STW, STH, STB instructions store an integer in the size of doubleword, 
 * The `perms` field of the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
 * The bound of the capability in `rs1` is `[base, end)`, where `base` and `end` are the `base`
 and `end` fields of the capability in `rs1`, and the `cursor` field of the capability in `rs1` is
-not in the range `[base, end-size)` (i.e., `cursor < base` or `cursor >= end-size`), where `size`
+not in the range `[base, end-size]` (i.e., `cursor < base` or `cursor > end-size`), where `size`
 is the size (in bytes) of the integer being loaded.
 * The `cursor` field of the capability in `rs1` is not aligned to the size of the scalar value being loaded.
 * `rs2` does not contain an integer.
@@ -191,7 +191,7 @@ The LDC instruction loads a capability from memory.
 * The `perms` field of the capability in `rs1` is `0` (no access).
 * The bound of the capability in `rs1` is `[base, end)`, where `base` and `end` are the `base`
 and `end` fields of the capability in `rs1`, and the `cursor` field of the capability in `rs1` is
-not in the range `[base, end-CLENBYTES)` (i.e., `cursor < base` or `cursor >= end-CLENBYTES`).
+not in the range `[base, end-CLENBYTES]` (i.e., `cursor < base` or `cursor > end-CLENBYTES`).
 * The `cursor` field of the capability in `rs1` is not aligned to `CLEN` bits.
 * The data contained in the memory location `[cursor, cursor + CLENBYTES)`, where `cursor` is the `cursor`
 field of the capability in `rs1`, is not a capability.
@@ -227,7 +227,7 @@ The STC instruction stores a capability to memory.
 * The `perms` field of the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
 * The bound of the capability in `rs1` is `[base, end)`, where `base` and `end` are the `base`
 and `end` fields of the capability in `rs1`, and the `cursor` field of the capability in `rs1` is
-not in the range `[base, end-CLENBYTES)` (i.e., `cursor < base` or `cursor >= end-CLENBYTES`).
+not in the range `[base, end-CLENBYTES]` (i.e., `cursor < base` or `cursor > end-CLENBYTES`).
 * The `cursor` field of the capability in `rs1` is not aligned to `CLEN` bits.
 * `rs2` does not contain a capability.
 

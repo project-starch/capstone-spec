@@ -160,7 +160,7 @@ An exception is raised when any of the following conditions are met:
 * The bound of the capability in `pc` is `[base, end)`, where `base`
 and `end` are the `base` and `end` fields of the capability in `pc`,
 and the `cursor` field of the capability in `pc` is not in the range
-`[base, end-4)` (i.e., `cursor < base` or `cursor >= end-4`).
+`[base, end-4]` (i.e., `cursor < base` or `cursor > end-4`).
 
 If no exception is raised, the instruction pointed to by the `cursor`
 field of the capability in `pc` is fetched and executed. The `cursor`
