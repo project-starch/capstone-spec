@@ -5,15 +5,16 @@
 [#jmp-cap]
 == Jump to Capabilities
 
-The JMP and JNZ instructions allow jumping to a capability, i.e.,
-setting the program counter to a given capability.
+The CJAL and CBNZ instructions allow jumping to a capability,
+i.e., setting the program counter to a given capability,
+in a conditional or unconditional manner.
 
-.JMP instruction format
+.CJAL instruction format
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: '*' },
@@ -21,12 +22,12 @@ setting the program counter to a given capability.
 ]}
 ....
 
-.JNZ instruction format
+.CBNZ instruction format
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: 'rs2 (I)' },
@@ -38,16 +39,22 @@ setting the program counter to a given capability.
 
 * `cwrld` is `0` (normal world).
 * `rs1` does not contain a capability.
+* The `type` field of the capability in `rs1` is neither `0` (linear) nor `1` (non-linear).
+* The `perms` field of the capability in `rs1` is neither `2` (read-execute) nor `4` (read-write-execute).
 
 *If no exception is raised:*
-For JMP instruction, the program counter (`pc`)
-is set to the capability in `rs1`. If the capability is valid and executable,
-the next instruction will be fetched from its `cursor` field.
+For CJAL instruction, the program counter (`pc`) is set to the capability in `rs1`.
+Meanwhile, the existing capability in `pc`, with its `cursor` field replaced by the address
+of the next instruction, is written to the register `rd`.
+If the capability is valid, and the `cursor` field of the capability in `pc` is in-bound
+(i.e., the bound of the capability in `pc` is `[base, end)`, where `base` and `end`
+are the `base` and `end` fields of the capability in `pc`, and `base \<= cursor \<= end-4`),
+then the next instruction will be fetched from its `cursor` field.
 
-The behaviour of JNZ depends on the content of `rs2`:
+The behaviour of CBNZ depends on the content of `rs2`:
 
 * If the content of `rs2` is zero (`0`), the behaviour is the same as for NOP.
-* Otherwise, the behaviour is the same as for JMP.
+* Otherwise, the behaviour is the same as for CJAL.
 
 [#domain-cross]
 == Domain Crossing
