@@ -8,12 +8,53 @@ TODO: Note that it is safe to delegate exception handling but not safe to
 delegate interrupt handling. Hence we need to distinguish between
 exceptions and interrupts
 
+TODO: we need to reorganise the document a bit to separate the pure Capstone
+stuff from the TransCapstone stuff
+
+== Pure Capstone
+
+When an interrupt or exception occurs, the control flow of the processor core
+is transferred to the domain specified in the `ceh` register. The current
+context is saved and sealed in a sealed-return capability which
+is then supplied to the
+exception handler domain as an argument. When exception handling is complete,
+the exception handler domain can use the RETURN instruction to resume the
+execution of the excepted domain. This process resembles that of a CALL-RETURN
+pair, except that it is asynchronous, rather than synchronous,
+to the execution of the original domain.
+
+TODO: specify what "panics" means here
+
+*The CPU core panics if any of the following conditions is met:*
+
+* The `ceh` register does not contain a capability.
+* The capability in `ceh` is invalid (`valid = 0`).
+* The capability in `ceh` is not a sealed capability (`type != 4`).
+
+*Otherwise:*
+
+. Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
+. For `i = 1, 2, ..., ceh.size`, load the content of the `i`-th general-purpose register from
+memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+. Scrub the other general-purpose registers.
+. Store the original program counter `pc` to the memory location
+`[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+`[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+. Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
+. Write the content of `ceh` to the register `c1`.
+
+== TransCapstone
+
 When an interrupt or exception occurs, the behaviour of a processor core
 depends on which world it is currently executing in (i.e., the content of
 the `cwrld` register).
 If the core is executing in the normal world, the behaviour is entirely
 inherited from RISC-V.
-Otherwise, if the core is executing in the secure world,
+Otherwise, if the core is executing in the secure world, the behaviour will
+be similar to that in the pure Capstone model, except that we need to
+involve the normal world in the exception handling process to
+prevent denial-of-service attacks by the secure world.
 
 *If the content in `ceh` is a valid sealed capability and the content in `switch_cap` is a valid sealed-return capability:*
 

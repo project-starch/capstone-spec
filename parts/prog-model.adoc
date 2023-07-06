@@ -178,7 +178,8 @@ The Capstone-RISC-V ISA adds the following registers:
 * `switch_reg`: the index of the general-purpose register used when switching worlds.
 * `switch_cap`: the capability used to store contexts when switching worlds.
 
-TODO: talk about how to read/write those registers.
+TODO: talk about how to read/write those registers, especially `ceh`, which is crucial
+to the liveness of the system.
 
 == Extension to Memory
 
