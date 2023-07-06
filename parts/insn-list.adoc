@@ -70,8 +70,8 @@ include::i-type-format.adoc[]
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
 |link:#domain-cross[CALL]        |R |`001`    |`0100000` | C | - | - | - | S
 |link:#domain-cross[RETURN]      |R |`001`    |`0100001` | C | I | - | - | S
-|link:#jmp-cap[CJAL]         |R |`001`    |`0100010` | C | - | C | - | S
-|link:#jmp-cap[CBNZ]         |R |`001`    |`0100011` | C | I | C | - | S
+|link:#jmp-cap[CJALR]         |R |`001`    |`0100010` | C | - | C | - | S
+|link:#jmp-cap[CJNZ]         |R |`001`    |`0100011` | C | I | C | - | S
 |link:#world-switch[CAPENTER]    |R |`001`    |`0100100` | C | - | - | - | N
 |link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | C | I | - | - | S
 |===
