@@ -6,8 +6,46 @@
 == World Switching
 
 The instructions SETWORLD and ONPARTITION are related to world switching
-in TransCapstone-RISC-V. SETWORLD directly sets the core to the specified
-world (`1` for secure world, and `0` for normal world) without any other
-side effect. ONPARTITION switches on (`1`) or off (`0`) the world partitioning
+in TransCapstone-RISC-V. 
+
+.SETWORLD instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001100' }
+]}
+....
+
+.ONPARTITION instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001101' }
+]}
+....
+
+The instructions load their operands from the register `rs1`, which expects
+an integer.
+SETWORLD directly sets the core to the specified
+world (`0` for normal world and non-zero for secure world).
+The program counter will also be made into a capability or an integer
+correspondingly while retaining the `cursor` value.
+ONPARTITION switches on (non-zero) or off (`0`) the world partitioning checks
 in memory.
+
+The instructions make it easy to set up the environment for testing
+either pure Capstone or TransCapstone:
+
+* Pure Capstone: secure world, world partitioning checks off
+* TransCapstone: normal world, world partitioning checks on
 
