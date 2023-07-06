@@ -2,4 +2,120 @@
 
 = Adjustments to Existing Instructions
 
-TODO
+== Control Flow Instructions
+
+In RISC-V, a set of instructions are used to control the flow of execution.
+These instructions include conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
+and unconditional jump instructions (i.e., `jal` and `jalr`).
+In Capstone, adjustments are made to these instructions to support capability-aware execution.
+
+.beq instruction format (B-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1100011'},
+    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[12|10:5]' }
+]}
+....
+
+.bne instruction format (B-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1100011'},
+    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[12|10:5]' }
+]}
+....
+
+.blt instruction format (B-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1100011'},
+    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 3, name: '0b100' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[12|10:5]' }
+]}
+....
+
+.bge instruction format (B-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1100011'},
+    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 3, name: '0b101' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[12|10:5]' }
+]}
+....
+
+.bltu instruction format (B-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1100011'},
+    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 3, name: '0b110' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[12|10:5]' }
+]}
+....
+
+.bgeu instruction format (B-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1100011'},
+    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 3, name: '0b111' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[12|10:5]' }
+]}
+....
+
+.jal instruction format (J-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1101111'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 20, name: 'imm[20|10:1|11|19:12]' }
+]}
+....
+
+.jalr instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1100111'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+*Adjustments when `cwld` is `0` (normal world)*:
+
+* An exception is raised if any of its operands is not an integer.
+
+*Adjustments when `cwld` is `1` (secure world)*:
+
+* An exception is raised if any of its operands is not an integer.
+* The `cursor` field of the capability in `pc`, instead of `pc` itself, is changed by the instruction.
+* If the instruction is `jal` or `jalr`, the `cursor` field of the capability in `pc` (for the next instruction),
+instead of `pc` itself, is written to `rd`.
