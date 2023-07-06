@@ -54,16 +54,16 @@ include::i-type-format.adoc[]
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|link:#load-store-cap[LDC]         |R |`001`    |`0010000` | C | - | C | - | *
-|link:#load-store-cap[STC]         |R |`001`    |`0010001` | C | C | - | - | *
-|link:#load-store-with-cap[LDD]         |R |`001`    |`0010010` | C | - | I | - | *
-|link:#load-store-with-cap[STD]         |R |`001`    |`0010011` | C | I | - | - | *
-|link:#load-store-with-cap[LDW]        |R |`001`    |`0010100` | C | - | I | - | *
-|link:#load-store-with-cap[STW]        |R |`001`    |`0010101` | C | I | - | - | *
-|link:#load-store-with-cap[LDH]        |R |`001`    |`0010110` | C | - | I | - | *
-|link:#load-store-with-cap[STH]        |R |`001`    |`0010111` | C | I | - | - | *
-|link:#load-store-with-cap[LDB]         |R |`001`    |`0011000` | C | - | I | - | *
-|link:#load-store-with-cap[STB]         |R |`001`    |`0011001` | C | I | - | - | *
+|link:#load-cap[LDC]         |R |`001`    |`0010000` | C | - | C | - | *
+|link:#store-cap[STC]         |R |`001`    |`0010001` | C | C | - | - | *
+|link:#load-with-cap[LDD]         |R |`001`    |`0010010` | C | - | I | - | *
+|link:#store-with-cap[STD]         |R |`001`    |`0010011` | C | I | - | - | *
+|link:#load-with-cap[LDW]        |R |`001`    |`0010100` | C | - | I | - | *
+|link:#store-with-cap[STW]        |R |`001`    |`0010101` | C | I | - | - | *
+|link:#load-with-cap[LDH]        |R |`001`    |`0010110` | C | - | I | - | *
+|link:#store-with-cap[STH]        |R |`001`    |`0010111` | C | I | - | - | *
+|link:#load-with-cap[LDB]         |R |`001`    |`0011000` | C | - | I | - | *
+|link:#store-with-cap[STB]         |R |`001`    |`0011001` | C | I | - | - | *
 |===
 
 .Control flow instructions
