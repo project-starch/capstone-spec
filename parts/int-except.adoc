@@ -25,6 +25,8 @@ to the execution of the original domain.
 
 TODO: specify what "panics" means here
 
+TODO: specify what happens if any of the involved memory accesses fails
+
 *The CPU core panics if any of the following conditions is met:*
 
 * The `ceh` register does not contain a capability.
@@ -65,20 +67,20 @@ to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i +
 . Set the `reg` field of `switch_cap` to `0` (asynchronous),
 . Store the content of `switch_cap` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. Write the content of `ceh` to the register `x[reg]` where `reg` is the original
-content of the `reg` field of `switch_cap`.
+. Write the content of `ceh` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Scrub the other general-purpose registers.
 . Set the `cwrld` register to `0` (normal world).
 . Trigger exception handling in the normal world.
 
+FIXME: CAPENTER will overwrite `ra` in the exception handler domain
+
 // Something similar to try-catch can be considered
 
 *Otherwise:*
 
-. Write `cnull` to the register `x[reg]` where `reg` is the original
-content of the `reg` field of `switch_cap`.
+. Write `cnull` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Scrub the other general-purpose registers.
