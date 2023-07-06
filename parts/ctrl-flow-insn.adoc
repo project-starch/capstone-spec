@@ -5,7 +5,7 @@
 [#jmp-cap]
 == Jump to Capabilities
 
-The CJALR and CJNZ instructions allow jumping to a capability,
+The CJALR and CBNZ instructions allow jumping to a capability,
 i.e., setting the program counter to a given capability,
 in a unconditional or conditional manner.
 
@@ -22,7 +22,7 @@ in a unconditional or conditional manner.
 ]}
 ....
 
-.CJNZ instruction format
+.CBNZ instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -47,7 +47,7 @@ in a unconditional or conditional manner.
 * CJAL: Set the program counter (`pc`) to the capability in `rs1`. Meanwhile, the existing
 capability in `pc`, with its `cursor` field replaced by the address of the next instruction,
 is written to the register `rd`.
-* CJNZ: If the content of `rs2` is zero (`0`), the behaviour is the same as for NOP.
+* CBNZ: If the content of `rs2` is zero (`0`), the behaviour is the same as for NOP.
 Otherwise, set the program counter (`pc`) to the capability in `rs1`.
 
 If the capability is valid, and the `cursor` field of the capability in `pc` is in-bound
