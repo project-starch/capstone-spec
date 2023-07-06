@@ -4,12 +4,12 @@
 
 Capstone provides instructions to load from and store to memory regions using capabilities.
 
-[#load-store-with-cap]
 == Load/Store with Capabilities
 
 Capstone offers a set of instructions for loading and storing integers of various sizes
 using capabilities.
 
+[#load-with-cap]
 *Load:*
 
 The LDD, LDW, LDH, LDB instructions load an integer in the size of doubleword, word, 
@@ -85,6 +85,7 @@ is the size (in bytes) of the integer being loaded.
 where `cursor` is the `cursor` field of the capability in `rs1` and `size` is the size of the integer
 (i.e., `XLENBYTES`, `XLENBYTES/2`, `XLENBYTES/4`, or `XLENBYTES/8` bytes for LDD, LDW, LDH, and LDB respectively), to `rd`.
 
+[#store-with-cap]
 *Store:*
 
 The STD, STW, STH, STB instructions store an integer in the size of doubleword, word, halfword, and byte respectively.
@@ -161,11 +162,11 @@ The `cursor` field of the capability in `rs1` is set to `cursor + size`. The dat
 memory location `[cbase, cend)`, which alias with memory location `[cursor, cursor + size)`
 (i.e., `cbase = cursor & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`), will be interpreted as an integer type.
 
-[#load-store-cap]
 == Load/Store Capabilities
 
 In Capstone, two specific instructions (i.e., LDC and LTC) are used to load and store capabilities.
 
+[#load-cap]
 *LDC:*
 
 The LDC instruction loads a capability from memory.
@@ -202,6 +203,7 @@ the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
 is the `cursor` field of the capability in `rs1`, into `rd`. If the capability being loaded is a linear capability,
 the data contained in the memory location `[cursor, cursor + CLENBYTES)` will be set to the content of `cnull`.
 
+[#store-cap]
 *STC:*
 
 The STC instruction stores a capability to memory.
