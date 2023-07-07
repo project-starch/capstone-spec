@@ -152,8 +152,8 @@ exceptions are raised).
 
 === Program Counter
 
-* Pure Capstone: The program counter (`pc`) is extended to contain a capability.
-* TransCapstone: Similar to the general-purpose registers,
+* _Pure Capstone_: The program counter (`pc`) is extended to contain a capability.
+* _TransCapstone_: Similar to the general-purpose registers,
 the program counter (`pc`) is also extended to contain a capability or an integer.
 
 When `pc` contains a capability, some of the fields of the capability
@@ -180,14 +180,14 @@ The Capstone-RISC-V ISA adds the following registers:
 [cols="1,3a"]
 |===
 |*Capstone Variant*   | *Additional Registers*
-|Pure Capstone|
-[cols="1,3"]
+|_Pure Capstone_|
+[cols="1,4"]
 !===
 ! `ceh`  ! The sealed capability for the exception handler
 !===
 
-|TransCapstone|
-[cols="1,3"]
+|_TransCapstone_|
+[cols="1,4"]
 !===
 ! `ceh`  ! The sealed capability for the exception handler
 ! `cwrld`! The currently executed world. `0` = normal world, `1` = secure world
