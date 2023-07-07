@@ -13,7 +13,7 @@ enable the storage and handling of capabilities.
 The width of a capability is 128 bits. We represent this as
 `CLEN = 128` and `CLENBYTES = 16`. Note that this does not
 affect the width of a raw address, which is `XLEN = 64` bits
-or `XLENBYTES = 8` bytes.
+(i.e., `XLENBYTES = 8` bytes).
 
 === Fields
 
@@ -161,6 +161,7 @@ are checked before each instruction fetch.
 An exception is raised when any of the following conditions are met:
 
 * The `valid` field of the capability in `pc` is `0` (invalid).
+* The `cursor` field of the capability in `pc` is not aligned to `4`.
 * The bound of the capability in `pc` is `[base, end)`, where `base`
 and `end` are the `base` and `end` fields of the capability in `pc`,
 and the `cursor` field of the capability in `pc` is not in the range
@@ -228,3 +229,13 @@ include::i-type-format.adoc[]
 
 R-type instructions receive up to three register operands, and I-type instructions
 receive up to two register operands and a 12-bit-wide immediate operand.
+
+== Capstone Variants
+
+Capstone currently supports two variants of the ISA, i.e. _Pure Capstone_ and _TransCapstone_.
+While _Pure Capstone_ is a pure capability-based ISA, _TransCapstone_ is a hybrid ISA that
+supports both capabilities and traditional virtual memory. In _TransCapstone_, the memory
+is divided into two parts, i.e., the secure memory and the untrusted memory. The range of
+the secure memory is defined as `[SBASE, SEND)`, where `SBASE` and `SEND` are required to
+be aligned to `CLEN` bits. These two variants share most of the parts of the ISA, and separate
+descriptions are provided for the parts that are different.

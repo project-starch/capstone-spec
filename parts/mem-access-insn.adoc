@@ -10,7 +10,7 @@ Capstone offers a set of instructions for loading and storing integers of variou
 using capabilities.
 
 [#load-with-cap]
-*Load:*
+=== Load
 
 The LDD, LDW, LDH, LDB instructions load an integer in the size of doubleword, word, 
 halfword, and byte respectively.
@@ -86,7 +86,7 @@ where `cursor` is the `cursor` field of the capability in `rs1` and `size` is th
 (i.e., `XLENBYTES`, `XLENBYTES/2`, `XLENBYTES/4`, or `XLENBYTES/8` bytes for LDD, LDW, LDH, and LDB respectively), to `rd`.
 
 [#store-with-cap]
-*Store:*
+=== Store
 
 The STD, STW, STH, STB instructions store an integer in the size of doubleword, word, halfword, and byte respectively.
 
@@ -167,7 +167,7 @@ memory location `[cbase, cend)`, which alias with memory location `[cursor, curs
 In Capstone, two specific instructions (i.e., LDC and LTC) are used to load and store capabilities.
 
 [#load-cap]
-*LDC:*
+=== Load Capabilities
 
 The LDC instruction loads a capability from memory.
 
@@ -200,15 +200,16 @@ field of the capability in `rs1`, is not a capability.
 the capability in `rs1` is not `3` or `4` (read-write or read-write-execute).
 
 *If no exception is raised:* Load the capability at the memory location `[cursor, cursor + CLENBYTES)`, where `cursor`
-is the `cursor` field of the capability in `rs1`, into `rd`. If the capability being loaded is a linear capability,
-the data contained in the memory location `[cursor, cursor + CLENBYTES)` will be set to the content of `cnull`.
+is the `cursor` field of the capability in `rs1`, into `rd`. If the capability being loaded is not a non-linear
+capability (i.e., `type != 1`), the data contained in the memory location `[cursor, cursor + CLENBYTES)` will be
+set to the content of `cnull`.
 
 [#store-cap]
-*STC:*
+=== Store Capabilities
 
 The STC instruction stores a capability to memory.
 
-.STD instruction format
+.STC instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -235,4 +236,70 @@ not in the range `[base, end-CLENBYTES]` (i.e., `cursor < base` or `cursor > end
 
 *If no exception is raised:* Store the capability in `rs2` to the memory location `[cursor, cursor + CLENBYTES)`,
 where `cursor` is the `cursor` field of the capability in `rs1`. The `cursor` field of the capability in `rs1`
-is set to `cursor + CLENBYTES`.
+is set to `cursor + CLENBYTES`. If the capability in `rs2` is not a non-linear capability (i.e., `type != 1`),
+`rs2` will be set to the content of `cnull`.
+
+== _TransCapstone_ Added Instructions
+
+In _TransCapstone_, besides the LDC and STC instructions, two additional instructions (i.e., LDCR and STCR)
+are added to load and store capabilities from/to the normal memory using raw addresses. These 2 instructions
+are only available in _TransCapstone_ and an exception will be raised if they are executed in _Pure Capstone_.
+
+[#load-cap-raw]
+=== Load with Raw Addresses
+
+The LDCR instruction loads a capability from the normal memory using raw addresses.
+
+.LDCR instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0011010' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain an integer.
+* The integer in `rs1` is not aligned to `CLEN` bits.
+* The integer in `rs1` is in the range `[SBASE, SEND)` (i.e., `SBASE \<= rs1 < SEND`).
+* The data contained in the memory location `[rs1, rs1 + CLENBYTES)` is not a capability.
+
+*If no exception is raised:* Load the capability at the memory location `[rs1, rs1 + CLENBYTES)` into `rd`.
+If the capability being loaded is a non-linear capability (i.e. `type != 1`), the data contained in the
+memory location `[rs1, rs1 + CLENBYTES)` will be set to the content of `cnull`.
+
+[#store-cap-raw]
+=== Store with Raw Addresses
+
+The STCR instruction stores a capability to the normal memory using raw addresses.
+
+.STCR instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (C)' },
+    {bits: 7, name: '0b0011011' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* `rs1` does not contain an integer.
+* The integer in `rs1` is not aligned to `CLEN` bits.
+* The integer in `rs1` is in the range `[SBASE, SEND)` (i.e., `SBASE \<= rs1 < SEND`).
+* `rs2` does not contain a capability.
+
+*If no exception is raised:* Store the capability in `rs2` to the memory location `[rs1, rs1 + CLENBYTES)`.
+If the capability in `rs2` is not a non-linear capability (i.e., `type != 1`), `rs2` will be set to the
+content of `cnull`.
+

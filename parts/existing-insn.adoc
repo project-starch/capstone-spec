@@ -270,5 +270,6 @@ memory access.
 * _TransCapstone_
 ** An exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
 ** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
-** An exception is raised if the address to be accessed is within the range `[SBASE, SEND)`
-(i.e. `addr = x[rs1] + sext(imm)` and `SBASE \<= addr < SEND`).
+** An exception is raised if the address to be accessed is within the range `(SBASE-size, SEND)`
+(i.e. `addr = x[rs1] + sext(imm)` and `SBASE-size < addr < SEND`), where `size` is the size (in bytes)
+of the integer to be loaded or stored.
