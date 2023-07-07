@@ -177,6 +177,8 @@ The Capstone-RISC-V ISA adds the following registers:
 * `normal_sp`: the stack pointer for the normal world before the secure world is entered.
 * `switch_reg`: the index of the general-purpose register used when switching worlds.
 * `switch_cap`: the capability used to store contexts when switching worlds.
+* `exit_reg`: the index of the general-purpose register used to hold the exit code when
+the secure world exits.
 
 TODO: talk about how to read/write those registers, especially `ceh`, which is crucial
 to the liveness of the system.
