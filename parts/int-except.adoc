@@ -4,16 +4,7 @@
 
 TODO: add support for nesting
 
-TODO: Note that it is safe to delegate exception handling but not safe to
-delegate interrupt handling. Hence we need to distinguish between
-exceptions and interrupts
-
-TODO: we need to reorganise the document a bit to separate the pure Capstone
-stuff from the TransCapstone stuff
-
-TODO: support passing exception codes
-
-== Exception Codes
+== Exception and Exit Codes
 
 .Note
 ****
@@ -29,6 +20,37 @@ some form of exception codes:
 The argument to pass to the exception handler
 domain will be in the register `a1`, and the `rd` operand of CAPENTER will be the
 exit code the user process receives.
+****
+
+The _exception code_ is what the exception handler domain receives as an argument
+when an exception occurs on pure Capstone or in TransCapstone secure world.
+It is an integer value that indicates what the type of the exception is.
+TransCapstone also has _exit codes_, which are the values returned to the CAPENTER
+instruction in case the exception cannot be handled in the secure world.
+We define the exception code and the exit code for each type of exception below.
+It aligns with the exception codes defined in RISC-V 64, where applicable, for ease of
+implementation and interoperability.
+
+.Exception codes and exit codes for pure Capstone and TransCapstone secure world
+[%header%autowidth.stretch]
+|===
+| Exception | Exception code | TransCapstone exit code
+| Instruction address misaligned | 0 | 1
+| Instruction access fault | 1 | 1
+| Illegal instruction | 2 | 1
+| Breakpoint | 3 | 1
+| Load address misaligned | 4 | 1
+| Load access fault | 5 | 1
+| Store/AMO address misaligned | 6 | 1
+| Store/AMO access fault | 7 | 1
+| Unexpected operand type | 8 | 1
+| Invalid capability | 9 | 1
+|===
+
+.Note
+****
+Currently, we use the same exit code `1` for all exception types to
+protect the confidentiality of the secure world execution.
 ****
 
 == Pure Capstone
@@ -69,6 +91,7 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
+. Write the exception code to the register `x10`.
 
 == TransCapstone
 
@@ -161,6 +184,7 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
+. Write the exception code to the register `x10`.
 
 Note that this is exactly the same as the handling of exceptions in pure Capstone.
 
@@ -176,11 +200,9 @@ to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i +
 . Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Set the content of the register `x[exit_reg]` to `1` (unhandled exception).
+. Write the exit code to the register `x[exit_reg]`.
 . Scrub the other general-purpose registers.
 . Set the `cwrld` register to `0` (normal world).
-
-FIXME: CAPENTER will overwrite `ra` in the exception handler domain
 
 // Something similar to try-catch can be considered
 
@@ -189,7 +211,7 @@ FIXME: CAPENTER will overwrite `ra` in the exception handler domain
 . Write the content of `cnull` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Set the content of the register `x[exit_reg]` to `1` (unhandled exception).
+. Write the exit code to the register `x[exit_reg]`.
 . Scrub the other general-purpose registers.
 . Set the `cwrld` register to `0` (normal world).
 
