@@ -64,6 +64,8 @@ include::i-type-format.adoc[]
 |link:#store-with-cap[STH]        |R |`001`    |`0010111` | C | I | - | - | *
 |link:#load-with-cap[LDB]         |R |`001`    |`0011000` | C | - | I | - | *
 |link:#store-with-cap[STB]         |R |`001`    |`0011001` | C | I | - | - | *
+|link:#load-cap-raw[LDCR]         |R |`001`    |`0011010` | I | - | C | - | N
+|link:#store-cap-raw[STCR]         |R |`001`    |`0011011` | I | C | - | - | N
 |===
 
 .Control flow instructions

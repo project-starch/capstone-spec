@@ -13,7 +13,7 @@ enable the storage and handling of capabilities.
 The width of a capability is 128 bits. We represent this as
 `CLEN = 128` and `CLENBYTES = 16`. Note that this does not
 affect the width of a raw address, which is `XLEN = 64` bits
-or `XLENBYTES = 8` bytes.
+(i.e., `XLENBYTES = 8` bytes).
 
 === Fields
 
