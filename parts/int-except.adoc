@@ -11,10 +11,34 @@ exceptions and interrupts
 TODO: we need to reorganise the document a bit to separate the pure Capstone
 stuff from the TransCapstone stuff
 
+TODO: support passing exception codes
+
+== Exception Codes
+
+.Note
+****
+For pure Capstone, there is only one place where exception codes are relevant,
+which is the argument to pass to the exception handler domain.
+For TransCapstone, however, there are three places where we need to consider
+some form of exception codes:
+
+. (Handleable Exception) The argument to pass to the exception handler domain.
+. (Unhandleable Exception) The value returned to the CAPENTER instruction in the user process.
+. (Interrupt) The exception code that the OS sees.
+
+The argument to pass to the exception handler
+domain will be in the register `a1`, and the `rd` operand of CAPENTER will be the
+exit code the user process receives.
+****
+
 == Pure Capstone
 
-When an interrupt or exception occurs, the control flow of the processor core
-is transferred to the domain specified in the `ceh` register. The current
+For pure Capstone, the handling of interrupts and exceptions is relatively
+straightforward. Regardless of whether the event is an interrupt or an
+exception, or what the type of the interrupt or exception is, the processor
+core will always transfer the control flow to the exception handler domain
+specified in the `ceh` register.
+The current
 context is saved and sealed in a sealed-return capability which
 is then supplied to the
 exception handler domain as an argument. When exception handling is complete,
@@ -48,31 +72,113 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 
 == TransCapstone
 
-When an interrupt or exception occurs, the behaviour of a processor core
-depends on which world it is currently executing in (i.e., the content of
-the `cwrld` register).
-If the core is executing in the normal world, the behaviour is entirely
-inherited from RISC-V.
-Otherwise, if the core is executing in the secure world, the behaviour will
-be similar to that in the pure Capstone model, except that we need to
-involve the normal world in the exception handling process to
-prevent denial-of-service attacks by the secure world.
+TransCapstone retains the same interrupt and exception handling mechanims for
+the normal world as in RISC-V 64.
 
-*If the content in `ceh` is a valid sealed capability and the content in `switch_cap` is a valid sealed-return capability:*
+For the secure world in TransCapstone,
+the handling of interrupts and exceptions is more complex,
+and it becomes relevant whether the event is an interrupt or an exception.
+
+For interrupts, in order to prevent denial-of-service attacks by the secure
+world, the processor core needs to transfer the control back to the normal
+world safely. The interrupt will be translated to one in the normal world
+that occurs at the CAPENTER instruction used to enter the secure world.
+Since interrupts are typically relevant only to the
+management of system resources, the interrupt should be transparent to both
+the secure world and the user process.
+In other words, the secure world will simply resume execution
+from where it was interrupted after the interrupt is handled by the normal-world
+OS.
+
+For exceptions, we want to give the secure world the chance handle
+them first. If the secure world manages to handle the exception, the
+normal world will not be involved. The end result is that the whole
+exception or its handling is not even visible to the normal world.
+If the secure world fails to handle an exeption (i.e., when
+it would end up panicking in the case of pure Capstone, such as when
+`ceh` is not a valid sealed capability), however,
+the normal world will take over. The exception will not be translated into
+an exception in the normal world, but instead indicated in the exit code
+that the CAPENTER instruction in the user process receives.
+The user process can then decide what to do based on the exit code (e.g.,
+terminate the domain in the secure world).
+
+Below we discuss the details of the handling of interrupts and exceptions
+generated in the secure world.
+
+=== Handling of Secure-World Interrupts
+
+When an interrupt occurs in the secure world, the processor core directly
+saves the full context, scrubs it, and exits to the normal world. It then
+generates a corresponding interrupt in the normal world, and and follows
+the normal-world interrupt handling process thereafter.
+
+*If the content in `switch_reg` is a valid sealed capability:*
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set the `reg` field of `switch_cap` to `0` (asynchronous),
-. Store the content of `switch_cap` to the memory location
-`[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. Write the content of `ceh` to the register `x[switch_reg]`.
+. Set the `size` field of `switch_cap` to `31`.
+. Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Scrub the other general-purpose registers.
 . Set the `cwrld` register to `0` (normal world).
-. Trigger exception handling in the normal world.
+. Trigger an interrupt in the normal world.
+
+*Otherwise:*
+
+. Write the content of `cnull` to the register `x[switch_reg]`.
+. Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
+`normal_sp` respectively.
+. Scrub the other general-purpose registers.
+. Set the `cwrld` register to `0` (normal world).
+. Trigger an interrupt in the normal world.
+
+Note that in this case, there will be another exception in the normal world
+when the user process resumes execution after the interrupt has been handled
+by the OS, due to the invalid `switch_cap` value written to the CAPENTER
+operand.
+
+=== Handling of Secure-World Exceptions
+
+When an exception occurs, the processor core first attempts to handle the
+exception in the secure world, in the similar way as in pure Capstone.
+If this fails (`ceh` is not valid), the processor core saves
+the full context if it can and exits to the normal
+world with a proper error code.
+
+*If the content in `ceh` is a valid sealed capability:*
+
+. Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
+. For `i = 1, 2, ..., ceh.size`, load the content of the `i`-th general-purpose register from
+memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+. Scrub the other general-purpose registers.
+. Store the original program counter `pc` to the memory location
+`[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+`[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+. Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
+. Write the content of `ceh` to the register `c1`.
+
+Note that this is exactly the same as the handling of exceptions in pure Capstone.
+
+*Otherwise:*
+
+*If the content in `switch_reg` is a valid sealed capability:*
+
+. Store the current value of the program counter (`pc`) to the memory location
+`[switch_cap.base, switch_cap.base + CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
+to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
+. Set the `size` field of `switch_cap` to `31`.
+. Write the content of `switch_cap` to the register `x[switch_reg]`.
+. Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
+`normal_sp` respectively.
+. Set the content of the register `x[exit_reg]` to `1` (unhandled exception).
+. Scrub the other general-purpose registers.
+. Set the `cwrld` register to `0` (normal world).
 
 FIXME: CAPENTER will overwrite `ra` in the exception handler domain
 
@@ -80,12 +186,13 @@ FIXME: CAPENTER will overwrite `ra` in the exception handler domain
 
 *Otherwise:*
 
-. Write `cnull` to the register `x[switch_reg]`.
+. Write the content of `cnull` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
+. Set the content of the register `x[exit_reg]` to `1` (unhandled exception).
 . Scrub the other general-purpose registers.
 . Set the `cwrld` register to `0` (normal world).
-. Trigger the exception handling in the normal world.
+
 
 .Note
 ****
