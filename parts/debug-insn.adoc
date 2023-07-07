@@ -3,6 +3,7 @@
 [appendix]
 = Debugging Instructions (Non-Normative)
 
+[#debug-wrld]
 == World Switching
 
 The instructions SETWORLD and ONPARTITION are related to world switching
@@ -48,4 +49,45 @@ either pure Capstone or TransCapstone:
 
 * Pure Capstone: secure world, world partitioning checks off
 * TransCapstone: normal world, world partitioning checks on
+
+[#debug-except]
+== Exception Handling
+
+The instructions SETEH and ONNORMALEH affect the behaviours of interrupt and exception
+handling.
+
+.SETEH instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001110' }
+]}
+....
+
+.ONNORMALEH instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001111' }
+]}
+....
+
+The SETEH instruction sets the secure-world
+exception handler domain (i.e., `ceh`) to the specified capability in `rs1`. 
+The ONNORMALEH instruction checks the integer value in `rs1` and switches on (non-zero) or off (`0`) normal world handling of secure-world exceptions.
+When this is on, an exception that occurs in the secure world will trap to the normal world
+first before being handled by the secure-world exception handler (`ceh`), which is the
+expected behaviour in TransCapstone.
+When it is off, the exception will be directly handled by the secure-world exception handler,
+as is expected in pure Capstone.
 
