@@ -2,6 +2,12 @@
 
 = Adjustments to Existing Instructions
 
+For most existing instructions in the RISC-V ISA, the adjustments are straightforward.
+Their behaviour is unchanged, and an exception is raised if any of the operands
+(i.e., `rs1`, `rs2` or `rd`) contains a capability.
+For control flow instructions and memory access instructions, however, the
+behaviour is slightly changed to be capability-aware.
+
 == Control Flow Instructions
 
 In RISC-V, a set of instructions are used to control the flow of execution.
@@ -112,12 +118,12 @@ In Capstone, adjustments are made to these instructions to support capability-aw
 *The following adjustments are made to these instructions:*
 
 * _Pure Capstone_
-** An exception is raised if any of its operands contains a capability.
+** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
 ** The `cursor` field of the capability in `pc`, instead of `pc` itself, is changed by the instruction.
 ** If the instruction is `jal` or `jalr`, the `cursor` field of the capability in `pc`, which contains
 the address of the next instruction, is written to `rd`.
 * _TransCapstone_
-** An exception is raised if any of its operands contains a capability.
+** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
 ** If `cwld` is `1` (secure world), the `cursor` field of the capability in `pc`, instead of `pc` itself,
 is changed by the instruction.
 ** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`, the `cursor` field of the
@@ -263,6 +269,6 @@ memory access.
 ** An exception is raised if any of these instructions is executed.
 * _TransCapstone_
 ** An exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
-** An exception is raised if any of its operands contains a capability.
+** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
 ** An exception is raised if the address to be accessed is within the range `[SBASE, SEND)`
 (i.e. `addr = x[rs1] + sext(imm)` and `SBASE \<= addr < SEND`).
