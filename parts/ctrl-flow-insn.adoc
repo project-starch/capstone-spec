@@ -156,7 +156,7 @@ world into the normal world.
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rd (I)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: '*' },
@@ -209,6 +209,11 @@ capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
 capability to the register `switch_cap`.
 . Write `rs1` to the register `switch_reg`.
 . Create a capability of `type = 6` (exit) in `cra`.
+. Set `exit_reg` to `rd`.
+. Set `cwrld` to `1` (secure world).
+
+The `rd` register will be set to a value indicating the cause of exit when
+the CPU core exits from the secure world.
 
 === CAPEXIT
 
@@ -230,3 +235,5 @@ the memory location `[base, base + CLENBYTES)`, where `base` is the `base` field
 the memory location
 `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `switch_cap`.
 . Set the `type` field of `switch_cap` to `4` (sealed) and write it to `x[switch_reg]`.
+. Set the register `x[exit_reg]` to `0` (normal exit).
+. Set `cwrld` to `0` (normal world).
