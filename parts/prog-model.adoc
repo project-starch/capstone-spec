@@ -161,6 +161,7 @@ are checked before each instruction fetch.
 An exception is raised when any of the following conditions are met:
 
 * The `valid` field of the capability in `pc` is `0` (invalid).
+* The `cursor` field of the capability in `pc` is not aligned to `4`.
 * The bound of the capability in `pc` is `[base, end)`, where `base`
 and `end` are the `base` and `end` fields of the capability in `pc`,
 and the `cursor` field of the capability in `pc` is not in the range
