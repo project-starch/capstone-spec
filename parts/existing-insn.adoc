@@ -2,6 +2,12 @@
 
 = Adjustments to Existing Instructions
 
+For most existing instructions in the RISC-V ISA, the adjustments are straightforward.
+Their behaviour is unchanged, and an exception is raised if any of the operands
+(i.e., `rs1`, `rs2` or `rd`) contains a capability.
+For control flow instructions and memory access instructions, however, the
+behaviour is slightly changed to be capability-aware.
+
 == Control Flow Instructions
 
 In RISC-V, a set of instructions are used to control the flow of execution.
@@ -109,13 +115,160 @@ In Capstone, adjustments are made to these instructions to support capability-aw
 ]}
 ....
 
-*Adjustments when `cwld` is `0` (normal world)*:
+*The following adjustments are made to these instructions:*
 
-* An exception is raised if any of its operands is not an integer.
+* _Pure Capstone_
+** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
+** The `cursor` field of the capability in `pc`, instead of `pc` itself, is changed by the instruction.
+** If the instruction is `jal` or `jalr`, the `cursor` field of the capability in `pc`, which contains
+the address of the next instruction, is written to `rd`.
+* _TransCapstone_
+** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
+** If `cwld` is `1` (secure world), the `cursor` field of the capability in `pc`, instead of `pc` itself,
+is changed by the instruction.
+** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`, the `cursor` field of the
+capability in `pc`, which contains the address of the next instruction, is written to `rd`.
 
-*Adjustments when `cwld` is `1` (secure world)*:
+== Memory Access Instructions
 
-* An exception is raised if any of its operands is not an integer.
-* The `cursor` field of the capability in `pc`, instead of `pc` itself, is changed by the instruction.
-* If the instruction is `jal` or `jalr`, the `cursor` field of the capability in `pc` (for the next instruction),
-instead of `pc` itself, is written to `rd`.
+In RISC-V, memory access instructions include load instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
+`lwu`, `ld`, and `fld`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`, and `fsd`).
+As the Capstone-RISC-V ISA extends each of the 32 general-purpose registers, instructions that take
+these registers as operands are also extended. These instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
+`lwu`, `ld`, `sb`, `sh`, `sw`, and `sd`) take an integer as a raw address, and load or store a value
+from or to this address. In Capstone, adjustments are made to these instructions to support capability-aware
+memory access.
+
+.lb instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+.lh instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+.lw instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b010' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+.lbu instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b100' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+.lhu instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b101' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+.lwu instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b110' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+.sb instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0]' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5]' }
+]}
+....
+
+.sh instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0]' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5]' }
+]}
+....
+
+.sw instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0]' },
+    {bits: 3, name: '0b010' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5]' }
+]}
+....
+
+.sd instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0]' },
+    {bits: 3, name: '0b011' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5]' }
+]}
+....
+
+*The following adjustments are made to these instructions:*
+
+* _Pure Capstone_
+** An exception is raised if any of these instructions is executed.
+* _TransCapstone_
+** An exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
+** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
+** An exception is raised if the address to be accessed is within the range `[SBASE, SEND)`
+(i.e. `addr = x[rs1] + sext(imm)` and `SBASE \<= addr < SEND`).
