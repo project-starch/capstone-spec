@@ -199,7 +199,8 @@ The Capstone-RISC-V ISA adds the following registers:
 !===
 |===
 
-TODO: talk about how to read/write those registers.
+TODO: talk about how to read/write those registers, especially `ceh`, which is crucial
+to the liveness of the system.
 
 == Extension to Memory
 
