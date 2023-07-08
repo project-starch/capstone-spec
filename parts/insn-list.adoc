@@ -12,93 +12,99 @@ include::i-type-format.adoc[]
 .Debugging instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|QUERY       |R |`000`    |`0000000` | I | - | - | - | *
-|RCUPDATE    |R |`000`    |`0000001` | I | - | I | - | *
-|ALLOC       |R |`000`    |`0000010` | I | - | I | - | *
-|REV         |R |`000`    |`0000011` | I | - | - | - | *
-|CAPCREATE   |R |`000`    |`0000100` | - | - | C | - | *
-|CAPTYPE     |R |`000`    |`0000101` | I | - | C | - | *
-|CAPNODE     |R |`000`    |`0000110` | I | - | C | - | *
-|CAPPERM     |R |`000`    |`0000111` | I | - | C | - | *
-|CAPBOUND    |R |`000`    |`0001000` | I | I | C | - | *
-|CAPPRINT    |R |`000`    |`0001001` | I | - | - | - | *
-|TAGSET      |R |`000`    |`0001010` | I | I | - | - | *
-|TAGGET      |R |`000`    |`0001011` | I | - | I | - | *
-|link:#debug-wrld[SETWORLD]    |R |`000`    |`0001100` | I | - | - | - | *
-|link:#debug-wrld[ONPARTITION] |R |`000`    |`0001101` | I | - | - | - | *
-|link:#debug-except[SETEH]       |R |`000`    |`0001110` | C | - | - | - | *
-|link:#debug-except[ONNORMALEH]  |R |`000`    |`0001111` | I | - | - | - | *
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
+|QUERY       |R |`000`    |`0000000` | I | - | - | - | * | *
+|RCUPDATE    |R |`000`    |`0000001` | I | - | I | - | * | *
+|ALLOC       |R |`000`    |`0000010` | I | - | I | - | * | *
+|REV         |R |`000`    |`0000011` | I | - | - | - | * | *
+|CAPCREATE   |R |`000`    |`0000100` | - | - | C | - | * | *
+|CAPTYPE     |R |`000`    |`0000101` | I | - | C | - | * | *
+|CAPNODE     |R |`000`    |`0000110` | I | - | C | - | * | *
+|CAPPERM     |R |`000`    |`0000111` | I | - | C | - | * | *
+|CAPBOUND    |R |`000`    |`0001000` | I | I | C | - | * | *
+|CAPPRINT    |R |`000`    |`0001001` | I | - | - | - | * | *
+|TAGSET      |R |`000`    |`0001010` | I | I | - | - | * | *
+|TAGGET      |R |`000`    |`0001011` | I | - | I | - | * | *
+|link:#debug-wrld[SETWORLD]    |R |`000`    |`0001100` | I | - | - | - | * | T
+|link:#debug-wrld[ONPARTITION] |R |`000`    |`0001101` | I | - | - | - | * | T
+|link:#debug-except[SETEH]       |R |`000`    |`0001110` | C | - | - | - | * | T
+|link:#debug-except[ONNORMALEH]  |R |`000`    |`0001111` | I | - | - | - | * | T
 |===
 
 .Capability manipulation instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|link:#rev-operation[REVOKE]      |R |`001`    |`0000000` | C | - | - | - | *
-|link:#shrink[SHRINK]      |R |`001`    |`0000001` | I | I | C | - | *
-|link:#tighten[TIGHTEN]     |R |`001`    |`0000010` | I | - | C | - | *
-|link:#delin[DELIN]       |R |`001`    |`0000011` | - | - | C | - | *
-|link:#cursor-set-get[LCC]         |R |`001`    |`0000100` | C | - | I | - | *
-|link:#cursor-set-get[SCC]         |R |`001`    |`0000101` | I | - | C | - | *
-|link:#split[SPLIT]       |R |`001`    |`0000110` | C | I | C | - | *
-|link:#seal[SEAL]        |R |`001`    |`0000111` | I | - | C | - | *
-|link:#revcap-creation[MREV]        |R |`001`    |`0001000` | C | - | C | - | *
-|link:#init[INIT]        |R |`001`    |`0001001` | - | - | C | - | *
-|link:#cap-mov[MOVC]        |R |`001`    |`0001010` | C | - | C | - | *
-|link:#drop[DROP]       |R |`001`    |`0001011` | C | - | - | - | *
-|CAPGET      |R |`001`    |`0001100` | - | - | C | - | N
-|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001101` | C | I | C | - | *
-|link:#cursor-inc[CINCOFFSETIMM] |I |`011`    | - | C | - | C | S | *
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
+|link:#rev-operation[REVOKE]      |R |`001`    |`0000000` | C | - | - | - | * | *
+|link:#shrink[SHRINK]      |R |`001`    |`0000001` | I | I | C | - | * | *
+|link:#tighten[TIGHTEN]     |R |`001`    |`0000010` | I | - | C | - | * | *
+|link:#delin[DELIN]       |R |`001`    |`0000011` | - | - | C | - | * | *
+|link:#cursor-set-get[LCC]         |R |`001`    |`0000100` | C | - | I | - | * | *
+|link:#cursor-set-get[SCC]         |R |`001`    |`0000101` | I | - | C | - | * | *
+|link:#split[SPLIT]       |R |`001`    |`0000110` | C | I | C | - | * | *
+|link:#seal[SEAL]        |R |`001`    |`0000111` | I | - | C | - | * | *
+|link:#revcap-creation[MREV]        |R |`001`    |`0001000` | C | - | C | - | * | *
+|link:#init[INIT]        |R |`001`    |`0001001` | - | - | C | - | * | *
+|link:#cap-mov[MOVC]        |R |`001`    |`0001010` | C | - | C | - | * | *
+|link:#drop[DROP]       |R |`001`    |`0001011` | C | - | - | - | * | *
+|CAPGET      |R |`001`    |`0001100` | - | - | C | - | N | *
+|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001101` | C | I | C | - | * | *
+|link:#cursor-inc[CINCOFFSETIMM] |I |`011`    | - | C | - | C | S | * | *
 |===
 
 .Memory access instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|link:#load-cap[LDC]         |R |`001`    |`0010000` | C | - | C | - | *
-|link:#store-cap[STC]         |R |`001`    |`0010001` | C | C | - | - | *
-|link:#load-with-cap[LDD]         |R |`001`    |`0010010` | C | - | I | - | *
-|link:#store-with-cap[STD]         |R |`001`    |`0010011` | C | I | - | - | *
-|link:#load-with-cap[LDW]        |R |`001`    |`0010100` | C | - | I | - | *
-|link:#store-with-cap[STW]        |R |`001`    |`0010101` | C | I | - | - | *
-|link:#load-with-cap[LDH]        |R |`001`    |`0010110` | C | - | I | - | *
-|link:#store-with-cap[STH]        |R |`001`    |`0010111` | C | I | - | - | *
-|link:#load-with-cap[LDB]         |R |`001`    |`0011000` | C | - | I | - | *
-|link:#store-with-cap[STB]         |R |`001`    |`0011001` | C | I | - | - | *
-|link:#load-cap-raw[LDCR]         |R |`001`    |`0011010` | I | - | C | - | N
-|link:#store-cap-raw[STCR]         |R |`001`    |`0011011` | I | C | - | - | N
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
+|link:#load-cap[LDC]         |R |`001`    |`0010000` | C | - | C | - | * | *
+|link:#store-cap[STC]         |R |`001`    |`0010001` | C | C | - | - | * | *
+|link:#load-with-cap[LDD]         |R |`001`    |`0010010` | C | - | I | - | * | *
+|link:#store-with-cap[STD]         |R |`001`    |`0010011` | C | I | - | - | * | *
+|link:#load-with-cap[LDW]        |R |`001`    |`0010100` | C | - | I | - | * | *
+|link:#store-with-cap[STW]        |R |`001`    |`0010101` | C | I | - | - | * | *
+|link:#load-with-cap[LDH]        |R |`001`    |`0010110` | C | - | I | - | * | *
+|link:#store-with-cap[STH]        |R |`001`    |`0010111` | C | I | - | - | * | *
+|link:#load-with-cap[LDB]         |R |`001`    |`0011000` | C | - | I | - | * | *
+|link:#store-with-cap[STB]         |R |`001`    |`0011001` | C | I | - | - | * | *
+|link:#load-cap-raw[LDCR]         |R |`001`    |`0011010` | I | - | C | - | N | T
+|link:#store-cap-raw[STCR]         |R |`001`    |`0011011` | I | C | - | - | N | T
 |===
 
 .Control flow instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|link:#domain-cross[CALL]        |R |`001`    |`0100000` | C | - | - | - | S
-|link:#domain-cross[RETURN]      |R |`001`    |`0100001` | C | I | - | - | S
-|link:#jmp-cap[CJALR]         |R |`001`    |`0100010` | C | - | C | - | S
-|link:#jmp-cap[CBNZ]         |R |`001`    |`0100011` | C | I | - | - | S
-|link:#world-switch[CAPENTER]    |R |`001`    |`0100100` | C | - | I | - | N
-|link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | C | I | - | - | S
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
+|link:#domain-cross[CALL]        |R |`001`    |`0100000` | C | - | - | - | S | *
+|link:#domain-cross[RETURN]      |R |`001`    |`0100001` | C | I | - | - | S | *
+|link:#jmp-cap[CJALR]         |R |`001`    |`0100010` | C | - | C | - | S | *
+|link:#jmp-cap[CBNZ]         |R |`001`    |`0100011` | C | I | - | - | S | *
+|link:#world-switch[CAPENTER]    |R |`001`    |`0100100` | C | - | I | - | N | T
+|link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | C | I | - | - | S | T
 |===
 
 .Note
 ****
-For instruction operands:
+*For instruction operands:*
 
 I:: Integer register
 C:: Capability register
 -:: Not used
 
-For immediates:
+*For immediates:*
 
 S:: Sign-extended
 Z:: Zero-extended
 -:: Not used
 
-For worlds:
+*For worlds:*
 
 N:: Normal world
 S:: Secure world
 *:: Either world
+
+*For variants:*
+
+P:: _Pure Capstone_
+T:: _TransCapstone_
+*:: Either variant
 ****
