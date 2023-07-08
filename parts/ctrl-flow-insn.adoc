@@ -37,10 +37,13 @@ in a unconditional or conditional manner.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `cwrld` is `0` (normal world).
-* `rs1` does not contain a capability.
-* The `type` field of the capability in `rs1` is neither `0` (linear) nor `1` (non-linear).
-* The `perms` field of the capability in `rs1` is neither `2` (read-execute) nor `4` (read-write-execute).
+* _Pure Capstone_
+** `rs1` does not contain a capability.
+** The `type` field of the capability in `rs1` is neither `0` (linear) nor `1` (non-linear).
+** The `perms` field of the capability in `rs1` is neither `2` (read-execute) nor `4` (read-write-execute).
+* _TransCapstone_
+** `cwrld` is `0` (normal world).
+** Any of the conditions for _Pure Capstone_ are met.
 
 *If no exception is raised:*
 
@@ -49,11 +52,6 @@ capability in `pc`, with its `cursor` field replaced by the address of the next 
 is written to the register `rd`.
 * CBNZ: If the content of `rs2` is zero (`0`), the behaviour is the same as for NOP.
 Otherwise, set the program counter (`pc`) to the capability in `rs1`.
-
-If the capability is valid, and the `cursor` field of the capability in `pc` is in-bound
-(i.e., the bound of the capability in `pc` is `[base, end)`, where `base` and `end`
-are the `base` and `end` fields of the capability in `pc`, and `base \<= cursor \<= end-4`),
-then the next instruction will be fetched from its `cursor` field.
 
 [#domain-cross]
 == Domain Crossing
