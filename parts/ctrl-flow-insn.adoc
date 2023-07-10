@@ -60,6 +60,24 @@ _Domains_ in Capstone-RISC-V are individual software compartments that
 are protected by a safe context switching mechanism, i.e., domain crossing.
 The mechanism is provided by the CALL and RETURN instructions.
 
+
+.Note
+****
+This includes the revised semantics of the sealed and sealed-return capabilities, which
+allows memory accesses in certain scenarios.
+
+.Memory accesses granted by sealed and sealed-return capabilities
+[%header%autowidth.stretch]
+|===
+| Capability type | `async` | Read | Write | Execute
+| Sealed | `0` | No | No | No
+| Sealed | `1` | No | No | No
+| Sealed-return | `0` | `cursor in [base + CLEN * 2, end)` | `cursor in [base + CLEN * 2, end)` | No
+| Sealed-return | `1` | No | No | No
+|===
+
+****
+
 .CALL instruction format
 [wavedrom,,svg]
 ....
