@@ -69,7 +69,7 @@ The mechanism is provided by the CALL and RETURN instructions.
 | Capability type | `async` | Read | Write | Execute
 | Sealed | `0` | No | No | No
 | Sealed | `1` | No | No | No
-| Sealed-return | `0` | `cursor in [base + CLEN * 2, end)` | `cursor in [base + CLEN * 2, end)` | No
+| Sealed-return | `0` | `cursor in [base + CLENBYTES * 2, end)` | `cursor in [base + CLENBYTES * 2, end)` | No
 | Sealed-return | `1` | No | No | No
 |===
 
@@ -152,7 +152,7 @@ capability in `rs1` to `rd`, and write the capability to the register `cra`.
 
 *If no exception is raised:*
 
-*When `rs1.asyc = 0` (synchronous):*
+*When `rs1.async = 0` (synchronous):*
 
 . Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
