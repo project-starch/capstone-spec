@@ -89,7 +89,7 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
+. Set the `type` field of `ceh` to `5` (sealed-return), `reg` field of `ceh` to `0` (asynchronous), and `async` field of `ceh` to `1` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
 
@@ -196,7 +196,7 @@ Note that this is exactly the same as the handling of exceptions in pure Capston
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set the `size` field of `switch_cap` to `31`.
+. Set the `async` field of `switch_cap` to `1` (asynchronous).
 . Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
