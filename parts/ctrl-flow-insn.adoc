@@ -107,7 +107,7 @@ where `base` is the `base` field of the capability in `rs1`, to the program coun
 . Load the content at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the `ceh`.
 . For `i = 0, 1, ..., count`, load the content at the memory location
-`[base + (i + 1) * CLENBYTES, base + (i + 2) * CLENBYTES)`, where `count` is the `count` field of the
+`[base + (i + 2) * CLENBYTES, base + (i + 3) * CLENBYTES)`, where `count` is the `count` field of the
 capability in `rs1`, to `x[i+2]` (the `i+2`-th general-purpose register).
 . Store the former `pc`, `ceh` and `csp` values to the memory location `[base, base + CLENBYTES)`,
 `[base + CLENBYTES, base + 2 * CLENBYTES)` and `[base + 2 * CLENBYTES, base + 3 * CLENBYTES)` respectively.
