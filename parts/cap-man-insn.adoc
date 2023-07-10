@@ -314,7 +314,7 @@ The SEAL instruction seals a linear capability.
 * The size of the memory region associated with the capability in `rd` is smaller than
 `CLENBYTES * 32` bytes. That is, `end - base < CLENBYTES * 32`.
 * `rs1` does not contain an integer.
-* The integer contained in `rs1` is larger than `31`.
+* The integer contained in `rs1` is larger than `29`.
 
 *If no exception is raised:* The `type` field of the capability in `rd`
 is set to `2` (sealed).

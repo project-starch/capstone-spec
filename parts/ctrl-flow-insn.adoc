@@ -60,6 +60,10 @@ _Domains_ in Capstone-RISC-V are individual software compartments that
 are protected by a safe context switching mechanism, i.e., domain crossing.
 The mechanism is provided by the CALL and RETURN instructions.
 
+=== CALL
+
+The CALL instruction is used to call a sealed capability, i.e., to switch to another _domain_.
+
 .CALL instruction format
 [wavedrom,,svg]
 ....
@@ -72,6 +76,45 @@ The mechanism is provided by the CALL and RETURN instructions.
     {bits: 7, name: '0b0100000' }
 ]}
 ....
+
+*An exception is raised when any of the following conditions are met:*
+
+* _Pure Capstone_
+** `rs1` does not contain a capability.
+** The `valid` field of the capability in `rs1` is `0` (invalid).
+** The `type` field of the capability in `rs1` is not `4` (sealed).
+** The memory location `[base, base + CLENBYTES)`, where `base` is the `base` field of the capability in `rs1`,
+does not contain a capability.
+** The `type` field of the capability at the memory location `[base, base + CLENBYTES)`, where `base` is
+the `base` field of the capability in `rs1`, is neither `0` (linear) nor `1` (non-linear).
+** The `perms` field of the capability at the memory location `[base, base + CLENBYTES)`,where `base` is
+the `base` field of the capability in `rs1`, is neither `2` (read-execute) nor `4` (read-write-execute).
+** The memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`, where `base` is the `base` field of
+the capability in `rs1`, does not contain a capability.
+** The `type` field of the capability at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
+where `base` is the `base` field of the capability in `rs1`, is not `4` (sealed) and the capability is not `cnull`.
+** The memory location `[base + 2 * CLENBYTES, base + 3 * CLENBYTES)`, where `base` is the `base` field of
+the capability in `rs1`, does not contain a capability.
+
+* _TransCapstone_
+** `cwrld` is `0` (normal world).
+** Any of the conditions for _Pure Capstone_ are met.
+
+*If no exception is raised:*
+
+. Load the content at the memory location `[base, base + CLENBYTES)`,
+where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
+. Load the content at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
+where `base` is the `base` field of the capability in `rs1`, to the `ceh`.
+. For `i = 0, 1, ..., count`, load the content at the memory location
+`[base + (i + 1) * CLENBYTES, base + (i + 2) * CLENBYTES)`, where `count` is the `count` field of the
+capability in `rs1`, to `x[i+2]` (the `i+2`-th general-purpose register).
+. Store the former `pc`, `ceh` and `csp` values to the memory location `[base, base + CLENBYTES)`,
+`[base + CLENBYTES, base + 2 * CLENBYTES)` and `[base + 2 * CLENBYTES, base + 3 * CLENBYTES)` respectively.
+. Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
+capability to the register `cra`.
+
+=== RETURN
 
 .RETURN instruction format
 [wavedrom,,svg]
@@ -88,34 +131,12 @@ The mechanism is provided by the CALL and RETURN instructions.
 
 *An exception is raised when any of the following conditions are met:*
 
-* _Pure Capstone_
-** `rs1` does not contain a capability.
-** The `valid` field of the capability in `rs1` is `0` (invalid).
-** The `type` field of the capability in `rs1` is not `4` (sealed).
-* _TransCapstone_
-** `cwrld` is `0` (normal world).
-** Any of the conditions for _Pure Capstone_ are met.
-
-For RETURN, an exception is raised also when any of the following conditions are met:
-
 * `rs2` does not contain an integer.
-* The integer contained in `rs2` is larger than `31`.
+* The integer contained in `rs2` is larger than `29`.
 
 *If no exception is raised:*
 
-For CALL:
-
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-. For `i = 1, 2, ..., count`, load the content at the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the
-capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
-. Store the old `pc` value to the memory location `[base, base + CLENBYTES)`, and the old
-`sp` value to the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`.
-. Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
-capability to the register `cra`.
-
-For RETURN when the content of `rs1` is `0`:
+*When the content of `rs1` is `0`:*
 
 . Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
@@ -129,7 +150,7 @@ to the memory location
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the exception handler register `ceh`.
 
-For RETURN when the content of `rs1` is not `0`:
+*When the content of `rs1` is not `0`:*
 
 . Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
