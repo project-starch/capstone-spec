@@ -60,6 +60,21 @@ _Domains_ in Capstone-RISC-V are individual software compartments that
 are protected by a safe context switching mechanism, i.e., domain crossing.
 The mechanism is provided by the CALL and RETURN instructions.
 
+.Note
+****
+
+.Memory accesses granted by sealed and sealed-return capabilities
+[%header%autowidth.stretch]
+|===
+| Capability type | `async` | Read | Write | Execute
+| Sealed | `0` | No | No | No
+| Sealed | `1` | No | No | No
+| Sealed-return | `0` | `cursor in [base + CLEN * 2, end)` | `cursor in [base + CLEN * 2, end)` | No
+| Sealed-return | `1` | No | No | No
+|===
+
+****
+
 === CALL
 
 The CALL instruction is used to call a sealed capability, i.e., to switch to another _domain_.
@@ -83,36 +98,30 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ** `rs1` does not contain a capability.
 ** The `valid` field of the capability in `rs1` is `0` (invalid).
 ** The `type` field of the capability in `rs1` is not `4` (sealed).
-** The memory location `[base, base + CLENBYTES)`, where `base` is the `base` field of the capability in `rs1`,
-does not contain a capability.
-** The `type` field of the capability at the memory location `[base, base + CLENBYTES)`, where `base` is
-the `base` field of the capability in `rs1`, is neither `0` (linear) nor `1` (non-linear).
-** The `perms` field of the capability at the memory location `[base, base + CLENBYTES)`,where `base` is
-the `base` field of the capability in `rs1`, is neither `2` (read-execute) nor `4` (read-write-execute).
-** The memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`, where `base` is the `base` field of
-the capability in `rs1`, does not contain a capability.
-** The `type` field of the capability at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, is not `4` (sealed) and the capability is not `cnull`.
-** The memory location `[base + 2 * CLENBYTES, base + 3 * CLENBYTES)`, where `base` is the `base` field of
-the capability in `rs1`, does not contain a capability.
-
+** The `async` field of the capability in `rs1` is `1` (asynchronous).
+** The memory location `[rs1.base, rs1.base + CLENBYTES)` does not contain a capability.
+** The `type` field of the capability at the memory location `[rs1.base, rs1.base + CLENBYTES)`
+is neither `0` (linear) nor `1` (non-linear).
+** The `perms` field of the capability at the memory location `[rs1.base, rs1.base + CLENBYTES)`
+is neither `2` (read-execute) nor `4` (read-write-execute).
+** The memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` does not contain a capability.
+** The capability at the memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` is not `cnull`
+and its `type` field is not `4` (sealed).
+** The memory location `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)` does not contain a capability.
 * _TransCapstone_
 ** `cwrld` is `0` (normal world).
 ** Any of the conditions for _Pure Capstone_ are met.
 
 *If no exception is raised:*
 
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-. Load the content at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the `ceh`.
-. For `i = 0, 1, ..., count`, load the content at the memory location
-`[base + (i + 2) * CLENBYTES, base + (i + 3) * CLENBYTES)`, where `count` is the `count` field of the
-capability in `rs1`, to `x[i+2]` (the `i+2`-th general-purpose register).
-. Store the former `pc`, `ceh` and `csp` values to the memory location `[base, base + CLENBYTES)`,
-`[base + CLENBYTES, base + 2 * CLENBYTES)` and `[base + 2 * CLENBYTES, base + 3 * CLENBYTES)` respectively.
-. Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
-capability to the register `cra`.
+. Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
+. Load the content at the memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` to the `ceh`.
+. Load the content at the memory location `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)` to the `csp`.
+. Store the former `pc`, `ceh` and `csp` values to the memory location `[rs1.base, rs1.base + CLENBYTES)`,
+`[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` and `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)`
+respectively.
+. Set the `type` field of the capability in `rs1` to `5` (sealed-return), set the `reg` field of the
+capability in `rs1` to `rd`, and write the capability to the register `cra`.
 
 === RETURN
 
@@ -131,26 +140,19 @@ capability to the register `cra`.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs2` does not contain an integer.
-* The integer contained in `rs2` is larger than `29`.
+* _Pure Capstone_
+** `rs1` does not contain a capability.
+** The `valid` field of the capability in `rs1` is `0` (invalid).
+** The `type` field of the capability in `rs1` is not `5` (sealed-return).
+** The `async` field of the capability in `rs1` is `1` (asynchronous).
+** `rs2` does not contain an integer.
+* _TransCapstone_
+** `cwrld` is `0` (normal world).
+** Any of the conditions for _Pure Capstone_ are met.
 
 *If no exception is raised:*
 
-*When the content of `rs1` is `0`:*
-
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-. For `i = 1, 2, ..., 31`, load the content at the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
-. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLENBYTES)`.
-. For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
-to the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `rs1`.
-. Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
-capability to the exception handler register `ceh`.
-
-*When the content of `rs1` is not `0`:*
+*When `rs1.asyc = 0` (synchronous):*
 
 . Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
@@ -158,11 +160,26 @@ where `base` is the `base` field of the capability in `rs1`, to the program coun
 where `base` is the `base` field of the capability in `rs1`, to the stack pointer (`sp`).
 . Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
 the memory location `[base, base + CLENBYTES)`.
-. For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
-to the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `rs1`.
+// . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
+// to the memory location
+// `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `rs1`.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the register `x[reg]` where `reg` is the `reg` field of the capability in `rs1`.
+
+*When `rs1.async = 1` (asynchronous):*
+
+. Load the content at the memory location `[base, base + CLENBYTES)`,
+where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
+. For `i = 1, 2, ..., 31`, load the content at the memory location
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
+the memory location `[base, base + CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, load the content of `x[i]` (the `i`-th general-purpose register)
+to the memory location
+`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`.
+. Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
+capability to the exception handler register `ceh`.
+
 
 [#world-switch]
 == A World Switching Extension for _TransCapstone_
@@ -220,14 +237,18 @@ respectively.
 
 *If no exception is raised:*
 
+// Similar to CALL, we do not need to load the full context
+// TODO: the resumption of an asynchronous exit needs to be handled
+
 . Load the content at the memory location `[base, base + CLENBYTES)`,
 where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-. For `i = 1, 2, ..., count`, load the content at the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the
-capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
+// . For `i = 1, 2, ..., count`, load the content at the memory location
+// `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the
+// capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
 . Store the old `pc` value to `normal_pc`, and the old
 `sp` value to `normal_sp`.
 . Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
+// TODO: we need to find a way to access the content in the switch_cap region
 capability to the register `switch_cap`.
 . Write `rs1` to the register `switch_reg`.
 . Create a capability of `type = 6` (exit) in `cra`.
@@ -253,9 +274,9 @@ the CPU core exits from the secure world.
 . Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
 . Write the old `pc` content with the `cursor` field replaced with the content of `rs2` to
 the memory location `[base, base + CLENBYTES)`, where `base` is the `base` field of the capability in `switch_cap`.
-. For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register) to
-the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `switch_cap`.
+// . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register) to
+// the memory location
+// `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `switch_cap`.
 . Set the `type` field of `switch_cap` to `4` (sealed) and write it to `x[switch_reg]`.
 . Set the register `x[exit_reg]` to `0` (normal exit).
 . Set `cwrld` to `0` (normal world).

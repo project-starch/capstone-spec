@@ -82,14 +82,14 @@ TODO: specify what happens if any of the involved memory accesses fails
 *Otherwise:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., ceh.size`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
 memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Scrub the other general-purpose registers.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
+. Set the `type` field of `ceh` to `5` (sealed-return), `reg` field of `ceh` to `0` (asynchronous), and `async` field of `ceh` to `1` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
 
@@ -142,7 +142,7 @@ the normal-world interrupt handling process thereafter.
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set the `size` field of `switch_cap` to `31`.
+. Set the `async` field of `switch_cap` to `1` (asynchronous).
 . Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
@@ -175,9 +175,8 @@ world with a proper error code.
 *If the content in `ceh` is a valid sealed capability:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., ceh.size`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
 memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Scrub the other general-purpose registers.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
@@ -196,12 +195,11 @@ Note that this is exactly the same as the handling of exceptions in pure Capston
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set the `size` field of `switch_cap` to `31`.
+. Set the `async` field of `switch_cap` to `1` (asynchronous).
 . Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Write the exit code to the register `x[exit_reg]`.
-. Scrub the other general-purpose registers.
 . Set the `cwrld` register to `0` (normal world).
 
 // Something similar to try-catch can be considered
@@ -212,7 +210,6 @@ to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i +
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Write the exit code to the register `x[exit_reg]`.
-. Scrub the other general-purpose registers.
 . Set the `cwrld` register to `0` (normal world).
 
 
