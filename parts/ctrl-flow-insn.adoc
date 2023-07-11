@@ -144,7 +144,7 @@ capability to the register `x[reg]` where `reg` is the `reg` field of the capabi
 . Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
 . For `i = 1, 2, ..., 31`, load the content at the memory location
 `[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
-. Write the former value of `pc`, with the `cursor` field replaced with the content of `rs2`, to
+. Write the former value of `pc`, with the `cursor` field replaced by the content of `rs2`, to
 the memory location `[rs1.base, rs1.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of `x[i]` (the `i`-th general-purpose register)
 to the memory location `[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`.
@@ -155,6 +155,10 @@ capability to the exception handler register `ceh`.
 
 .Note
 ****
+
+When the `async` field of a sealed-return capability is `1` (asynchronous), some
+memory accesses are granted by this capability. The following table shows the
+memory accesses granted by sealed and sealed-return capabilities in different scenarios.
 
 .Memory accesses granted by sealed and sealed-return capabilities
 [%header%autowidth.stretch]
@@ -270,16 +274,20 @@ the CPU core exits from the secure world synchronously or asynchronously.
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * The `type` field of the capability in `rs1` is not `6` (exit).
 * `rs2` does not contain an integer.
+* `switch_cap` does not contain a capability.
 * The `valid` field of the capability in `switch_cap` is `0` (invalid).
+* The `type` field of the capability in `switch_cap` is not `4` (sealed-return).
+* The `async` field of the capability in `switch_cap` is `1` (asynchronous).
 
 *If no exception is raised:*
 
 . Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
-. Write the old `pc` content with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLENBYTES)`, where `base` is the `base` field of the capability in `switch_cap`.
-// . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register) to
-// the memory location
-// `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `switch_cap`.
-. Set the `type` field of `switch_cap` to `4` (sealed) and write it to `x[switch_reg]`.
+. Write the former value of `pc`, with the `cursor` field replaced by the content of `rs2`,
+to the memory location `[switch_cap.base, switch_cap.base + CLENBYTES)`.
+. Write the former value of `ceh` and `csp` to the memory location
+`[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)` and
+`[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)` respectively.
+. Set the `type` field of `switch_cap` to `4` (sealed), set the `async` field
+of `switch_cap` to `0` (synchronous), and write it to `x[switch_reg]`.
 . Set the register `x[exit_reg]` to `0` (normal exit).
 . Set `cwrld` to `0` (normal world).
