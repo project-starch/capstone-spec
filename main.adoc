@@ -36,6 +36,10 @@ include::parts/ctrl-flow-insn.adoc[leveloffset=+1]
 
 <<<
 
+include::parts/ctrl-state-insn.adoc[leveloffset=+1]
+
+<<<
+
 include::parts/existing-insn.adoc[leveloffset=+1]
 
 <<<
