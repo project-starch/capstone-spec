@@ -80,7 +80,7 @@ For CINCOFFSET, the offset is read from `x[rs2]`.
 For CINCOFFSETIMM, the offset is the 12-bit sign-extended immediate field
 `imm`. If the offset is `0`, the instructions are semantically equivalent to
 `MOVC rd, rs1`. Otherwise, the instructions are equal to an atomic execution
-of `MOVC rd, rs1` followed by an increment of the `cursor` field of `rd` by
+of `MOVC rd, rs1` followed by an increment of `x[rd].cursor` by
 the offset.
 
 [#cursor-set-get]
@@ -280,7 +280,7 @@ after its associated memory region has been fully initialised (written with new 
 * `x[rd]` is not a capability.
 * `x[rd].valid` is `0` (invalid).
 * `x[rd].type` is not `3` (uninitialised).
-* The `end` field and `x[rd].cursor` are not equal.
+* `x[rd].cursor` and `x[rd].end` are not equal.
 
 *If no exception is raised:* `x[rd].type`
 is set to `0` (linear).
@@ -311,17 +311,6 @@ The SEAL instruction seals a linear capability.
 * `x[rd].perms` is not `3` (read-write) or `4` (read-write-execute).
 * The size of the memory region associated with `x[rd]` is smaller than
 `CLENBYTES * 33` bytes. That is, `x[rd].end - x[rd].base < CLENBYTES * 33`.
-** The memory location `[x[rd].base, x[rd].base + CLENBYTES)` does not contain a capability.
-** The `type` field of the capability at the memory location `[x[rd].base, x[rd].base + CLENBYTES)`
-is neither `0` (linear) nor `1` (non-linear).
-** The `perms` field of the capability at the memory location `[x[rd].base, x[rd].base + CLENBYTES)`
-is neither `2` (read-execute) nor `4` (read-write-execute).
-** The memory location `[x[rd].base + CLENBYTES, x[rd].base + 2 * CLENBYTES)` does not contain a capability.
-** The capability at the memory location `[x[rd].base + CLENBYTES, x[rd].base + 2 * CLENBYTES)` is not `cnull`
-and its `type` field is not `4` (sealed).
-** The memory location `[x[rd].base + 2 * CLENBYTES, x[rd].base + 3 * CLENBYTES)` does not contain a capability.
-** The `type` field of the capability at the memory location `[x[rd].base + 2 * CLENBYTES, x[rd].base + 3 * CLENBYTES)`
-is neither `0` (linear) nor `1` (non-linear).
 
 *If no exception is raised:* `x[rd].type`
 is set to `2` (sealed), and `x[rd].async` is set to `0` (synchronous).
@@ -412,7 +401,7 @@ The REVOKE instruction revokes a capability.
 *If no exception is raised:*
 
 For all capabilities `c` in the system (in either a register or
-memory location), its `valid` field is set to `0` (invalid)
+memory location), `c.valid` is set to `0` (invalid)
 if any of the following conditions are met:
 
 * `c.type` is not `2` (revocation), `c.valid` is `1` (valid),
@@ -423,10 +412,10 @@ and `c` aliases with `x[rs1]`
 if any of the following conditions are met for each invalidated `c`:
 
 * The type of `c` is non-linear (i.e., `c.type != 1`)
-* The `perms` field of `c` is not `3` (read-write) or `4` (read-write-execute)
+* `c.perms` is not `3` (read-write) or `4` (read-write-execute)
 
 Otherwise, `x[rs1].type` is set to `3` (uninitialised),
-and its `cursor` field is set to `x[rs1].base`.
+and `x[rs1].cursor` is set to `x[rs1].base`.
 
 // REVOKE is a bit difficult to describe.
 // We preferably should use a more straightforward

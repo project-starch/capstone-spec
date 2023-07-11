@@ -176,15 +176,12 @@ An exception is raised when any of the following conditions are met:
 
 * `x[pc].valid` is `0` (invalid).
 * `x[pc].cursor` is not aligned to `4`.
-* The bound of the capability in `pc` is `[base, end)`, where `base`
-and `end` are the `base` and `end` fields of the capability in `pc`,
-and `x[pc].cursor` is not in the range
-`[base, end-4]` (i.e., `cursor < base` or `cursor > end-4`).
+* `x[pc].cursor` is not in the range
+`[pc.base, pc.end-4]` (i.e., `pc.cursor < pc.base` or `pc.cursor > pc.end-4`).
 
-If no exception is raised, the instruction pointed to by the `cursor`
-field of the capability in `pc` is fetched and executed. The `cursor`
-field of the capability in `pc` is then incremented by `4` (i.e.,
-`cursor += 4`).
+If no exception is raised, the instruction pointed to by `pc.cursor`
+is fetched and executed. The `pc.cursor` is then incremented by `4` (i.e.,
+`pc.cursor += 4`).
 
 == Added Registers
 

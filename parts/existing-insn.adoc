@@ -126,8 +126,8 @@ the address of the next instruction, is written to `x[rd]`.
 ** An exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
 ** If `cwld` is `1` (secure world), `x[pc].cursor`, instead of `pc` itself,
 is changed by the instruction.
-** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`, the `cursor` field of the
-capability in `pc`, which contains the address of the next instruction, is written to `x[rd]`.
+** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`,
+`pc.cursor` (i.e., the address of the next instruction), is written to `x[rd]`.
 
 == Memory Access Instructions
 
