@@ -84,11 +84,10 @@ For CINCOFFSETIMM, the offset is the 12-bit sign-extended immediate field
 of `MOVC rd, rs1` followed by an increment of the `cursor` field of `rd` by
 the offset.
 
-[#cursor-set-get]
-=== Cursor Setter and Getter
+[#cursor-set]
+=== Cursor Setter
 
-The `cursor` field of a capability can also be directly set and read with
-the SCC and LCC instructions respectively.
+The `cursor` field of a capability can also be directly set with the SCC instruction.
 
 .SCC instruction format
 [wavedrom,,svg]
@@ -103,6 +102,18 @@ the SCC and LCC instructions respectively.
 ]}
 ....
 
+*An exception is raised if any of the following conditions are met:*
+
+* `rd` does not contain a capability.
+* `rs1` does not contain an integer.
+* The capability in `rd` does not have `type = 0` (linear) or `type = 1` (non-linear).
+
+[#field-get]
+=== Field Getter
+
+The `cursor` field of a capability can also be directly set and read with
+the SCC and LCC instructions respectively.
+
 .LCC instruction format
 [wavedrom,,svg]
 ....
@@ -111,22 +122,38 @@ the SCC and LCC instructions respectively.
     {bits: 5, name: 'rd (I)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0000100' }
+    {bits: 12, name: 'imm[11:0]' }
 ]}
 ....
 
-*For SCC, an exception is raised if any of the following conditions are met:*
-
-* `rd` does not contain a capability.
-* `rs1` does not contain an integer.
-* The capability in `rd` does not have `type = 0` (linear) or `type = 1` (non-linear).
-
-*For LCC, an exception is raised if any of the following conditions are met:*
+*An exception is raised if any of the following conditions are met:*
 
 * `rs1` does not contain a capability.
-* The capability in `rs1` does not have `type = 0` (linear), `type = 1` (non-linear),
-or `type = 3` (uninitialised).
+* `imm` is greater than `6`.
+* `imm` is `0` and the `type` field of the capability in `rs1` is not `0` (linear), `1` (non-linear)
+or `3` (uninitialised).
+* `imm` is `2` and the `type` field of the capability in `rs1` is `6` (exit).
+* `imm` is `3` and the `type` field of the capability in `rs1` is `4` (sealed), `5` (sealed-return) or `6` (exit).
+* `imm` is `4` and the `type` field of the capability in `rs1` is `4` (sealed), `5` (sealed-return) or `6` (exit).
+* `imm` is `5` and the `type` field of the capability in `rs1` is neither `4` (sealed) nor `5` (sealed-return).
+* `imm` is `6` and the `type` field of the capability in `rs1` is not `5` (sealed-return).
+
+*If no exception is raised:*
+Depending on the value of `imm` (i.e., zero-extension of the immediate field `imm[11:0]`),
+the instruction will read different fields of the capability in `rs1` and write the value to `rd`
+according to the following table:
+
+[%header,%autowidth.stretch]
+|===
+|`imm` | Field read
+|`0` | `cursor`
+|`1` | `type`
+|`2` | `base`
+|`3` | `end`
+|`4` | `perms`
+|`5` | `async`
+|`6` | `reg`
+|===
 
 [#shrink]
 === Bounds Shrinking

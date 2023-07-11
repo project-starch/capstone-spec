@@ -92,6 +92,24 @@ nothing and always return a capability with `valid = 0` (TODO:
 double-check this claim).
 ****
 
+.Note
+****
+For different types of capabilities, a specific subset of the fields is used.
+The table below summarises the fields used for each type of capabilities.
+
+[%header,%autowidth.stretch]
+|===
+|Type |`type` |`valid` |`cursor` |`base` |`end` |`perms` |`async` |`reg`
+|Linear |`0` |Yes |Yes |Yes |Yes |Yes |- |-
+|Non-linear |`1` |Yes |Yes |Yes |Yes |Yes |- |-
+|Revocation |`2` |Yes |- |Yes |Yes |Yes |- |-
+|Uninitialised |`3` |Yes |Yes |Yes |Yes |Yes |- |-
+|Sealed |`4` |Yes |- |Yes |- |- |Yes |-
+|Sealed-return |`5` |Yes |- |Yes |- |- |Yes |Yes
+|Exit |`6` |Yes |- |- |- |- |- |-
+|===
+****
+
 == Variants
 
 Capstone currently supports two variants of the ISA, i.e. _Pure Capstone_ and _TransCapstone_.
