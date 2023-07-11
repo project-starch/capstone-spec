@@ -84,22 +84,22 @@ TODO: record the pending interrupts
 
 *The interrupt is ignored if any of the following conditions is met:*
 
-* The `cih` register does not contain a capability.
-* The capability in `cih` is invalid (`valid = 0`).
-* The capability in `cih` is not a sealed capability (`type != 4`).
+* `cih` is not a capability.
+* `cih.valid = 0` (invalid).
+* `cih.type != 4` (sealed capability).
 
 *Otherwise:*
 
 . Load the program counter `pc` from memory location `[cih.base, cih.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
-. Scrub the other general-purpose registers.
 . Store the original program counter `pc` to the memory location
 `[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]`
+to memory location
 `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
-. Set the `type` field of `cih` to `5` (sealed-return), `reg` field of `cih` to `0` (asynchronous), and `async` field of `cih` to `1` (asynchronous).
-. Write the content of `cih` to the register `c1`.
+. Set `cih.type` to `5` (sealed-return), `cih.reg` to `0` (asynchronous), and `cih.async` to `1` (asynchronous).
+. Write `cih` to the register `c1`.
 . Write the exception code to the register `x10`.
 
 
@@ -116,14 +116,13 @@ memory location `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
 *Otherwise:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Scrub the other general-purpose registers.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Set the `type` field of `ceh` to `5` (sealed-return), `reg` field of `ceh` to `0` (asynchronous), and `async` field of `ceh` to `1` (asynchronous).
+. Set `ceh.type` to `5` (sealed-return), `ceh.reg` to `0` (asynchronous), and `ceh.async` to `1` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
 
@@ -174,7 +173,7 @@ the normal-world interrupt handling process thereafter.
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
+. For `i = 1, 2, ..., 31`, store the content of `x[i]`
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
 . Set the `async` field of `switch_cap` to `1` (asynchronous).
 . Write the content of `switch_cap` to the register `x[switch_reg]`.
@@ -186,7 +185,7 @@ to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i +
 
 *Otherwise:*
 
-. Write the content of `cnull` to the register `x[switch_reg]`.
+. Write the content of `cnull` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Scrub the other general-purpose registers.
@@ -209,11 +208,11 @@ world with a proper error code.
 *If the content in `ceh` is a valid sealed capability:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
@@ -230,20 +229,20 @@ Note that this is exactly the same as the handling of exceptions in {isa_var_pur
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
 . Set the `async` field of `switch_cap` to `1` (asynchronous).
-. Write the content of `switch_cap` to the register `x[switch_reg]`.
+. Write the content of `switch_cap` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Write the exit code to the register `x[exit_reg]`.
+. Write the exit code to `x[exit_reg]`.
 . Set the `cwrld` register to `0` (normal world).
 
 // Something similar to try-catch can be considered
 
 *Otherwise:*
 
-. Write the content of `cnull` to the register `x[switch_reg]`.
+. Write the content of `cnull` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Write the exit code to the register `x[exit_reg]`.
+. Write the exit code to `x[exit_reg]`.
 . Set the `cwrld` register to `0` (normal world).
 
 

@@ -35,7 +35,8 @@ in {isa_var_hybrid}.
 ]}
 ....
 
-The instructions load their operands from the register `rs1`, which expects
+The instructions load their operands from
+the register `x[rs1]`, which expects
 an integer.
 SETWORLD directly sets the core to the specified
 world (`0` for normal world and non-zero for secure world).
@@ -83,8 +84,9 @@ handling.
 ....
 
 The SETEH instruction sets the secure-world
-exception handler domain (i.e., `ceh`) to the specified capability in `rs1`. 
-The ONNORMALEH instruction checks the integer value in `rs1` and switches on (non-zero) or off (`0`) normal world handling of secure-world exceptions.
+exception handler domain (i.e., `ceh`) to the specified capability
+`x[rs1]`. 
+The ONNORMALEH instruction checks `x[rs1]` and switches on (non-zero) or off (`0`) normal world handling of secure-world exceptions.
 When this is on, an exception that occurs in the secure world will trap to the normal world
 first before being handled by the secure-world exception handler (`ceh`), which is the
 expected behaviour in {isa_var_hybrid}.
