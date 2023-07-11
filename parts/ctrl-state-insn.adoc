@@ -1,0 +1,33 @@
+:reproducible:
+
+= Control State Instructions
+
+[#ccsr-man]
+== Capability CSR (CCSR) Manipulation
+
+The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capability CSRs].
+
+.CCSRRW instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b100' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (Z)' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* The immediate value `imm` does not correspond to the encoding of a valid capability CSR.
+* `rs1` does not contain a capability.
+
+*If no exception is raised:*
+
+. If the link:#ccsr-man-constr[read constraint] is satisfied, the content of the capability CSR specified by the immediate value `imm` is written to the register `rd`.
+Otherwise, the content of the register `rd` is set to the content of `cnull`.
+. If the link:#ccsr-man-constr[write constraint] is satisfied, the content of the register `rs1` is written to the capability CSR specified by the immediate value `imm`.
+If the former content of the register `rs1` is not a non-linear capability (i.e., `type != 1`), it will be set to the content of `cnull`.
+Otherwise, the original content of the capability CSR is preserved.
