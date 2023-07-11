@@ -13,7 +13,7 @@ behaviour is slightly changed to be capability-aware.
 In RISC-V, a set of instructions are used to control the flow of execution.
 These instructions include conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
 and unconditional jump instructions (i.e., `jal` and `jalr`).
-In Capstone, adjustments are made to these instructions to support capability-aware execution.
+In {proj_name}, adjustments are made to these instructions to support capability-aware execution.
 
 .beq instruction format (B-type)
 [wavedrom,,svg]
@@ -117,12 +117,12 @@ In Capstone, adjustments are made to these instructions to support capability-aw
 
 *The following adjustments are made to these instructions:*
 
-* _Pure Capstone_
+* _{isa_var_pure}_
 ** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
 ** The `cursor` field of the capability in `pc`, instead of `pc` itself, is changed by the instruction.
 ** If the instruction is `jal` or `jalr`, the `cursor` field of the capability in `pc`, which contains
 the address of the next instruction, is written to `rd`.
-* _TransCapstone_
+* _{isa_var_hybrid}_
 ** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
 ** If `cwld` is `1` (secure world), the `cursor` field of the capability in `pc`, instead of `pc` itself,
 is changed by the instruction.
@@ -133,10 +133,10 @@ capability in `pc`, which contains the address of the next instruction, is writt
 
 In RISC-V, memory access instructions include load instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
 `lwu`, `ld`, and `fld`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`, and `fsd`).
-As the Capstone-RISC-V ISA extends each of the 32 general-purpose registers, instructions that take
+As the {isa_name} ISA extends each of the 32 general-purpose registers, instructions that take
 these registers as operands are also extended. These instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
 `lwu`, `ld`, `sb`, `sh`, `sw`, and `sd`) take an integer as a raw address, and load or store a value
-from or to this address. In Capstone, adjustments are made to these instructions to support capability-aware
+from or to this address. In {proj_name}, adjustments are made to these instructions to support capability-aware
 memory access.
 
 .lb instruction format (I-type)
@@ -265,9 +265,9 @@ memory access.
 
 *The following adjustments are made to these instructions:*
 
-* _Pure Capstone_
+* _{isa_var_pure}_
 ** An exception is raised if any of these instructions is executed.
-* _TransCapstone_
+* _{isa_var_hybrid}_
 ** An exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
 ** An exception is raised if `rs1`, `rs2` or `rd` contains a capability.
 ** An exception is raised if the address to be accessed is within the range `(SBASE-size, SEND)`

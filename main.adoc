@@ -1,7 +1,12 @@
-= The Capstone-RISC-V Instruction Set Reference
+include::attributes.adoc[]
+
+= The {isa_name} Instruction Set Reference
 :author_1: Jason Zhijingcheng Yu
 :email_1: yu.zhi@comp.nus.edu.sg
+:author_2: Mingkai Li
+:email_2: mingkai@u.nus.edu
 :institution_1: National University of Singapore
+:institution_2: National University of Singapore
 :reproducible:
 :toc: left
 :sectnums:

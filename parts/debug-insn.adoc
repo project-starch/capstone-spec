@@ -7,7 +7,7 @@
 == World Switching
 
 The instructions SETWORLD and ONPARTITION are related to world switching
-in TransCapstone-RISC-V. 
+in {isa_var_hybrid}. 
 
 .SETWORLD instruction format
 [wavedrom,,svg]
@@ -45,10 +45,10 @@ ONPARTITION switches on (non-zero) or off (`0`) the world partitioning checks
 in memory.
 
 The instructions make it easy to set up the environment for testing
-either pure Capstone or TransCapstone:
+either {isa_var_pure} or {isa_var_hybrid}:
 
-* Pure Capstone: secure world, world partitioning checks off
-* TransCapstone: normal world, world partitioning checks on
+* {isa_var_pure}: secure world, world partitioning checks off
+* {isa_var_hybrid}: normal world, world partitioning checks on
 
 [#debug-except]
 == Exception Handling
@@ -87,7 +87,7 @@ exception handler domain (i.e., `ceh`) to the specified capability in `rs1`.
 The ONNORMALEH instruction checks the integer value in `rs1` and switches on (non-zero) or off (`0`) normal world handling of secure-world exceptions.
 When this is on, an exception that occurs in the secure world will trap to the normal world
 first before being handled by the secure-world exception handler (`ceh`), which is the
-expected behaviour in TransCapstone.
+expected behaviour in {isa_var_hybrid}.
 When it is off, the exception will be directly handled by the secure-world exception handler,
-as is expected in pure Capstone.
+as is expected in {isa_var_pure}.
 

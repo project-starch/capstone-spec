@@ -2,11 +2,11 @@
 
 = Memory Access Instructions
 
-Capstone provides instructions to load from and store to memory regions using capabilities.
+{proj_name} provides instructions to load from and store to memory regions using capabilities.
 
 == Load/Store with Capabilities
 
-Capstone offers a set of instructions for loading and storing integers of various sizes
+{proj_name} offers a set of instructions for loading and storing integers of various sizes
 using capabilities.
 
 [#load-with-cap]
@@ -14,7 +14,7 @@ using capabilities.
 
 The LDD, LDW, LDH, LDB instructions load an integer in the size of doubleword, word, 
 halfword, and byte respectively.
-In Capstone, a doubleword is defined as `XLENBYTES` bytes, a word, halfword, and byte 
+In {proj_name}, a doubleword is defined as `XLENBYTES` bytes, a word, halfword, and byte 
 are defined as `XLENBYTES/2`, `XLENBYTES/4`, and `XLENBYTES/8` bytes respectively.
 
 .LDD instruction format
@@ -164,7 +164,7 @@ memory location `[cbase, cend)`, which alias with memory location `[cursor, curs
 
 == Load/Store Capabilities
 
-In Capstone, two specific instructions (i.e., LDC and LTC) are used to load and store capabilities.
+In {proj_name}, two specific instructions (i.e., LDC and LTC) are used to load and store capabilities.
 
 [#load-cap]
 === Load Capabilities
@@ -239,11 +239,11 @@ where `cursor` is the `cursor` field of the capability in `rs1`. The `cursor` fi
 is set to `cursor + CLENBYTES`. If the capability in `rs2` is not a non-linear capability (i.e., `type != 1`),
 `rs2` will be set to the content of `cnull`.
 
-== _TransCapstone_ Added Instructions
+== _{isa_var_hybrid}_ Added Instructions
 
-In _TransCapstone_, besides the LDC and STC instructions, two additional instructions (i.e., LDCR and STCR)
+In _{isa_var_hybrid}_, besides the LDC and STC instructions, two additional instructions (i.e., LDCR and STCR)
 are added to load and store capabilities from/to the normal memory using raw addresses. These 2 instructions
-are only available in _TransCapstone_ and an exception will be raised if they are executed in _Pure Capstone_.
+are only available in _{isa_var_hybrid}_ and an exception will be raised if they are executed in _{isa_var_pure}_.
 
 [#load-cap-raw]
 === Load with Raw Addresses

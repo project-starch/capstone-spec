@@ -2,7 +2,7 @@
 
 = Introduction
 
-The Capstone project is an effort to explore the design of
+The {proj_name} project is an effort to explore the design of
 a new CPU instruction set architecture that achieves multiple
 security goals including memory safety and isolation with
 one unified hardware abstraction.
@@ -15,10 +15,10 @@ endif::backend-html5[]
 
 == Goals
 
-The ultimate goal of Capstone is to unify the numerous hardware abstracts
+The ultimate goal of {proj_name} is to unify the numerous hardware abstracts
 that have been added as extensions to existing architectures as afterthought
 mitigations to security vulnerabilities. This goal requires a high level
-of flexibility and extensibility of the Capstone architecture.
+of flexibility and extensibility of the {proj_name} architecture.
 More specifically, we aim to support the following in a unified manner.
 
 Exclusive access:: Software should be guaranteed exclusive access to
@@ -44,10 +44,10 @@ a minimal TCB if necessary in case of a highly security-critical application.
 
 == Major Design Elements
 
-The Capstone architecture design is based on the idea of capabilities,
+The {proj_name} architecture design is based on the idea of capabilities,
 which are unforgeable tokens that represent authority to perform
 memory accesses and control flow transfers.
-Capstone extends the traditional capability model with new capability
+{proj_name} extends the traditional capability model with new capability
 types including the following.
 
 Linear capabilities:: Linear capabilities are guaranteed not to
@@ -72,13 +72,13 @@ Uninitialised capabilities::
     safe initialisation of memory regions and prevent secret leakage without
     incurring extra performance overhead.
 
-== Capstone-RISC-V ISA Overview
+== {isa_name} ISA Overview
 
-While Capstone does not assume any specific modern ISA, we choose to propose
-a Capstone extension to RISC-V due to its open nature and the availability
+While {proj_name} does not assume any specific modern ISA, we choose to propose
+a {proj_name} extension to RISC-V due to its open nature and the availability
 of toolchains and simulators. 
 
-The Capstone-RISC-V ISA is a 64-bit RISC-V extension that makes the following
+The {isa_name} ISA is a 64-bit RISC-V extension that makes the following
 types of changes to the base architecture:
 
 * Each general-purpose register is extended to 129 bits to accommodate 128-bit capabilities.
@@ -90,8 +90,8 @@ types of changes to the base architecture:
 
 == Assembly Mnemonics
 
-Each Capstone-RISC-V instruction is given a mnemonic prefixed with `CS.`.
-In contexts where it is clear we are discussing Capstone-RISC-V instructions,
+Each {isa_name} instruction is given a mnemonic prefixed with `CS.`.
+In contexts where it is clear we are discussing {isa_name} instructions,
 we will omit the `CS.` prefix for brevity.
 
 In assembly code, the list of operands to an instruction is supplied following the
@@ -113,7 +113,7 @@ Z:: Zero-extended immediate.
 
 == Bibliography
 
-The initial design of Capstone has been discussed in the following paper:
+The initial design of {proj_name} has been discussed in the following paper:
 
 * https://www.usenix.org/conference/usenixsecurity23/presentation/yu-jason[Capstone: A Capability-based Foundation for Trustless Secure Memory Access]
   by Jason Zhijingcheng Yu, Conrad Watt, Aditya Badole, Trevor E. Carlson, Prateek Saxena.

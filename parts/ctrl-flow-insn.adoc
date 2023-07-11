@@ -37,13 +37,13 @@ in a unconditional or conditional manner.
 
 *An exception is raised when any of the following conditions are met:*
 
-* _Pure Capstone_
+* _{isa_var_pure}_
 ** `rs1` does not contain a capability.
 ** The `type` field of the capability in `rs1` is neither `0` (linear) nor `1` (non-linear).
 ** The `perms` field of the capability in `rs1` is neither `2` (read-execute) nor `4` (read-write-execute).
-* _TransCapstone_
+* _{isa_var_hybrid}_
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _Pure Capstone_ are met.
+** Any of the conditions for _{isa_var_pure}_ are met.
 
 *If no exception is raised:*
 
@@ -56,7 +56,7 @@ Otherwise, set the program counter (`pc`) to the capability in `rs1`.
 [#domain-cross]
 == Domain Crossing
 
-_Domains_ in Capstone-RISC-V are individual software compartments that
+_Domains_ in {isa_name} are individual software compartments that
 are protected by a safe context switching mechanism, i.e., domain crossing.
 The mechanism is provided by the CALL and RETURN instructions.
 
@@ -79,14 +79,14 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 *An exception is raised when any of the following conditions are met:*
 
-* _Pure Capstone_
+* _{isa_var_pure}_
 ** `rs1` does not contain a capability.
 ** The `valid` field of the capability in `rs1` is `0` (invalid).
 ** The `type` field of the capability in `rs1` is not `4` (sealed).
 ** The `async` field of the capability in `rs1` is `1` (asynchronous).
-* _TransCapstone_
+* _{isa_var_hybrid}_
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _Pure Capstone_ are met.
+** Any of the conditions for _{isa_var_pure}_ are met.
 
 *If no exception is raised:*
 
@@ -117,14 +117,14 @@ and write the capability to the register `cra`.
 
 *An exception is raised when any of the following conditions are met:*
 
-* _Pure Capstone_
+* _{isa_var_pure}_
 ** `rs1` does not contain a capability.
 ** The `valid` field of the capability in `rs1` is `0` (invalid).
 ** The `type` field of the capability in `rs1` is not `5` (sealed-return).
 ** `rs2` does not contain an integer.
-* _TransCapstone_
+* _{isa_var_hybrid}_
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _Pure Capstone_ are met.
+** Any of the conditions for _{isa_var_pure}_ are met.
 
 *If no exception is raised:*
 
@@ -173,9 +173,9 @@ memory accesses granted by sealed and sealed-return capabilities in different sc
 ****
 
 [#world-switch]
-== A World Switching Extension for _TransCapstone_
+== A World Switching Extension for _{isa_var_hybrid}_
 
-In _TransCapstone_, a pair of extra instructions, i.e., CAPENTER and CAPEXIT,
+In _{isa_var_hybrid}_, a pair of extra instructions, i.e., CAPENTER and CAPEXIT,
 is added to support switching between the secure world and the normal world. 
 The CAPENTER instruction causes an entry into the secure world from the
 normal world, and the CAPEXIT instruction causes an exit from the secure

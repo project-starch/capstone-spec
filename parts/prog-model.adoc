@@ -2,7 +2,7 @@
 
 = Programming Model
 
-The Capstone-RISC-V ISA has extended the part of the machine state,
+The {isa_name} ISA has extended the part of the machine state,
 including both some registers and the memory, to
 enable the storage and handling of capabilities.
 
@@ -83,7 +83,7 @@ conditions are satisfied:
 * For load and store instructions that move a capability between
 a register and memory, the value of the capability is preserved.
 * The resulting capability values of any operation are not more
-powerful than when the same operation is performed on a Capstone-RISC-V
+powerful than when the same operation is performed on a {isa_name}
 implementation without compression. More specifically, if an execution
 trace is valid (i.e., without exceptions) on the compressed implementation,
 then it must also be valid on the uncompressed implementation.
@@ -94,9 +94,9 @@ double-check this claim).
 
 == Variants
 
-Capstone currently supports two variants of the ISA, i.e. _Pure Capstone_ and _TransCapstone_.
-While _Pure Capstone_ is a pure capability-based ISA, _TransCapstone_ is a hybrid ISA that
-supports both capabilities and traditional virtual memory. In _TransCapstone_, the memory
+{proj_name} currently supports two variants of the ISA, i.e. _{isa_var_pure}_ and _{isa_var_hybrid}_.
+While _{isa_var_pure}_ is a pure capability-based ISA, _{isa_var_hybrid}_ is a hybrid ISA that
+supports both capabilities and traditional virtual memory. In _{isa_var_hybrid}_, the memory
 is divided into two parts, i.e., the secure memory and the untrusted memory. The range of
 the secure memory is defined as `[SBASE, SEND)`, where `SBASE` and `SEND` are required to
 be aligned to `CLEN` bits. These two variants share most of the parts of the ISA, and separate
@@ -104,7 +104,7 @@ descriptions are provided for the parts that are different.
 
 == Extension to General-Purpose Registers
 
-The Capstone-RISC-V ISA extends each of the 32 general-purpose
+The {isa_name} ISA extends each of the 32 general-purpose
 registers, so it contains either a capability or a raw `XLEN`-bit
 integer.
 The type of data contained in a register is maintained and confusion
@@ -162,8 +162,8 @@ exceptions are raised).
 
 === Program Counter
 
-* _Pure Capstone_: The program counter (`pc`) is extended to contain a capability.
-* _TransCapstone_: Similar to the general-purpose registers,
+* _{isa_var_pure}_: The program counter (`pc`) is extended to contain a capability.
+* _{isa_var_hybrid}_: Similar to the general-purpose registers,
 the program counter (`pc`) is also extended to contain a capability or an integer.
 
 When `pc` contains a capability, some of the fields of the capability
@@ -184,14 +184,14 @@ field of the capability in `pc` is then incremented by `4` (i.e.,
 
 == Added Registers
 
-The Capstone-RISC-V ISA adds the following registers:
+The {isa_name} ISA adds the following registers:
 
 
-.Additional Registers in Capstone-RISC-V ISA
+.Additional Registers in {isa_name} ISA
 [#ccsrs-list, cols="1,3a", options="header"]
 |===
-|Capstone Variant   | Additional Registers
-|_Pure Capstone_|
+|{proj_name} Variant   | Additional Registers
+|_{isa_var_pure}_|
 [cols="1,1,4", options="header"]
 !===
 ! Mnemonic ! CCSR encoding ! Description
@@ -199,7 +199,7 @@ The Capstone-RISC-V ISA adds the following registers:
 ! `cih`  ! `0x001` ! The sealed capability for the interrupt handler
 !===
 
-|_TransCapstone_|
+|_{isa_var_hybrid}_|
 [cols="1,1,4", options="header"]
 !===
 ! Mnemonic ! CCSR encoding ! Description
@@ -252,13 +252,13 @@ confusion of the type is not allowed.
 
 == Instruction Set
 
-The Capstone-RISC-V instruction set is based on the RV64G instruction set.
+The {isa_name} instruction set is based on the RV64G instruction set.
 The (uncompressed) instructions are fixed 32-bit wide, and laid out in memory
 in little-endian order. In the encoding space of the RV64G instruction set,
-Capstone-RISC-V instructions occupies the "custom-2" subset, i.e., the opcode
-of all Capstone-RISC-V instructions is `0b1011011`.
+{isa_name} instructions occupies the "custom-2" subset, i.e., the opcode
+of all {isa_name} instructions is `0b1011011`.
 
-Capstone-RISC-V instruction encodings follow two basic formats: R-type and I-type,
+{isa_name} instruction encodings follow two basic formats: R-type and I-type,
 as described below (more details are also provided in the _RISC-V ISA Manual_).
 
 .R-type instruction format
