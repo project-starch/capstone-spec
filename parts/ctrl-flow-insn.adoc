@@ -60,21 +60,6 @@ _Domains_ in Capstone-RISC-V are individual software compartments that
 are protected by a safe context switching mechanism, i.e., domain crossing.
 The mechanism is provided by the CALL and RETURN instructions.
 
-.Note
-****
-
-.Memory accesses granted by sealed and sealed-return capabilities
-[%header%autowidth.stretch]
-|===
-| Capability type | `async` | Read | Write | Execute
-| Sealed | `0` | No | No | No
-| Sealed | `1` | No | No | No
-| Sealed-return | `0` | `cursor in [base + CLENBYTES * 2, end)` | `cursor in [base + CLENBYTES * 2, end)` | No
-| Sealed-return | `1` | No | No | No
-|===
-
-****
-
 === CALL
 
 The CALL instruction is used to call a sealed capability, i.e., to switch to another _domain_.
@@ -99,15 +84,6 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ** The `valid` field of the capability in `rs1` is `0` (invalid).
 ** The `type` field of the capability in `rs1` is not `4` (sealed).
 ** The `async` field of the capability in `rs1` is `1` (asynchronous).
-** The memory location `[rs1.base, rs1.base + CLENBYTES)` does not contain a capability.
-** The `type` field of the capability at the memory location `[rs1.base, rs1.base + CLENBYTES)`
-is neither `0` (linear) nor `1` (non-linear).
-** The `perms` field of the capability at the memory location `[rs1.base, rs1.base + CLENBYTES)`
-is neither `2` (read-execute) nor `4` (read-write-execute).
-** The memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` does not contain a capability.
-** The capability at the memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` is not `cnull`
-and its `type` field is not `4` (sealed).
-** The memory location `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)` does not contain a capability.
 * _TransCapstone_
 ** `cwrld` is `0` (normal world).
 ** Any of the conditions for _Pure Capstone_ are met.
@@ -121,7 +97,8 @@ and its `type` field is not `4` (sealed).
 `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` and `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)`
 respectively.
 . Set the `type` field of the capability in `rs1` to `5` (sealed-return), set the `reg` field of the
-capability in `rs1` to `rd`, and write the capability to the register `cra`.
+capability in `rs1` to `rd`, set th `async` field of the capability in `rs1` to `0` (synchronous),
+and write the capability to the register `cra`.
 
 === RETURN
 
@@ -144,7 +121,6 @@ capability in `rs1` to `rd`, and write the capability to the register `cra`.
 ** `rs1` does not contain a capability.
 ** The `valid` field of the capability in `rs1` is `0` (invalid).
 ** The `type` field of the capability in `rs1` is not `5` (sealed-return).
-** The `async` field of the capability in `rs1` is `1` (asynchronous).
 ** `rs2` does not contain an integer.
 * _TransCapstone_
 ** `cwrld` is `0` (normal world).
@@ -154,32 +130,43 @@ capability in `rs1` to `rd`, and write the capability to the register `cra`.
 
 *When `rs1.async = 0` (synchronous):*
 
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-. Load the content at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the stack pointer (`sp`).
-. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLENBYTES)`.
-// . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
-// to the memory location
-// `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `rs1`.
+. Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
+. Load the content at the memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` to the `ceh`.
+. Load the content at the memory location `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)` to the `csp`.
+. Store the former `pc`, `ceh` and `csp` values to the memory location `[rs1.base, rs1.base + CLENBYTES)`,
+`[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` and `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)`
+respectively.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the register `x[reg]` where `reg` is the `reg` field of the capability in `rs1`.
 
 *When `rs1.async = 1` (asynchronous):*
 
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
+. Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
 . For `i = 1, 2, ..., 31`, load the content at the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
-. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of `x[i]` (the `i`-th general-purpose register)
-to the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`.
+`[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+. Write the former value of `pc`, with the `cursor` field replaced with the content of `rs2`, to
+the memory location `[rs1.base, rs1.base + CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, store the content of `x[i]` (the `i`-th general-purpose register)
+to the memory location `[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`.
+When `i = rs1`, store the content of `cnull` instead to `[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the exception handler register `ceh`.
 
+
+.Note
+****
+
+.Memory accesses granted by sealed and sealed-return capabilities
+[%header%autowidth.stretch]
+|===
+| Capability type | `async` | Read | Write | Execute
+| Sealed | `0` | No | No | No
+| Sealed | `1` | No | No | No
+| Sealed-return | `0` | No | No | No
+| Sealed-return | `1` | `cursor in [base, end)` | `cursor in [base, end)` | No
+|===
+
+****
 
 [#world-switch]
 == A World Switching Extension for _TransCapstone_
@@ -189,6 +176,17 @@ is added to support switching between the secure world and the normal world.
 The CAPENTER instruction causes an entry into the secure world from the
 normal world, and the CAPEXIT instruction causes an exit from the secure
 world into the normal world.
+
+The CAPENTER instruction can only be used in the normal world, whereas
+the CAPEXIT instruction can only be used in the secure world.
+In addition, the CAPEXIT instruction can only be used when an exit capability
+is provided.
+Attempting to use those instructions in the wrong world or without the
+required capability will cause an exception.
+The behaviours of these 2 instructions 
+roughly correspond to the CALL and RETURN instructions respectively.
+
+=== CAPENTER
 
 .CAPENTER instruction format
 [wavedrom,,svg]
@@ -203,6 +201,55 @@ world into the normal world.
 ]}
 ....
 
+*An exception is raised when any of the following conditions are met:*
+
+* `cwrld` is `1` (secure world).
+* `rs1` does not contain a capability.
+* The `valid` field of the capability in `rs1` is `0` (invalid).
+* The `type` field of the capability in `rs1` is not `4` (sealed).
+
+*If no exception is raised:*
+
+// TODO: the resumption of an asynchronous exit needs to be handled
+
+// TODO: we need to find a way to access the content in the switch_cap region
+
+*When `rs1.async = 0` (synchronous):*
+
+. Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
+. Load the content at the memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` to the `ceh`.
+. Load the content at the memory location `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)` to the `csp`.
+. Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
+. Set the `type` field of the capability in `rs1` to `5` (sealed-return), set the `async` field of the
+capability in `rs1` to `0` (synchronous), and write the capability to `switch_cap`.
+. Write `rs1` to `switch_reg`.
+. Create a capability of `type = 6` (exit) in `cra`.
+. Set `exit_reg` to `rd`.
+. Set `cwrld` to `1` (secure world).
+
+*When `rs1.async = 1` (asynchronous):*
+
+. Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
+. Load the content at the memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` to the `ceh`.
+. For `i = 1, 2, ..., 31`, load the content at the memory location
+`[rs1.base + (i + 1) * CLENBYTES, rs1.base + (i + 2) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+. Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
+. Set the `type` field of the capability in `rs1` to `5` (sealed-return), set the `async` field of the
+capability in `rs1` to `0` (synchronous), and write the capability to `switch_cap`.
+. Write `rs1` to `switch_reg`.
+. Set `exit_reg` to `rd`.
+. Set `cwrld` to `1` (secure world).
+
+.Note
+****
+
+The `rd` register will be set to a value indicating the cause of exit when
+the CPU core exits from the secure world synchronously or asynchronously.
+
+****
+
+=== CAPEXIT
+
 .CAPEXIT instruction format
 [wavedrom,,svg]
 ....
@@ -215,50 +262,6 @@ world into the normal world.
     {bits: 7, name: '0b0100101' }
 ]}
 ....
-
-The CAPENTER instruction can only be used in the normal world, whereas
-the CAPEXIT instruction can only be used in the secure world.
-In addition, the CAPEXIT instruction can only be used when an exit capability
-is provided.
-Attempting to use those instructions in the wrong world or without the
-required capability will cause an exception.
-The behaviours of those 
-instructions roughly correspond to the CALL and RETURN instructions
-respectively.
-
-=== CAPENTER
-
-*An exception is raised when any of the following conditions are met:*
-
-* `cwrld` is `1` (secure world).
-* `rs1` does not contain a capability.
-* The `valid` field of the capability in `rs1` is `0` (invalid).
-* The `type` field of the capability in `rs1` is not `4` (sealed).
-
-*If no exception is raised:*
-
-// Similar to CALL, we do not need to load the full context
-// TODO: the resumption of an asynchronous exit needs to be handled
-
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-// . For `i = 1, 2, ..., count`, load the content at the memory location
-// `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the
-// capability in `rs1`, to `x[i]` (the `i`-th general-purpose register).
-. Store the old `pc` value to `normal_pc`, and the old
-`sp` value to `normal_sp`.
-. Set the `type` field of the capability in `rs1` to `5` (sealed-return), and write the
-// TODO: we need to find a way to access the content in the switch_cap region
-capability to the register `switch_cap`.
-. Write `rs1` to the register `switch_reg`.
-. Create a capability of `type = 6` (exit) in `cra`.
-. Set `exit_reg` to `rd`.
-. Set `cwrld` to `1` (secure world).
-
-The `rd` register will be set to a value indicating the cause of exit when
-the CPU core exits from the secure world.
-
-=== CAPEXIT
 
 *An exception is raised when any of the following conditions are met:*
 
