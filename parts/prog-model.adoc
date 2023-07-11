@@ -207,31 +207,58 @@ The Capstone-RISC-V ISA adds the following registers:
 
 
 .Additional Registers in Capstone-RISC-V ISA
-[cols="1,3a"]
+[#ccsrs-list, cols="1,3a", options="header"]
 |===
-|*Capstone Variant*   | *Additional Registers*
+|Capstone Variant   | Additional Registers
 |_Pure Capstone_|
-[cols="1,4"]
+[cols="1,1,4", options="header"]
 !===
-! `ceh`  ! The sealed capability for the exception handler
-! `cih`  ! The sealed capability for the interrupt handler
+! Mnemonic ! CCSR encoding ! Description
+! `ceh`  ! `0x000` ! The sealed capability for the exception handler
+! `cih`  ! `0x001` ! The sealed capability for the interrupt handler
 !===
 
 |_TransCapstone_|
-[cols="1,4"]
+[cols="1,1,4", options="header"]
 !===
-! `ceh`  ! The sealed capability for the exception handler
-! `cwrld`! The currently executed world. `0` = normal world, `1` = secure world
-! `normal_pc`! The program counter for the normal world before the secure world is entered
-! `normal_sp`! The stack pointer for the normal world before the secure world is entered
-! `switch_reg`! The index of the general-purpose register used when switching worlds
-! `switch_cap`! The capability used to store contexts when switching worlds
-! `exit_reg`! The index of the general-purpose register for receiving the exit code when exiting the secure world 
+! Mnemonic ! CCSR encoding ! Description
+! `ceh`  ! `0x000` ! The sealed capability for the exception handler
+! `cwrld`! - ! The currently executed world. `0` = normal world, `1` = secure world
+! `normal_pc`!-! The program counter for the normal world before the secure world is entered
+! `normal_sp`!-!The stack pointer for the normal world before the secure world is entered
+! `switch_reg`!-! The index of the general-purpose register used when switching worlds
+! `switch_cap`!-! The capability used to store contexts when switching worlds
+! `exit_reg`!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
 !===
 |===
 
-TODO: talk about how to read/write those registers, especially `ceh` and `cih`, which are crucial
-to the liveness of the system.
+Some of the registers only allow capability values and have special semantics
+related to the system-wide machine state. They are referred to as
+_capability control state registers (CCSRs)_. Under their respective constraints,
+CCSRs can be manipulated using link:#ccsr-man[CCSR manipulation instructions].
+
+The manipulation constraints for each CCSR are indicated below.
+
+.Manipulation Constraints for CCSRs
+[#ccsr-man-constr]
+[%header%autowidth.stretch]
+|===
+|Mnemonic | Read | Write
+|`ceh` | No constraint | No constraint
+|`cih` | The original content must be an invalid capability (`valid = 0`) | The original content must be an invalid capability (`valid = 0`)
+|===
+
+.Note
+****
+`ceh` and `cih` should be handled differently.
+`ceh` is about the functionality of a domain only. A domain should be allowed
+to set `ceh` for itself.
+That also means it needs to be switched when switching domains.
+`cih` is about the functionality of the system, which should normally only
+be set once.
+To prevent any domain from setting `cih`, we require the original content of
+`cih` to be invalid for an attempt to change it to succeed.
+****
 
 == Extension to Memory
 
