@@ -45,9 +45,9 @@ Whether the capability is sealed asynchronously: `0` = synchronously, `1` = asyn
 The index of the general-purpose register to restore the capability to
 |===
 
-The range of the `perms` field has a partial order `<=` defined as follows:
+The range of the `perms` field has a partial order `\<=p` defined as follows:
 ....
-<= = { (0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (0, 1), (0, 2), (0, 3), (0, 4),
+<=p = { (0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (0, 1), (0, 2), (0, 3), (0, 4),
        (1, 2), (1, 3), (1, 4), (2, 4), (3, 4) }
 ....
 
@@ -175,7 +175,9 @@ are checked before each instruction fetch.
 An exception is raised when any of the following conditions are met:
 
 * `x[pc].valid` is `0` (invalid).
+* `x[pc].type` is neither `0` (linear) nor `1` (non-linear).
 * `x[pc].cursor` is not aligned to `4`.
+* `x[pc].perms` is not executable (i.e., `2 \<=p x[pc].perms` does not hold).
 * `x[pc].cursor` is not in the range
 `[pc.base, pc.end-4]` (i.e., `pc.cursor < pc.base` or `pc.cursor > pc.end-4`).
 
