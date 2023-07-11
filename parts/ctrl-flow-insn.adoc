@@ -214,9 +214,7 @@ roughly correspond to the CALL and RETURN instructions respectively.
 
 *If no exception is raised:*
 
-// TODO: the resumption of an asynchronous exit needs to be handled
-
-// TODO: we need to find a way to access the content in the switch_cap region
+TODO: we need to find a way to access the content in the switch_cap region
 
 *When `rs1.async = 0` (synchronous):*
 
@@ -274,10 +272,10 @@ the CPU core exits from the secure world synchronously or asynchronously.
 * The `valid` field of the capability in `rs1` is `0` (invalid).
 * The `type` field of the capability in `rs1` is not `6` (exit).
 * `rs2` does not contain an integer.
-* `switch_cap` does not contain a capability.
+// * `switch_cap` does not contain a capability.
 * The `valid` field of the capability in `switch_cap` is `0` (invalid).
-* The `type` field of the capability in `switch_cap` is not `4` (sealed-return).
-* The `async` field of the capability in `switch_cap` is `1` (asynchronous).
+// * The `type` field of the capability in `switch_cap` is not `4` (sealed-return).
+// * The `async` field of the capability in `switch_cap` is `1` (asynchronous).
 
 *If no exception is raised:*
 
