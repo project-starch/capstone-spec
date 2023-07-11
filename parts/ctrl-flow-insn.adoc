@@ -69,8 +69,8 @@ The mechanism is provided by the CALL and RETURN instructions.
 | Capability type | `async` | Read | Write | Execute
 | Sealed | `0` | No | No | No
 | Sealed | `1` | No | No | No
-| Sealed-return | `0` | `cursor in [base + CLENBYTES * 2, end)` | `cursor in [base + CLENBYTES * 2, end)` | No
-| Sealed-return | `1` | No | No | No
+| Sealed-return | `0` | No | No | No
+| Sealed-return | `1` | `cursor in [base, end)` | `cursor in [base, end)` | No
 |===
 
 ****
@@ -144,7 +144,6 @@ capability in `rs1` to `rd`, and write the capability to the register `cra`.
 ** `rs1` does not contain a capability.
 ** The `valid` field of the capability in `rs1` is `0` (invalid).
 ** The `type` field of the capability in `rs1` is not `5` (sealed-return).
-** The `async` field of the capability in `rs1` is `1` (asynchronous).
 ** `rs2` does not contain an integer.
 * _TransCapstone_
 ** `cwrld` is `0` (normal world).
@@ -154,29 +153,25 @@ capability in `rs1` to `rd`, and write the capability to the register `cra`.
 
 *When `rs1.async = 0` (synchronous):*
 
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
-. Load the content at the memory location `[base + CLENBYTES, base + 2 * CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the stack pointer (`sp`).
-. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLENBYTES)`.
-// . For `i = 1, 2, ..., count`, store the content of `x[i]` (the `i`-th general-purpose register)
-// to the memory location
-// `[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, where `count` is the `count` field of the capability in `rs1`.
+. Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
+. Load the content at the memory location `[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` to the `ceh`.
+. Load the content at the memory location `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)` to the `csp`.
+. Store the former `pc`, `ceh` and `csp` values to the memory location `[rs1.base, rs1.base + CLENBYTES)`,
+`[rs1.base + CLENBYTES, rs1.base + 2 * CLENBYTES)` and `[rs1.base + 2 * CLENBYTES, rs1.base + 3 * CLENBYTES)`
+respectively.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the register `x[reg]` where `reg` is the `reg` field of the capability in `rs1`.
 
 *When `rs1.async = 1` (asynchronous):*
 
-. Load the content at the memory location `[base, base + CLENBYTES)`,
-where `base` is the `base` field of the capability in `rs1`, to the program counter (`pc`).
+. Load the content at the memory location `[rs1.base, rs1.base + CLENBYTES)` to the program counter (`pc`).
 . For `i = 1, 2, ..., 31`, load the content at the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
-. Write the old `pc` value with the `cursor` field replaced with the content of `rs2` to
-the memory location `[base, base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of `x[i]` (the `i`-th general-purpose register)
-to the memory location
-`[base + i * CLENBYTES, base + (i + 1) * CLENBYTES)`.
+`[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+. Write the former value of `pc`, with the `cursor` field replaced with the content of `rs2`, to
+the memory location `[rs1.base, rs1.base + CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, store the content of `x[i]` (the `i`-th general-purpose register)
+to the memory location `[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`.
+When `i = rs1`, store the content of `cnull` instead to `[rs1.base + i * CLENBYTES, rs1.base + (i + 1) * CLENBYTES)`.
 . Set the `type` field of the capability in `rs1` to `4` (sealed), and write the
 capability to the exception handler register `ceh`.
 
