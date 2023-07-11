@@ -47,8 +47,7 @@ include::i-type-format.adoc[]
 |link:#init[INIT]        |R |`001`    |`0001001` | - | - | C | - | * | *
 |link:#cap-mov[MOVC]        |R |`001`    |`0001010` | C | - | C | - | * | *
 |link:#drop[DROP]       |R |`001`    |`0001011` | C | - | - | - | * | *
-|CAPGET      |R |`001`    |`0001100` | - | - | C | - | N | *
-|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001101` | C | I | C | - | * | *
+|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001100` | C | I | C | - | * | *
 |link:#cursor-inc[CINCOFFSETIMM] |I |`011`    | - | C | - | C | S | * | *
 |===
 

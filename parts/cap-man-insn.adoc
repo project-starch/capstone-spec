@@ -139,7 +139,7 @@ or `3` (uninitialised).
 * `imm` is `6` and the `type` field of the capability in `rs1` is not `5` (sealed-return).
 
 *If no exception is raised:*
-Depending on the value of `imm` (i.e., zero-extension of the immediate field `imm[11:0]`),
+Depending on the value of `imm` (i.e., zero-extension of the immediate value `imm[11:0]`),
 the instruction will read different fields of the capability in `rs1` and write the value to `rd`
 according to the following table:
 

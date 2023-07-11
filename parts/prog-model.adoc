@@ -115,10 +115,13 @@ The table below summarises the fields used for each type of capabilities.
 
 Capstone currently supports two variants of the ISA, i.e. _Pure Capstone_ and _TransCapstone_.
 While _Pure Capstone_ is a pure capability-based ISA, _TransCapstone_ is a hybrid ISA that
-supports both capabilities and traditional virtual memory. In _TransCapstone_, the memory
-is divided into two parts, i.e., the secure memory and the untrusted memory. The range of
-the secure memory is defined as `[SBASE, SEND)`, where `SBASE` and `SEND` are required to
-be aligned to `CLEN` bits. These two variants share most of the parts of the ISA, and separate
+supports both capabilities and traditional virtual memory. 
+The address space of the memory is represented as `[MBASE, MEND)`, where
+`MBASE` and `MEND` are required to be aligned to `CLEN` bits.
+In _TransCapstone_, the memory is divided into two parts, i.e., the secure memory and the untrusted memory.
+The range of the secure memory is defined as `[SBASE, SEND)`, where `SBASE` and `SEND` are required to
+be aligned to `CLEN` bits and hold `MBASE < SBASE < SEND \<= MEND`.
+These two variants share most of the parts of the ISA, and separate
 descriptions are provided for the parts that are different.
 
 == Extension to General-Purpose Registers
@@ -216,6 +219,7 @@ The Capstone-RISC-V ISA adds the following registers:
 ! Mnemonic ! CCSR encoding ! Description
 ! `ceh`  ! `0x000` ! The sealed capability for the exception handler
 ! `cih`  ! `0x001` ! The sealed capability for the interrupt handler
+! `cinit` ! `0x010` ! The initial capability covering the entire address space of the memory
 !===
 
 |_TransCapstone_|
@@ -223,6 +227,7 @@ The Capstone-RISC-V ISA adds the following registers:
 !===
 ! Mnemonic ! CCSR encoding ! Description
 ! `ceh`  ! `0x000` ! The sealed capability for the exception handler
+! `cinit` ! `0x010` ! The initial capability covering the entire address space of the secure memory
 ! `cwrld`! - ! The currently executed world. `0` = normal world, `1` = secure world
 ! `normal_pc`!-! The program counter for the normal world before the secure world is entered
 ! `normal_sp`!-!The stack pointer for the normal world before the secure world is entered
@@ -245,7 +250,8 @@ The manipulation constraints for each CCSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`ceh` | No constraint | No constraint
-|`cih` | The original content must be an invalid capability (`valid = 0`) | The original content must be an invalid capability (`valid = 0`)
+|`cih` | - | The original content must be an invalid capability (`valid = 0`)
+|`cinit` | One-time only | -
 |===
 
 .Note
@@ -258,6 +264,26 @@ That also means it needs to be switched when switching domains.
 be set once.
 To prevent any domain from setting `cih`, we require the original content of
 `cih` to be invalid for an attempt to change it to succeed.
+****
+
+.Note
+****
+`cinit` is a special CCSR that is used to initialize the system.
+In the initialisation phase of the system, the `cinit` CCSR is set to
+an initial capability as shown in the table below.
+
+.Initial Capability of `cinit`
+[%header%autowidth.stretch]
+|===
+| Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
+| _Pure Capstone_ | `1` (linear) | `MBASE` | `MBASE` | `MEND` | `4` (read-write-execute) | `1` (valid)
+| _TransCapstone_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `4` (read-write-execute) | `1` (valid)
+|===
+
+link:#ccsr-man[CCSR manipulation instructions] can be used to read this initial
+capability and store it in a general-purpose register. This operation can only
+be performed once. Any attempt to write `cinit` or read it for the second time
+will be silently ignored.
 ****
 
 == Extension to Memory

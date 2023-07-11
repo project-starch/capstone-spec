@@ -5,7 +5,7 @@
 [#ccsr-man]
 == Capability CSR (CCSR) Manipulation
 
-The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capability CSRs].
+The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capability CSRs] (CCSRs).
 
 .CCSRRW instruction format
 [wavedrom,,svg]
@@ -21,13 +21,19 @@ The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capa
 
 *An exception is raised when any of the following conditions are met:*
 
-* The immediate value `imm` does not correspond to the encoding of a valid capability CSR.
+* `imm` (i.e., the zero-extension of the immediate value `imm[11:0]`) does not correspond to
+any encoding of a valid CCSR.
 * `rs1` does not contain a capability.
 
 *If no exception is raised:*
 
-. If the link:#ccsr-man-constr[read constraint] is satisfied, the content of the capability CSR specified by the immediate value `imm` is written to the register `rd`.
-Otherwise, the content of the register `rd` is set to the content of `cnull`.
-. If the link:#ccsr-man-constr[write constraint] is satisfied, the content of the register `rs1` is written to the capability CSR specified by the immediate value `imm`.
-If the former content of the register `rs1` is not a non-linear capability (i.e., `type != 1`), it will be set to the content of `cnull`.
-Otherwise, the original content of the capability CSR is preserved.
+. Read from CCSR
+** If the link:#ccsr-man-constr[read constraint] is satisfied: the content of the CCSR specified
+by `imm` (i.e., the zero-extension of the immediate value `imm[11:0]`) is written to the register `rd`.
+If the content of the CCSR is not a non-linear capability (i.e., `type != 1`), it will be set to the content of `cnull`.
+** Otherwise, the content of the register `rd` is set to the content of `cnull`.
+. Write to CCSR
+** If the link:#ccsr-man-constr[write constraint] is satisfied, the content of the register `rs1` 
+is written to the CCSR specified by `imm` (i.e., the zero-extension of the immediate value `imm[11:0]`).
+If the content of the register `rs1` is not a non-linear capability (i.e., `type != 1`), it will be set to the content of `cnull`.
+** Otherwise (i.e., the write constraint is broke), the current content of the CCSR is preserved.
