@@ -58,8 +58,9 @@ protect the confidentiality of the secure world execution.
 For pure Capstone, the handling of interrupts and exceptions is relatively
 straightforward. Regardless of whether the event is an interrupt or an
 exception, or what the type of the interrupt or exception is, the processor
-core will always transfer the control flow to the exception handler domain
-specified in the `ceh` register.
+core will always transfer the control flow to the corresponding handler domain
+(specified in the `ceh` register for exceptions and
+the `cih` register for interrupts).
 The current
 context is saved and sealed in a sealed-return capability which
 is then supplied to the
@@ -72,6 +73,39 @@ to the execution of the original domain.
 TODO: specify what "panics" means here
 
 TODO: specify what happens if any of the involved memory accesses fails
+
+=== Handling of Interrupts
+
+TODO: need to specify how to record cause of the interrupt
+
+TODO: interrupt masking
+
+TODO: record the pending interrupts
+
+*The interrupt is ignored if any of the following conditions is met:*
+
+* The `cih` register does not contain a capability.
+* The capability in `cih` is invalid (`valid = 0`).
+* The capability in `cih` is not a sealed capability (`type != 4`).
+
+*Otherwise:*
+
+. Load the program counter `pc` from memory location `[cih.base, cih.base + CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
+memory location `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
+. Scrub the other general-purpose registers.
+. Store the original program counter `pc` to the memory location
+`[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+`[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
+. Set the `type` field of `cih` to `5` (sealed-return), `reg` field of `cih` to `0` (asynchronous), and `async` field of `cih` to `1` (asynchronous).
+. Write the content of `cih` to the register `c1`.
+. Write the exception code to the register `x10`.
+
+
+=== Handling of Exceptions
+
+// Having unhandleable exceptions is bad
 
 *The CPU core panics if any of the following conditions is met:*
 

@@ -195,6 +195,7 @@ The Capstone-RISC-V ISA adds the following registers:
 [cols="1,4"]
 !===
 ! `ceh`  ! The sealed capability for the exception handler
+! `cih`  ! The sealed capability for the interrupt handler
 !===
 
 |_TransCapstone_|
@@ -210,7 +211,7 @@ The Capstone-RISC-V ISA adds the following registers:
 !===
 |===
 
-TODO: talk about how to read/write those registers, especially `ceh`, which is crucial
+TODO: talk about how to read/write those registers, especially `ceh` and `cih`, which are crucial
 to the liveness of the system.
 
 == Extension to Memory
