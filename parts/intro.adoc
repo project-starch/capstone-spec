@@ -88,6 +88,40 @@ types of changes to the base architecture:
 * Semantics of a small number of existing instructions are changed to support capabilities.
 * Semantics of interrupts and exceptions are changed to support capabilities.
 
+== Capstone-RISC-V ISA Variant
+
+In addition to the base Capstone-RISC-V ISA, which is referred to as _Pure Capstone_,
+we propose a variant of the ISA, called _TransCapstone_.
+While memory accesses and control flow transfers are only possible using capabilities
+in _Pure Capstone_, _TransCapstone_ fuses them with privilege levels and
+virtual memory found in traditional architectures, which allows for a smooth transition
+from existing architectures to Capstone.
+
+In _TransCapstone_, the physical memory is partitioned into link:#mem-extension[two disjoint regions],
+one exclusively for accesses through capabilities and the other exclusively for accesses
+through the virtual memory.
+Correspondingly, _TranCapstone_ allows softwares to run in either of the 2 _worlds_, i.e.,
+the _normal world_ and the _secure world_.
+
+[%header%autowidth.stretch]
+|===
+| World | MMU | Capabilities
+| _Normal World_ | Yes | Yes
+| _Secure World_ | - | Yes
+|===
+
+* The _normal world_ follows the traditional privilege levels, allows both capability-based accesses
+and virtual memory accesses, and is therefore compatible with existing softwares.
+* The _secure world_ is limited to memory accesses through capabilities and provides the security
+guarantees of Capstone.
+
+_TransCapstone_ provides an isolation between the 2 worlds, which prevents the _secure world_ from
+being compromised by the _normal world_.
+A link:#world-switch[world switching mechanism] is added in _TransCapstone_ to allow
+a secure switching between the 2 worlds.
+The _secure world_ of _TransCapstone_ is mostly the same as _Pure Capstone_,
+and separate descriptions are provided for the parts that are different.
+
 == Assembly Mnemonics
 
 Each Capstone-RISC-V instruction is given a mnemonic prefixed with `CS.`.

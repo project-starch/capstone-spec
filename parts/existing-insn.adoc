@@ -129,6 +129,7 @@ is changed by the instruction.
 ** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`, the `cursor` field of the
 capability in `pc`, which contains the address of the next instruction, is written to `rd`.
 
+[#riscv-load-store]
 == Memory Access Instructions
 
 In RISC-V, memory access instructions include load instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
