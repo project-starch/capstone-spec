@@ -79,7 +79,7 @@ capability by a give amount (offset).
 For CINCOFFSET, the offset is read from `x[rs2]`.
 For CINCOFFSETIMM, the offset is the 12-bit sign-extended immediate field
 `imm`. If the offset is `0`, the instructions are semantically equivalent to
-`MOVC rd, rs1`. Otherwise, the instructions are equal to an atomic execution
+`MOVC rd, rs1`. Otherwise, the instructions are equivalent to an atomic execution
 of `MOVC rd, rs1` followed by an increment of `x[rd].cursor` by
 the offset.
 
@@ -118,8 +118,8 @@ the SCC and LCC instructions respectively.
 *For SCC, an exception is raised if any of the following conditions are met:*
 
 * `x[rd]` is not a capability.
-* `x[rs1]` is not an integer.
 * `x[rd]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+* `x[rs1]` is not an integer.
 
 *For LCC, an exception is raised if any of the following conditions are met:*
 
@@ -156,7 +156,7 @@ The instruction attempts to set the bounds of the capability
 * `x[rs1]` is not an integer.
 * `x[rs2]` is not an integer.
 * `x[rs1] >= x[rs2]`.
-* `x[rs1] < x[rs2].base` or `x[rs2] > x[rs1].end`.
+* `x[rs1] < x[rd].base` or `x[rs2] > x[rd].end`.
 
 [#split]
 === Bounds Splitting
