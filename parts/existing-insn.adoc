@@ -2,7 +2,7 @@
 
 = Adjustments to Existing Instructions
 
-For most existing instructions in the RISC-V ISA, the adjustments are straightforward.
+For most existing instructions in the {base_isa_name} ISA, the adjustments are straightforward.
 Their behaviour is unchanged, and an exception is raised if any of the operands
 (i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) is a capability.
 For control flow instructions and memory access instructions, however, the
@@ -10,7 +10,7 @@ behaviour is slightly changed to be capability-aware.
 
 == Control Flow Instructions
 
-In RISC-V, a set of instructions are used to control the flow of execution.
+In {base_isa_name}, a set of instructions are used to control the flow of execution.
 These instructions include conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
 and unconditional jump instructions (i.e., `jal` and `jalr`).
 In {proj_name}, adjustments are made to these instructions to support capability-aware execution.
@@ -131,7 +131,7 @@ is changed by the instruction.
 
 == Memory Access Instructions
 
-In RISC-V, memory access instructions include load instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
+In {base_isa_name}, memory access instructions include load instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
 `lwu`, `ld`, and `fld`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`, and `fsd`).
 As the {isa_name} ISA extends each of the 32 general-purpose registers, instructions that take
 these registers as operands are also extended. These instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
