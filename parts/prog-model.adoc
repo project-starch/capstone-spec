@@ -2,7 +2,7 @@
 
 = Programming Model
 
-The Capstone-RISC-V ISA has extended the part of the machine state,
+The {isa_name} ISA has extended part of the machine state,
 including both some registers and the memory, to
 enable the storage and handling of capabilities.
 
@@ -12,8 +12,9 @@ enable the storage and handling of capabilities.
 
 The width of a capability is 128 bits. We represent this as
 `CLEN = 128` and `CLENBYTES = 16`. Note that this does not
-affect the width of a raw address, which is `XLEN = 64` bits
-(i.e., `XLENBYTES = 8` bytes).
+affect the width of a raw address, which is `XLEN = 64` bits,
+or equivalently, `XLENBYTES = 8` bytes, same as
+in {base_isa_name}.
 
 === Fields
 
@@ -45,9 +46,9 @@ Whether the capability is sealed asynchronously: `0` = synchronously, `1` = asyn
 The index of the general-purpose register to restore the capability to
 |===
 
-The range of the `perms` field has a partial order `<=` defined as follows:
+The range of the `perms` field has a partial order `\<=p` defined as follows:
 ....
-<= = {
+<=p = {
     (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7),
     (1, 1), (1, 3), (1, 5), (1, 7),
     (2, 2), (2, 3), (2, 6), (2, 7),
@@ -70,7 +71,7 @@ we say `c <t d` if and only if
 
 In addition to the above fields, an implementation also needs to maintain
 sufficient metadata to test the `<t` relation.
-It will be clear that for any pair of revocation capabilities that alias,
+It will be clear that for any pair of aliasing revocation capabilities,
 the order of their creations is well-defined.
 
 .Note
@@ -91,7 +92,7 @@ conditions are satisfied:
 * For load and store instructions that move a capability between
 a register and memory, the value of the capability is preserved.
 * The resulting capability values of any operation are not more
-powerful than when the same operation is performed on a Capstone-RISC-V
+powerful than when the same operation is performed on a {isa_name}
 implementation without compression. More specifically, if an execution
 trace is valid (i.e., without exceptions) on the compressed implementation,
 then it must also be valid on the uncompressed implementation.
@@ -121,7 +122,7 @@ The table below summarises the fields used for each type of capabilities.
 
 == Extension to General-Purpose Registers
 
-The Capstone-RISC-V ISA extends each of the 32 general-purpose
+The {isa_name} ISA extends each of the 32 general-purpose
 registers, so it contains either a capability or a raw `XLEN`-bit
 integer.
 The type of data contained in a register is maintained and confusion
@@ -132,39 +133,39 @@ in the following table.
 
 [%header%autowidth.stretch]
 |===
-| `XLEN`-bit integer | Capability
-| `x0`/`zero` | `c0`/`cnull` 
-| `x1`/`ra` | `c1`/`cra`
-| `x2`/`sp` | `c2`/`csp`
-| `x3`/`gp` | `c3`/`cgp`
-| `x4`/`tp` | `c4`/`ctp`
-| `x5`/`t0` | `c5`/`ct0`
-| `x6`/`t1` | `c6`/`ct1`
-| `x7`/`t2` | `c7`/`ct2`
-| `x8`/`s0`/`fp` | `c8`/`cs0`/`cfp`
-| `x9`/`s1` | `c9`/`cs1`
-| `x10`/`a0` | `c10`/`ca0`
-| `x11`/`a1` | `c11`/`ca1`
-| `x12`/`a2` | `c12`/`ca2`
-| `x13`/`a3` | `c13`/`ca3`
-| `x14`/`a4` | `c14`/`ca4`
-| `x15`/`a5` | `c15`/`ca5`
-| `x16`/`a6` | `c16`/`ca6`
-| `x17`/`a7` | `c17`/`ca7`
-| `x18`/`s2` | `c18`/`cs2`
-| `x19`/`s3` | `c19`/`cs3`
-| `x20`/`s4` | `c20`/`cs4`
-| `x21`/`s5` | `c21`/`cs5`
-| `x22`/`s6` | `c22`/`cs6`
-| `x23`/`s7` | `c23`/`cs7`
-| `x24`/`s8` | `c24`/`cs8`
-| `x25`/`s9` | `c25`/`cs9`
-| `x26`/`s10` | `c26`/`cs10`
-| `x27`/`s11` | `c27`/`cs11`
-| `x28`/`t3` | `c28`/`ct3`
-| `x29`/`t4` | `c29`/`ct4`
-| `x30`/`t5` | `c30`/`ct5`
-| `x31`/`t6` | `c31`/`ct6`
+| Index | `XLEN`-bit integer | Capability
+| 0 | `x0`/`zero` | `c0`/`cnull` 
+| 1 | `x1`/`ra` | `c1`/`cra`
+| 2 | `x2`/`sp` | `c2`/`csp`
+| 3 | `x3`/`gp` | `c3`/`cgp`
+| 4 | `x4`/`tp` | `c4`/`ctp`
+| 5 | `x5`/`t0` | `c5`/`ct0`
+| 6 | `x6`/`t1` | `c6`/`ct1`
+| 7 | `x7`/`t2` | `c7`/`ct2`
+| 8 | `x8`/`s0`/`fp` | `c8`/`cs0`/`cfp`
+| 9 | `x9`/`s1` | `c9`/`cs1`
+| 10 | `x10`/`a0` | `c10`/`ca0`
+| 11 | `x11`/`a1` | `c11`/`ca1`
+| 12 | `x12`/`a2` | `c12`/`ca2`
+| 13 | `x13`/`a3` | `c13`/`ca3`
+| 14 | `x14`/`a4` | `c14`/`ca4`
+| 15 | `x15`/`a5` | `c15`/`ca5`
+| 16 | `x16`/`a6` | `c16`/`ca6`
+| 17 | `x17`/`a7` | `c17`/`ca7`
+| 18 | `x18`/`s2` | `c18`/`cs2`
+| 19 | `x19`/`s3` | `c19`/`cs3`
+| 20 | `x20`/`s4` | `c20`/`cs4`
+| 21 | `x21`/`s5` | `c21`/`cs5`
+| 22 | `x22`/`s6` | `c22`/`cs6`
+| 23 | `x23`/`s7` | `c23`/`cs7`
+| 24 | `x24`/`s8` | `c24`/`cs8`
+| 25 | `x25`/`s9` | `c25`/`cs9`
+| 26 | `x26`/`s10` | `c26`/`cs10`
+| 27 | `x27`/`s11` | `c27`/`cs11`
+| 28 | `x28`/`t3` | `c28`/`ct3`
+| 29 | `x29`/`t4` | `c29`/`ct4`
+| 30 | `x30`/`t5` | `c30`/`ct5`
+| 31 | `x31`/`t6` | `c31`/`ct6`
 |===
 
 `x0`/`c0` is a read-only register that can be used both as an
@@ -175,29 +176,32 @@ When used as a capability, it has the value
 Any attempt to write to `x0`/`c0` will be silently ignored (no
 exceptions are raised).
 
+In this document,
+for `i = 0, 1, ..., 31`, we use `x[i]` to refer to the general-purpose
+register with index `i`.
+
 == Extension to Other Registers
 
 === Program Counter
 
-* _Pure Capstone_: The program counter (`pc`) is extended to contain a capability.
-* _TransCapstone_: Similar to the general-purpose registers,
+* _{isa_var_pure}_: The program counter (`pc`) is extended to contain a capability.
+* _{isa_var_hybrid}_: Similar to the general-purpose registers,
 the program counter (`pc`) is also extended to contain a capability or an integer.
 
 When `pc` contains a capability, some of the fields of the capability
 are checked before each instruction fetch.
 An exception is raised when any of the following conditions are met:
 
-* The `valid` field of the capability in `pc` is `0` (invalid).
-* The `cursor` field of the capability in `pc` is not aligned to `4`.
-* The bound of the capability in `pc` is `[base, end)`, where `base`
-and `end` are the `base` and `end` fields of the capability in `pc`,
-and the `cursor` field of the capability in `pc` is not in the range
-`[base, end-4]` (i.e., `cursor < base` or `cursor > end-4`).
+* `x[pc].valid` is `0` (invalid).
+* `x[pc].type` is neither `0` (linear) nor `1` (non-linear).
+* `x[pc].cursor` is not aligned to `4`.
+* `x[pc].perms` is not executable (i.e., `2 \<=p x[pc].perms` does not hold).
+* `x[pc].cursor` is not in the range
+`[pc.base, pc.end-4]`.
 
-If no exception is raised, the instruction pointed to by the `cursor`
-field of the capability in `pc` is fetched and executed. The `cursor`
-field of the capability in `pc` is then incremented by `4` (i.e.,
-`cursor += 4`).
+If no exception is raised, the instruction pointed to by `pc.cursor`
+is fetched and executed. The `pc.cursor` is then incremented by `4` (i.e.,
+`pc.cursor += 4`).
 
 [#mem-extension]
 == Extension to Memory
@@ -209,7 +213,7 @@ also store a capability.
 The type of data contained in a memory location is maintained and
 confusion of the type is not allowed.
 
-In _Pure Capstone_, the memory can only be accessed through capabilities.
+In _{isa_var_pure}_, the memory can only be accessed through capabilities.
 
 [%header%autowidth.stretch]
 |===
@@ -218,7 +222,7 @@ In _Pure Capstone_, the memory can only be accessed through capabilities.
 link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
 |===
 
-In _TransCapstone_, the physical memory is divided into two disjoint regions:
+In _{isa_var_hybrid}_, the physical memory is divided into two disjoint regions:
 the _normal memory_ and the _secure memory_.
 While the _normal memory_ is only accessible through MMU (Memory Management Unit),
 the _secure memory_ can only be accessed through capabilities.
@@ -226,7 +230,7 @@ the _secure memory_ can only be accessed through capabilities.
 [%header%autowidth.stretch]
 |===
 | Memory Region | Address Space | Access Method | Allowed Instructions
-| _Normal Memory_ | `[0, SBASE) U [SEND, 2^XLEN)` | MMU | link:#riscv-load-store[RISC-V load/store instructions],
+| _Normal Memory_ | `[0, SBASE) U [SEND, 2^XLEN)` | MMU | link:#riscv-load-store[{base_isa_name} load/store instructions],
 link:#load-cap-raw[LDCR] and link:#store-cap-raw[STCR]
 | _Secure Memory_ | `[SBASE, SEND)` | Capabilities | link:#load-with-cap[LDD/LDW/LDH/LDB],
 link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
@@ -234,14 +238,14 @@ link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[S
 
 == Added Registers
 
-The Capstone-RISC-V ISA adds the following registers:
+The {isa_name} ISA adds the following registers:
 
 
-.Additional Registers in Capstone-RISC-V ISA
+.Additional Registers in {isa_name} ISA
 [#ccsrs-list, cols="1,3a", options="header"]
 |===
-|Capstone Variant   | Additional Registers
-|_Pure Capstone_|
+|{proj_name} Variant   | Additional Registers
+|_{isa_var_pure}_|
 [cols="1,1,4", options="header"]
 !===
 ! Mnemonic ! CCSR encoding ! Description
@@ -250,7 +254,7 @@ The Capstone-RISC-V ISA adds the following registers:
 ! `cinit` ! `0x010` ! The initial capability covering the entire address space of the memory
 !===
 
-|_TransCapstone_|
+|_{isa_var_hybrid}_|
 [cols="1,1,4", options="header"]
 !===
 ! Mnemonic ! CCSR encoding ! Description
@@ -304,8 +308,8 @@ an initial capability as shown in the table below.
 [%header%autowidth.stretch]
 |===
 | Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
-| _Pure Capstone_ | `1` (linear) | `0` | `0` | `2^XLEN` | `4` (read-write-execute) | `1` (valid)
-| _TransCapstone_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `4` (read-write-execute) | `1` (valid)
+| _{isa_var_pure}_ | `1` (linear) | `0` | `0` | `2^XLEN` | `4` (read-write-execute) | `1` (valid)
+| _{isa_var_hybrid}_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `4` (read-write-execute) | `1` (valid)
 |===
 
 link:#ccsr-man[CCSR manipulation instructions] can be used to read this initial
@@ -316,13 +320,13 @@ will be silently ignored.
 
 == Instruction Set
 
-The Capstone-RISC-V instruction set is based on the RV64G instruction set.
+The {isa_name} instruction set is based on the {base_isa_name} instruction set.
 The (uncompressed) instructions are fixed 32-bit wide, and laid out in memory
-in little-endian order. In the encoding space of the RV64G instruction set,
-Capstone-RISC-V instructions occupies the "custom-2" subset, i.e., the opcode
-of all Capstone-RISC-V instructions is `0b1011011`.
+in little-endian order. In the encoding space of the {base_isa_name} instruction set,
+{isa_name} instructions occupies the "custom-2" subset, i.e., the opcode
+of all {isa_name} instructions is `0b1011011`.
 
-Capstone-RISC-V instruction encodings follow two basic formats: R-type and I-type,
+{isa_name} instruction encodings follow two basic formats: R-type and I-type,
 as described below (more details are also provided in the _RISC-V ISA Manual_).
 
 .R-type instruction format

@@ -110,7 +110,7 @@ S:: Secure world
 
 *For variants:*
 
-P:: _Pure Capstone_
-T:: _TransCapstone_
+P:: _{isa_var_pure}_
+T:: _{isa_var_hybrid}_
 *:: Either variant
 ****

@@ -2,7 +2,7 @@
 
 = Capability Manipulation Instructions
 
-Capstone provides instructions for creating, modifying, and destroying capabilities.
+{proj_name} provides instructions for creating, modifying, and destroying capabilities.
 Note that due to the guarantee of provenance of capabilities, those instructions are
 the _only_ way to manipulate capabilities. In particular, it is not possible to manipulate
 capabilities by manipulating the content of a memory location or register using
@@ -30,14 +30,13 @@ Capabilities can be moved between registers with the MOVC instruction.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs1` does not contain a capability
+* `x[rs1]` is not a capability
 
 *If no exception is raised:*
-If `rs1` is the same register as `rd`, the instruction is a no-op.
-If `rs1` is not the same register as `rd`, `rd` will contain the original content of
-`rs1`, and if the content is not a non-linear capability (i.e., `type != 1`) or
+If `rs1 = rd`, the instruction is a no-op.
+Otherwise, write `x[rs1]` to `x[rd]`, and if `x[rs1]` is not a non-linear capability (i.e., `type != 1`) or
 an exit capability (i.e., `type != 6`),
-`rs1` will be set to the content of `cnull`.
+write `cnull` to `x[rs1]`.
 
 [#cursor-inc]
 === Cursor Increment
@@ -72,16 +71,16 @@ capability by a give amount (offset).
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs1` does not contain a capability.
-* `rs2` does not contain an integer (for CINCOFFSET).
-* The capability in `rs1` does not have `type = 0` (linear) or `type = 1` (non-linear).
+* `x[rs1]` is not a capability.
+* `x[rs2]` is not an integer (for CINCOFFSET).
+* `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
 
 *If no exception is raised:*
-For CINCOFFSET, the offset is read from `rs2`.
+For CINCOFFSET, the offset is read from `x[rs2]`.
 For CINCOFFSETIMM, the offset is the 12-bit sign-extended immediate field
 `imm`. If the offset is `0`, the instructions are semantically equivalent to
-`MOVC rd, rs1`. Otherwise, the instructions are equal to an atomic execution
-of `MOVC rd, rs1` followed by an increment of the `cursor` field of `rd` by
+`MOVC rd, rs1`. Otherwise, the instructions are equivalent to an atomic execution
+of `MOVC rd, rs1` followed by an increment of `x[rd].cursor` by
 the offset.
 
 [#cursor-set]
@@ -104,9 +103,9 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 
 *An exception is raised if any of the following conditions are met:*
 
-* `rd` does not contain a capability.
-* `rs1` does not contain an integer.
-* The capability in `rd` does not have `type = 0` (linear) or `type = 1` (non-linear).
+* `x[rd]` is not a capability.
+* `x[rd]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+* `x[rs1]` is not an integer.
 
 [#field-get]
 === Field Getter
@@ -128,19 +127,19 @@ the SCC and LCC instructions respectively.
 
 *An exception is raised if any of the following conditions are met:*
 
-* `rs1` does not contain a capability.
-* `imm` is greater than `6`.
-* `imm` is `0` and the `type` field of the capability in `rs1` is not `0` (linear), `1` (non-linear)
-or `3` (uninitialised).
-* `imm` is `2` and the `type` field of the capability in `rs1` is `6` (exit).
-* `imm` is `3` and the `type` field of the capability in `rs1` is `4` (sealed), `5` (sealed-return) or `6` (exit).
-* `imm` is `4` and the `type` field of the capability in `rs1` is `4` (sealed), `5` (sealed-return) or `6` (exit).
-* `imm` is `5` and the `type` field of the capability in `rs1` is neither `4` (sealed) nor `5` (sealed-return).
-* `imm` is `6` and the `type` field of the capability in `rs1` is not `5` (sealed-return).
+* `x[rs1]` is not a capability.
+* The immediate value `imm` is greater than `6`.
+* The immediate value `imm` is `0` and `x[rs1]` does not have `type = 0` (linear), `type = 1` (non-linear),
+or `type = 3` (uninitialised).
+* The immediate value `imm` is `2` and `x[rs1]` has `type = 6` (exit).
+* The immediate value `imm` is `3` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+* The immediate value `imm` is `4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+* The immediate value `imm` is `5` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
+* The immediate value `imm` is `6` and `x[rs1]` does not have `type = 5` (sealed-return).
 
 *If no exception is raised:*
-Depending on the value of `imm` (i.e., zero-extension of the immediate value `imm[11:0]`),
-the instruction will read different fields of the capability in `rs1` and write the value to `rd`
+Depending on the immediate value `imm`,
+the instruction write different fields of `x[rs1]` to `x[rd]`
 according to the following table:
 
 [%header,%autowidth.stretch]
@@ -173,19 +172,17 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 ]}
 ....
 
-The instruction reads `rs1` and `rs2` and attempts to set the bounds of the capability in
-`rd` to `[rs1, rs2)`.
+The instruction attempts to set the bounds of the capability 
+`x[rd]` to `[x[rs1], x[rs2])`.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rd` does not contain a capability.
-* The `valid` field of the capability in `rd` is `0` (invalid).
-* The `type` field of the capability in `rd` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
-* `rs1` does not contain an integer.
-* `rs2` does not contain an integer.
-* `rs1 >= rs2`.
-* The original bounds of the capability in `rd` are `[base, end)` and
-`rs1 < base` or `rs2 > end`.
+* `x[rd]` is not a capability.
+* `x[rd].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+* `x[rs1]` is not an integer.
+* `x[rs2]` is not an integer.
+* `x[rs1] >= x[rs2]`.
+* `x[rs1] < x[rd].base` or `x[rs2] > x[rd].end`.
 
 [#split]
 === Bounds Splitting
@@ -205,21 +202,21 @@ The SPLIT instruction can split a capability into two by splitting the bounds.
 ]}
 ....
 
-The instruction reads a capability from `rs1` and an integer from `rs2` and attempts to split
-the capability into two capabilities, one with bounds `[base, rs2)` and the other with bounds
-`[rs2, end)`, assuming the original bounds were `[base, end)`.
+The instruction attempts to split
+the capability `x[rs1]` into two capabilities, one with bounds `[x[rs1].base, x[rs2])` and the other with bounds
+`[x[rs2], x[rs1].end)`.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs1` does not contain a capability.
-* The `valid` field of the capability in `rs1` is `0` (invalid).
-* `rs2` does not contain an integer.
-* The `type` field of the capability in `rs1` is neither `0` nor `1` (neither linear nor non-linear).
-* The original bounds of the capability in `rs1` are `[base, end)` and `rs2 \<= base` or `rs2 >= end`.
+* `x[rs1]` is not a capability.
+* `x[rs1].valid` is `0` (invalid).
+* `x[rs1].type` is neither `0` nor `1` (neither linear nor non-linear).
+* `x[rs2]` is not an integer.
+* `x[rs2] \<= x[rs1].base` or `x[rs2] >= x[rs1].end`.
 
-*If no exception is raised:* The capability in `rs1` has its `end` field set to `rs2`. A new
-capability is created with `base = rs2` and the other fields equal to those of the original
-capability in `rs1`. The new capability is written to `rd`.
+*If no exception is raised:* 
+Set `x[rs1].end` to `x[rs2]`. A new
+capability is created with `base = x[rs2]` and the other fields equal to those of the original `x[rs1]`. The new capability is written to `x[rd]`.
 
 [#tighten]
 === Permission Tightening
@@ -239,17 +236,16 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 ]}
 ....
 
-The instruction reads the new permissions from `rs1` and attempts to set the `perms` field
-of the capability in `rd` to `rs1`.
+The instruction attempts to set 
+`x[rd].perms` to `x[rs1]`.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rd` does not contain a capability.
-* The `valid` field of the capability in `rd` is `0` (invalid).
-* The `type` field of the capability in `rd` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
-* `rs1` does not contain an integer.
-* The content of `rs1` is outside the range of `perms`.
-* The `perms` field of the capability in `rd` is `p` and `rs1 <= p` does not hold.
+* `x[rd]` is not a capability.
+* `x[rd].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+* `x[rs1]` is not an integer.
+* `x[rs1]` is outside the range of `perms`.
+* `x[rs1] \<=p x[rd].perms` does not hold.
 
 == Type Manipulation
 
@@ -278,11 +274,10 @@ The DELIN instruction delinearises a linear capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rd` does not contain a capability.
-* The `valid` field of the capability in `rd` is `0` (invalid).
-* The `type` field of the capability in `rd` is not `0` (linear).
+* `x[rd]` is not a capability.
+* `x[rd].type` is not `0` (linear).
 
-*If no exception is raised:* The `type` field of the capability in `rd`
+*If no exception is raised:* `x[rd].type`
 is set to `1` (non-linear).
 
 [#init]
@@ -306,12 +301,11 @@ after its associated memory region has been fully initialised (written with new 
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rd` does not contain a capability.
-* The `valid` field of the capability in `rd` is `0` (invalid).
-* The `type` field of the capability in `rd` is not `3` (uninitialised).
-* The `end` field and the `cursor` field of the capability in `rd` are not equal.
+* `x[rd]` is not a capability.
+* `x[rd].type` is not `3` (uninitialised).
+* `x[rd].cursor` and `x[rd].end` are not equal.
 
-*If no exception is raised:* The `type` field of the capability in `rd`
+*If no exception is raised:* `x[rd].type`
 is set to `0` (linear).
 
 [#seal]
@@ -334,26 +328,14 @@ The SEAL instruction seals a linear capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rd` does not contain a capability.
-* The `valid` field of the capability in `rd` is `0` (invalid).
-* The `type` field of the capability in `rd` is not `0` (linear).
-* The `perms` field of the capability in `rd` is not `6` (read-write) or `7` (read-write-execute).
-* The size of the memory region associated with the capability in `rd` is smaller than
-`CLENBYTES * 33` bytes. That is, `end - base < CLENBYTES * 33`.
-** The memory location `[rd.base, rd.base + CLENBYTES)` does not contain a capability.
-** The `type` field of the capability at the memory location `[rd.base, rd.base + CLENBYTES)`
-is neither `0` (linear) nor `1` (non-linear).
-** The `perms` field of the capability at the memory location `[rd.base, rd.base + CLENBYTES)`
-is neither `5` (read-execute) nor `7` (read-write-execute).
-** The memory location `[rd.base + CLENBYTES, rd.base + 2 * CLENBYTES)` does not contain a capability.
-** The capability at the memory location `[rd.base + CLENBYTES, rd.base + 2 * CLENBYTES)` is not `cnull`
-and its `type` field is not `4` (sealed).
-** The memory location `[rd.base + 2 * CLENBYTES, rd.base + 3 * CLENBYTES)` does not contain a capability.
-** The `type` field of the capability at the memory location `[rd.base + 2 * CLENBYTES, rd.base + 3 * CLENBYTES)`
-is neither `0` (linear) nor `1` (non-linear).
+* `x[rd]` is not a capability.
+* `x[rd].type` is not `0` (linear).
+* `x[rd].perms` is neither `6` (read-write) nor `7` (read-write-execute).
+* The size of the memory region associated with `x[rd]` is smaller than
+`CLENBYTES * 33` bytes. That is, `x[rd].end - x[rd].base < CLENBYTES * 33`.
 
-*If no exception is raised:* The `type` field of the capability in `rd`
-is set to `2` (sealed), and the `async` field of the capability in `rd` is set to `0` (synchronous).
+*If no exception is raised:* `x[rd].type`
+is set to `2` (sealed), and `x[rd].async` is set to `0` (synchronous).
 
 [#drop]
 == Dropping
@@ -377,10 +359,10 @@ The DROP instruction invalidates a capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs1` does not contain a capability.
-* The `valid` field of the capability in `rs1` is `0` (invalid).
+* `x[rs1]` is not a capability.
+* `x[rs1].valid` is `0` (invalid).
 
-*If no exception is raised:* The `valid` field of the capability in `rs1`
+*If no exception is raised:* `x[rs1].valid`
 is set to `0` (invalid).
 
 [#revocation]
@@ -406,12 +388,12 @@ The MREV instruction creates a revocation capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs1` does not contain a capability.
-* The `type` field of the capability in `rs1` is not `0` (linear).
-* The `valid` field of the capability in `rs1` is `0` (invalid).
+* `x[rs1]` is not a capability.
+* `x[rs1].type` is not `0` (linear).
+* `x[rs1].valid` is `0` (invalid).
 
-*If no exception is raised:* A new capability is created in `rd` with the same
-`base`, `end`, `perms` and `cursor` fields as the capability in `rs1`.
+*If no exception is raised:* A new capability is created in `x[rd]` with the same
+`base`, `end`, `perms` and `cursor` fields as `x[rs1]`.
 The `type` field of the new capability is set to `2` (revocation).
 
 [#rev-operation]
@@ -434,28 +416,28 @@ The REVOKE instruction revokes a capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `rs1` does not contain a capability.
-* The `type` field of the capability in `rs1` is not `2` (revocation).
-* The `valid` field of the capability in `rs1` is `0` (invalid).
+* `x[rs1]` is not a capability.
+* `x[rs1].type` is not `2` (revocation).
+* `x[rs1].valid` is `0` (invalid).
 
 *If no exception is raised:*
 
 For all capabilities `c` in the system (in either a register or
-memory location), its `valid` field is set to `0` (invalid)
+memory location), `c.valid` is set to `0` (invalid)
 if any of the following conditions are met:
 
-* The type field of `c` is not `2` (revocation), the `valid` field of `c` is `1` (valid),
-and `c` aliases with `rs1`
-* The type field of `c` is `2` (revocation), the `valid` field of `c` is `1` (valid), and `rs1 <t c`
+* `c.type` is not `2` (revocation), `c.valid` is `1` (valid),
+and `c` aliases with `x[rs1]`.
+* `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <t c`.
 
-The `type` field of the capability in `rs1` is set to `0` (linear)
+`x[rs1].type` is set to `0` (linear)
 if any of the following conditions are met for each invalidated `c`:
 
 * The type of `c` is non-linear (i.e., `c.type != 1`)
-* The `perms` field of `c` is `p` and `2 <= p` does not hold
+* `2 \<=p c.perms` does not hold
 
-Otherwise, the `type` field of the capability in `rs1` is set to `3` (uninitialised),
-and its `cursor` field is set to `base`.
+Otherwise, `x[rs1].type` is set to `3` (uninitialised),
+and `x[rs1].cursor` is set to `x[rs1].base`.
 
 // REVOKE is a bit difficult to describe.
 // We preferably should use a more straightforward

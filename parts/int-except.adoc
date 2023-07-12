@@ -8,9 +8,9 @@ TODO: add support for nesting
 
 .Note
 ****
-For pure Capstone, there is only one place where exception codes are relevant,
+For {isa_var_pure}, there is only one place where exception codes are relevant,
 which is the argument to pass to the exception handler domain.
-For TransCapstone, however, there are three places where we need to consider
+For {isa_var_hybrid}, however, there are three places where we need to consider
 some form of exception codes:
 
 . (Handleable Exception) The argument to pass to the exception handler domain.
@@ -23,18 +23,18 @@ exit code the user process receives.
 ****
 
 The _exception code_ is what the exception handler domain receives as an argument
-when an exception occurs on pure Capstone or in TransCapstone secure world.
+when an exception occurs on {isa_var_pure} or in {isa_var_hybrid} secure world.
 It is an integer value that indicates what the type of the exception is.
-TransCapstone also has _exit codes_, which are the values returned to the CAPENTER
+{isa_var_hybrid} also has _exit codes_, which are the values returned to the CAPENTER
 instruction in case the exception cannot be handled in the secure world.
 We define the exception code and the exit code for each type of exception below.
-It aligns with the exception codes defined in RISC-V 64, where applicable, for ease of
+It aligns with the exception codes defined in {base_isa_name}, where applicable, for ease of
 implementation and interoperability.
 
-.Exception codes and exit codes for pure Capstone and TransCapstone secure world
+.Exception codes and exit codes for {isa_var_pure} and {isa_var_hybrid} secure world
 [%header%autowidth.stretch]
 |===
-| Exception | Exception code | TransCapstone exit code
+| Exception | Exception code | {isa_var_hybrid} exit code
 | Instruction address misaligned | 0 | 1
 | Instruction access fault | 1 | 1
 | Illegal instruction | 2 | 1
@@ -53,9 +53,9 @@ Currently, we use the same exit code `1` for all exception types to
 protect the confidentiality of the secure world execution.
 ****
 
-== Pure Capstone
+== {isa_var_pure}
 
-For pure Capstone, the handling of interrupts and exceptions is relatively
+For {isa_var_pure}, the handling of interrupts and exceptions is relatively
 straightforward. Regardless of whether the event is an interrupt or an
 exception, or what the type of the interrupt or exception is, the processor
 core will always transfer the control flow to the corresponding handler domain
@@ -84,22 +84,22 @@ TODO: record the pending interrupts
 
 *The interrupt is ignored if any of the following conditions is met:*
 
-* The `cih` register does not contain a capability.
-* The capability in `cih` is invalid (`valid = 0`).
-* The capability in `cih` is not a sealed capability (`type != 4`).
+* `cih` is not a capability.
+* `cih.valid = 0` (invalid).
+* `cih.type != 4` (sealed capability).
 
 *Otherwise:*
 
 . Load the program counter `pc` from memory location `[cih.base, cih.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
-. Scrub the other general-purpose registers.
 . Store the original program counter `pc` to the memory location
 `[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]`
+to memory location
 `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
-. Set the `type` field of `cih` to `5` (sealed-return), `reg` field of `cih` to `0` (asynchronous), and `async` field of `cih` to `1` (asynchronous).
-. Write the content of `cih` to the register `c1`.
+. Set `cih.type` to `5` (sealed-return), `cih.reg` to `0` (asynchronous), and `cih.async` to `1` (asynchronous).
+. Write `cih` to the register `c1`.
 . Write the exception code to the register `x10`.
 
 
@@ -116,23 +116,22 @@ memory location `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
 *Otherwise:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Scrub the other general-purpose registers.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Set the `type` field of `ceh` to `5` (sealed-return), `reg` field of `ceh` to `0` (asynchronous), and `async` field of `ceh` to `1` (asynchronous).
+. Set `ceh.type` to `5` (sealed-return), `ceh.reg` to `0` (asynchronous), and `ceh.async` to `1` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
 
-== TransCapstone
+== {isa_var_hybrid}
 
-TransCapstone retains the same interrupt and exception handling mechanims for
-the normal world as in RISC-V 64.
+{isa_var_hybrid} retains the same interrupt and exception handling mechanims for
+the normal world as in {base_isa_name}.
 
-For the secure world in TransCapstone,
+For the secure world in {isa_var_hybrid},
 the handling of interrupts and exceptions is more complex,
 and it becomes relevant whether the event is an interrupt or an exception.
 
@@ -152,7 +151,7 @@ them first. If the secure world manages to handle the exception, the
 normal world will not be involved. The end result is that the whole
 exception or its handling is not even visible to the normal world.
 If the secure world fails to handle an exeption (i.e., when
-it would end up panicking in the case of pure Capstone, such as when
+it would end up panicking in the case of {isa_var_pure}, such as when
 `ceh` is not a valid sealed capability), however,
 the normal world will take over. The exception will not be translated into
 an exception in the normal world, but instead indicated in the exit code
@@ -174,9 +173,9 @@ the normal-world interrupt handling process thereafter.
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
+. For `i = 1, 2, ..., 31`, store the content of `x[i]`
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set the `async` field of `switch_cap` to `1` (asynchronous).
+. Set `switch_cap.aync` to `1` (asynchronous).
 . Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
@@ -186,7 +185,7 @@ to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i +
 
 *Otherwise:*
 
-. Write the content of `cnull` to the register `x[switch_reg]`.
+. Write the content of `cnull` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Scrub the other general-purpose registers.
@@ -201,7 +200,7 @@ operand.
 === Handling of Secure-World Exceptions
 
 When an exception occurs, the processor core first attempts to handle the
-exception in the secure world, in the similar way as in pure Capstone.
+exception in the secure world, in the similar way as in {isa_var_pure}.
 If this fails (`ceh` is not valid), the processor core saves
 the full context if it can and exits to the normal
 world with a proper error code.
@@ -209,17 +208,17 @@ world with a proper error code.
 *If the content in `ceh` is a valid sealed capability:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of the `i`-th general-purpose register from
+. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of the `i`-th general-purpose register to memory location
+. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
 `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Set the `type` field of `ceh` to `5` (sealed-return), and `reg` field of `ceh` to `0` (asynchronous).
+. Set the `ceh.type` to `5` (sealed-return), and `ceh.async` to `0` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
 
-Note that this is exactly the same as the handling of exceptions in pure Capstone.
+Note that this is exactly the same as the handling of exceptions in {isa_var_pure}.
 
 *Otherwise:*
 
@@ -229,21 +228,21 @@ Note that this is exactly the same as the handling of exceptions in pure Capston
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set the `async` field of `switch_cap` to `1` (asynchronous).
-. Write the content of `switch_cap` to the register `x[switch_reg]`.
+. Set `switch_cap.async` to `1` (asynchronous).
+. Write the content of `switch_cap` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Write the exit code to the register `x[exit_reg]`.
+. Write the exit code to `x[exit_reg]`.
 . Set the `cwrld` register to `0` (normal world).
 
 // Something similar to try-catch can be considered
 
 *Otherwise:*
 
-. Write the content of `cnull` to the register `x[switch_reg]`.
+. Write the content of `cnull` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Write the exit code to the register `x[exit_reg]`.
+. Write the exit code to `x[exit_reg]`.
 . Set the `cwrld` register to `0` (normal world).
 
 
