@@ -194,11 +194,12 @@ The LDC instruction loads a capability from memory.
 not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
 * `x[rs1].cursor` is not aligned to `CLEN` bits.
 * The data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` is not a capability.
-* The capability being loaded is not a non-linear capability (i.e., `type != 1`), and `x[rs1].perms`
+* The capability being loaded is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`), and `x[rs1].perms`
 is not `3` or `4` (read-write or read-write-execute).
 
 *If no exception is raised:* Load the capability at the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` into `x[rd]`. If the capability being loaded is not a non-linear
-capability (i.e., `type != 1`), the data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` will be
+capability (i.e., `type != 1`) or an exit
+capability (i.e., `type != 6`), the data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` will be
 set to the content of `cnull`.
 
 [#store-cap]
@@ -232,7 +233,7 @@ not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
 
 *If no exception is raised:*
 Store `x[rs2]` to the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)`. `x[rs1].cursor`
-is set to `x[rs1].cursor + CLENBYTES`. If `x[rs2]` is not a non-linear capability (i.e., `type != 1`),
+is set to `x[rs1].cursor + CLENBYTES`. If `x[rs2]` is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`),
 `x[rs2]` will be set to the content of `cnull`.
 
 == _{isa_var_hybrid}_ Added Instructions
@@ -267,7 +268,7 @@ The LDCR instruction loads a capability from the normal memory using raw address
 * The data contained in the memory location `[x[rs1], x[rs1] + CLENBYTES)` is not a capability.
 
 *If no exception is raised:* Load the capability at the memory location `[x[rs1], x[rs1] + CLENBYTES)` into `rd`.
-If the capability being loaded is a non-linear capability (i.e. `type != 1`), the data contained in the
+If the capability being loaded is a non-linear capability (i.e. `type != 1`) or an exit capability (i.e., `type != 6`), the data contained in the
 memory location `[x[rs1], x[rs1] + CLENBYTES)` will be set to the content of `cnull`.
 
 [#store-cap-raw]
@@ -297,6 +298,7 @@ The STCR instruction stores a capability to the normal memory using raw addresse
 
 *If no exception is raised:*
 Store `x[rs2]` to the memory location `[x[rs1], x[rs1] + CLENBYTES)`.
-If `x[rs2]` is not a non-linear capability (i.e., `type != 1`), `x[rs2]` will be set to the
+If `x[rs2]` is not a non-linear capability (i.e., `type != 1`) or
+an exit capability (i.e., `type != 6`), `x[rs2]` will be set to the
 content of `cnull`.
 
