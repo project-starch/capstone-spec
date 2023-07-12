@@ -2,7 +2,9 @@
 
 = Memory Access Instructions
 
-{proj_name} provides instructions to load from and store to memory regions using capabilities.
+{proj_name} provides instructions to load from and store to memory regions using capabilities as well as
+instructions to load and store
+capabilities.
 
 == Load/Store with Capabilities
 
@@ -13,7 +15,7 @@ using capabilities.
 === Load
 
 The LDD, LDW, LDH, LDB instructions load an integer in the size of doubleword, word, 
-halfword, and byte respectively.
+halfword, and bste respectively.
 In {proj_name}, a doubleword is defined as `XLENBYTES` bytes, a word, halfword, and byte 
 are defined as `XLENBYTES/2`, `XLENBYTES/4`, and `XLENBYTES/8` bytes respectively.
 
@@ -76,7 +78,7 @@ are defined as `XLENBYTES/2`, `XLENBYTES/4`, and `XLENBYTES/8` bytes respectivel
 * `x[rs1].valid` is `0` (invalid).
 * `x[rs1].perms` is `0` (no access).
 * `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-size]` (i.e., `x[rs1].cursor < x[rs1].base` or `x[rs1].cursor > x[rs1].end-size`), where `size`
+not in the range `[x[rs1].base, x[rs1].end-size]`, where `size`
 is the size (in bytes) of the integer being loaded.
 * `x[rs1].cursor` is not aligned to the size of the integer being loaded.
 
@@ -148,7 +150,7 @@ The STD, STW, STH, STB instructions store an integer in the size of doubleword, 
 * `x[rs1].valid` is `0` (invalid).
 * `x[rs1].perms` is not `3` or `4` (read-write or read-write-execute).
 * `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-size]` (i.e., `x[rs1].cursor < x[rs1].base` or `x[rs1].cursor > x[rs1].end-size`), where `size`
+not in the range `[x[rs1].base, x[rs1].end-size]`, where `size`
 is the size (in bytes) of the integer being stored.
 * `x[rs1].cursor` is not aligned to the size of the scalar value being loaded.
 * `x[rs2]` is not an integer.
@@ -189,7 +191,7 @@ The LDC instruction loads a capability from memory.
 * `x[rs1].valid` is `0` (invalid).
 * `x[rs1].perms` is `0` (no access).
 * `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]` (i.e., `x[rs1].cursor < x[rs1].base` or `x[rs1].cursor > x[rs1].end-CLENBYTES`).
+not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
 * `x[rs1].cursor` is not aligned to `CLEN` bits.
 * The data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` is not a capability.
 * The capability being loaded is not a non-linear capability (i.e., `type != 1`), and `x[rs1].perms`
@@ -224,7 +226,7 @@ The STC instruction stores a capability to memory.
 * `x[rs1].valid` is `0` (invalid).
 * `x[rs1].perms` is not `3` or `4` (read-write or read-write-execute).
 * `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]` (i.e., `x[rs1].cursor < x[rs1].base` or `x[rs1].cursor > x[rs1].end-CLENBYTES`).
+not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
 * `x[rs1].cursor` is not aligned to `CLEN` bits.
 * `x[rs2]` is not a capability.
 
@@ -261,7 +263,7 @@ The LDCR instruction loads a capability from the normal memory using raw address
 
 * `x[rs1]` is not an integer.
 * `x[rs1]` is not aligned to `CLEN` bits.
-* `x[rs1]` is in the range `[SBASE, SEND)` (i.e., `SBASE \<= x[rs1] < SEND`).
+* `x[rs1]` is in the range `[SBASE, SEND)`.
 * The data contained in the memory location `[x[rs1], x[rs1] + CLENBYTES)` is not a capability.
 
 *If no exception is raised:* Load the capability at the memory location `[x[rs1], x[rs1] + CLENBYTES)` into `rd`.
@@ -290,7 +292,7 @@ The STCR instruction stores a capability to the normal memory using raw addresse
 
 * `x[rs1]` is not an integer.
 * `x[rs1]` is not aligned to `CLEN` bits.
-* `x[rs1]` is in the range `[SBASE, SEND)` (i.e., `SBASE \<= x[rs1] < SEND`).
+* `x[rs1]` is in the range `[SBASE, SEND)`.
 * `x[rs2]` is not a capability.
 
 *If no exception is raised:*

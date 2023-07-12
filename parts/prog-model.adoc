@@ -13,7 +13,8 @@ enable the storage and handling of capabilities.
 The width of a capability is 128 bits. We represent this as
 `CLEN = 128` and `CLENBYTES = 16`. Note that this does not
 affect the width of a raw address, which is `XLEN = 64` bits,
-or equivalently, `XLENBYTES = 8` bytes.
+or equivalently, `XLENBYTES = 8` bytes, same as
+in {base_isa_name}.
 
 === Fields
 
@@ -179,7 +180,7 @@ An exception is raised when any of the following conditions are met:
 * `x[pc].cursor` is not aligned to `4`.
 * `x[pc].perms` is not executable (i.e., `2 \<=p x[pc].perms` does not hold).
 * `x[pc].cursor` is not in the range
-`[pc.base, pc.end-4]` (i.e., `pc.cursor < pc.base` or `pc.cursor > pc.end-4`).
+`[pc.base, pc.end-4]`.
 
 If no exception is raised, the instruction pointed to by `pc.cursor`
 is fetched and executed. The `pc.cursor` is then incremented by `4` (i.e.,
@@ -255,9 +256,9 @@ confusion of the type is not allowed.
 
 == Instruction Set
 
-The {isa_name} instruction set is based on the RV64G instruction set.
+The {isa_name} instruction set is based on the {base_isa_name} instruction set.
 The (uncompressed) instructions are fixed 32-bit wide, and laid out in memory
-in little-endian order. In the encoding space of the RV64G instruction set,
+in little-endian order. In the encoding space of the {base_isa_name} instruction set,
 {isa_name} instructions occupies the "custom-2" subset, i.e., the opcode
 of all {isa_name} instructions is `0b1011011`.
 

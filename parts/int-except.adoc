@@ -28,7 +28,7 @@ It is an integer value that indicates what the type of the exception is.
 {isa_var_hybrid} also has _exit codes_, which are the values returned to the CAPENTER
 instruction in case the exception cannot be handled in the secure world.
 We define the exception code and the exit code for each type of exception below.
-It aligns with the exception codes defined in RISC-V 64, where applicable, for ease of
+It aligns with the exception codes defined in {base_isa_name}, where applicable, for ease of
 implementation and interoperability.
 
 .Exception codes and exit codes for {isa_var_pure} and {isa_var_hybrid} secure world
@@ -129,7 +129,7 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 == {isa_var_hybrid}
 
 {isa_var_hybrid} retains the same interrupt and exception handling mechanims for
-the normal world as in RISC-V 64.
+the normal world as in {base_isa_name}.
 
 For the secure world in {isa_var_hybrid},
 the handling of interrupts and exceptions is more complex,

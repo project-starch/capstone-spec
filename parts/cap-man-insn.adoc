@@ -184,13 +184,13 @@ the capability `x[rs1]` into two capabilities, one with bounds `[x[rs1].base, x[
 
 * `x[rs1]` is not a capability.
 * `x[rs1].valid` is `0` (invalid).
-* `x[rs2]` is not an integer.
 * `x[rs1].type` is neither `0` nor `1` (neither linear nor non-linear).
+* `x[rs2]` is not an integer.
 * `x[rs2] \<= x[rs1].base` or `x[rs2] >= x[rs1].end`.
 
 *If no exception is raised:* 
 Set `x[rs1].end` to `x[rs2]`. A new
-capability is created with `base = x[rs2]` and the other fields equal to those of the original `x[rs1]`. The new capability is written lo `x[rd]`.
+capability is created with `base = x[rs2]` and the other fields equal to those of the original `x[rs1]`. The new capability is written to `x[rd]`.
 
 [#tighten]
 === Permission Tightening
@@ -405,14 +405,14 @@ memory location), `c.valid` is set to `0` (invalid)
 if any of the following conditions are met:
 
 * `c.type` is not `2` (revocation), `c.valid` is `1` (valid),
-and `c` aliases with `x[rs1]`
-* `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <t c`
+and `c` aliases with `x[rs1]`.
+* `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <t c`.
 
 `x[rs1].type` is set to `0` (linear)
 if any of the following conditions are met for each invalidated `c`:
 
-* The type of `c` is non-linear (i.e., `c.type != 1`)
-* `c.perms` is not `3` (read-write) or `4` (read-write-execute)
+* The type of `c` is non-linear (i.e., `c.type != 1`).
+* `c.perms` is not `3` (read-write) or `4` (read-write-execute).
 
 Otherwise, `x[rs1].type` is set to `3` (uninitialised),
 and `x[rs1].cursor` is set to `x[rs1].base`.
