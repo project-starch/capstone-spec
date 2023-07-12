@@ -40,7 +40,7 @@ in a unconditional or conditional manner.
 * _Pure Capstone_
 ** `rs1` does not contain a capability.
 ** The `type` field of the capability in `rs1` is neither `0` (linear) nor `1` (non-linear).
-** The `perms` field of the capability in `rs1` is neither `2` (read-execute) nor `4` (read-write-execute).
+** The `perms` field of the capability in `rs1` is neither `5` (read-execute) nor `7` (read-write-execute).
 * _TransCapstone_
 ** `cwrld` is `0` (normal world).
 ** Any of the conditions for _Pure Capstone_ are met.
