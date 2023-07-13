@@ -28,15 +28,13 @@ Each capability has the following architecturally-visible fields:
 |`type` | `0..6` | The type of the capability:
 `0` = linear, `1` = non-linear, `2` = revocation,
 `3` = uninitialised, `4` = sealed, `5` = sealed-return, `6` = exit
-|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 2` (revocation), `type = 4` (sealed), `type = 5` (sealed-return), or
-`type = 6` (exit).
+|`cursor` | `0..2^XLEN-1` |  Only applicable when `type = 0` (linear), `type = 1` (non-linear), or `type = 3` (uninitialised).
 The memory address the capability points to (to be used for the next memory access)
 |`base` | `0..2^XLEN-1` | Not applicable when `type = 6` (exit). The base memory address of the memory region associated with the capability
 |`end` | `0..2^XLEN-1` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
 `type = 6` (exit).
 The end memory address of the memory region associated with the capability
-|`perms` | `0..7` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return) or
-`type = 6` (exit).
+|`perms` | `0..7` | Only applicable when `type = 0` (linear), `type = 1` (non-linear), or `type = 3` (uninitialised).
 One-hot encoded permissions associated with the capability:
 `0` = no access, `1` = execute-only, `2` = write-only, `3` = write-execute,
 `4` = read-only, `5` = read-execute, `6` = read-write, `7` = read-write-execute
@@ -86,8 +84,8 @@ Implementations are free to maintain additional fields to
 capabilities or compress the representation of the above
 fields, as long as each capability fits in `CLEN` bits.
 It is not required to be able to represent capabilities with
-all combinations of field values, as long as the following
-conditions are satisfied:
+all combinations of field values in a compressed representation,
+as long as the following conditions are satisfied:
 
 * For load and store instructions that move a capability between
 a register and memory, the value of the capability is preserved.
@@ -112,7 +110,7 @@ The table below summarises the fields used for each type of capabilities.
 |Type |`type` |`valid` |`cursor` |`base` |`end` |`perms` |`async` |`reg`
 |Linear |`0` |Yes |Yes |Yes |Yes |Yes |- |-
 |Non-linear |`1` |Yes |Yes |Yes |Yes |Yes |- |-
-|Revocation |`2` |Yes |- |Yes |Yes |Yes |- |-
+|Revocation |`2` |Yes |- |Yes |Yes |- |- |-
 |Uninitialised |`3` |Yes |Yes |Yes |Yes |Yes |- |-
 |Sealed |`4` |Yes |- |Yes |- |- |Yes |-
 |Sealed-return |`5` |Yes |- |Yes |- |- |Yes |Yes
@@ -184,24 +182,33 @@ register with index `i`.
 
 === Program Counter
 
-* _{isa_var_pure}_: The program counter (`pc`) is extended to contain a capability.
+The following changes are made to the program counter (`pc`):
+
+* _{isa_var_pure}_: The program counter (`pc`) is extended to contain a capability only.
 * _{isa_var_hybrid}_: Similar to the general-purpose registers,
 the program counter (`pc`) is also extended to contain a capability or an integer.
 
-When `pc` contains a capability, some of the fields of the capability
-are checked before each instruction fetch.
-An exception is raised when any of the following conditions are met:
+*During the instruction fetch stage, an exception is raised when any of the following conditions are met:*
 
-* `x[pc].valid` is `0` (invalid).
-* `x[pc].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[pc].cursor` is not aligned to `4`.
-* `x[pc].perms` is not executable (i.e., `2 \<=p x[pc].perms` does not hold).
-* `x[pc].cursor` is not in the range
-`[pc.base, pc.end-4]`.
+* _{isa_var_pure}_
+** `x[pc].valid` is `0` (invalid).
+** `x[pc].type` is neither `0` (linear) nor `1` (non-linear).
+** `x[pc].cursor` is not aligned to `4`.
+** `2 \<=p x[pc].perms` does not hold.
+** `x[pc].cursor` is not in the range `[pc.base, pc.end - 4]`.
+* _{isa_var_hybrid}_
+** link:#ccsrs[`cwld`] is `1` (secure world) and any of the conditions for _{isa_var_pure}_ are met.
+** link:#ccsrs[`cwld`] is `0` (normal world) and `x[pc]` is not an integer.
+** link:#ccsrs[`cwld`] is `0` (normal world) and any of the conditions for {base_isa_name} are met.
 
-If no exception is raised, the instruction pointed to by `pc.cursor`
-is fetched and executed. The `pc.cursor` is then incremented by `4` (i.e.,
-`pc.cursor += 4`).
+*If no exception is raised:*
+
+* _{isa_var_pure}_: The instruction pointed to by `x[pc].cursor` is fetched and executed.
+The `x[pc].cursor` is then incremented by `4` (i.e., `x[pc].cursor += 4`).
+* _{isa_var_hybrid}_:
+** link:#ccsrs[`cwld`] is `1` (secure world): Same as _{isa_var_pure}_.
+** link:#ccsrs[`cwld`] is `0` (normal world): The instruction pointed to by `x[pc]` is fetched and executed.
+The `x[pc]` is then incremented by `4` (i.e., `x[pc] += 4`).
 
 [#mem-extension]
 == Extension to Memory
@@ -236,10 +243,10 @@ link:#load-cap-raw[LDCR] and link:#store-cap-raw[STCR]
 link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
 |===
 
+[#ccsrs]
 == Added Registers
 
 The {isa_name} ISA adds the following registers:
-
 
 .Additional Registers in {isa_name} ISA
 [#ccsrs-list, cols="1,3a", options="header"]
@@ -263,8 +270,10 @@ The {isa_name} ISA adds the following registers:
 ! `cwrld`! - ! The currently executed world. `0` = normal world, `1` = secure world
 ! `normal_pc`!-! The program counter for the normal world before the secure world is entered
 ! `normal_sp`!-!The stack pointer for the normal world before the secure world is entered
-! `switch_reg`!-! The index of the general-purpose register used when switching worlds
-! `switch_cap`!-! The capability used to store contexts when switching worlds
+! `switch_reg`!-! The index of the general-purpose register used when switching worlds.
+This register needs to be stored during context switching in normal world
+! `switch_cap`!-! The capability used to store contexts when switching worlds.
+This register needs to be stored during context switching in normal world
 ! `exit_reg`!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
 !===
 |===
@@ -300,22 +309,22 @@ To prevent any domain from setting `cih`, we require the original content of
 
 .Note
 ****
-`cinit` is a special CCSR that is used to initialize the system.
-In the initialisation phase of the system, the `cinit` CCSR is set to
-an initial capability as shown in the table below.
+`cinit` is a capability CSR used to provide the initial capability in the system.
+During system initialisation, the content of `cinit` is set by the hardware according to the
+following rules:
 
-.Initial Capability of `cinit`
+.Initial Capability in `cinit`
 [%header%autowidth.stretch]
 |===
 | Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
-| _{isa_var_pure}_ | `1` (linear) | `0` | `0` | `2^XLEN` | `4` (read-write-execute) | `1` (valid)
-| _{isa_var_hybrid}_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `4` (read-write-execute) | `1` (valid)
+| _{isa_var_pure}_ | `1` (linear) | `0` | `0` | `2^XLEN` | `7` (read-write-execute) | `1` (valid)
+| _{isa_var_hybrid}_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `7` (read-write-execute) | `1` (valid)
 |===
 
-link:#ccsr-man[CCSR manipulation instructions] can be used to read this initial
-capability and store it in a general-purpose register. This operation can only
-be performed once. Any attempt to write `cinit` or read it for the second time
-will be silently ignored.
+link:#ccsr-man[CCSR manipulation instructions] can be used to read the initial
+capability in `cinit` and store it in a general-purpose register.
+This operation can only be performed once.
+Any attempt to write `cinit` or read it for the second time will be silently ignored.
 ****
 
 == Instruction Set
@@ -327,7 +336,8 @@ in little-endian order. In the encoding space of the {base_isa_name} instruction
 of all {isa_name} instructions is `0b1011011`.
 
 {isa_name} instruction encodings follow two basic formats: R-type and I-type,
-as described below (more details are also provided in the _RISC-V ISA Manual_).
+as described below
+(more details are also provided in the https://github.com/riscv/riscv-isa-manual[_RISC-V ISA Manual_]).
 
 .R-type instruction format
 include::r-type-format.adoc[]

@@ -85,11 +85,11 @@ types of changes to the base architecture:
 * New instructions for manipulating capabilities are added.
 * New instructions for memory accesses using capabilities are added.
 * New instructions for control flow transfers using capabilities are added.
-* New instructions for control state management are added.
+* New instructions for machine state control are added.
 * Semantics of a small number of existing instructions are changed to support capabilities.
 * Semantics of interrupts and exceptions are changed to support capabilities.
 
-== {isa_name} ISA Variants
+== {proj_name} Variants
 
 In addition to {proj_name}, which is referred to as _{isa_var_pure}_ in the {isa_name} ISA,
 we propose a variant of {proj_name}, called _{isa_var_hybrid}_.
@@ -113,7 +113,7 @@ and provides the security guarantees of {proj_name}.
 * Semantics of a small number of _{isa_var_pure}_ instructions are changed to support the _normal world_ and the _secure world_.
 * Semantics of interrupts and exceptions are extended to support the _normal world_ and the _secure world_.
 
-.Memory accesses in _{isa_var_hybrid}_
+.Memory Accesses in _{isa_var_hybrid}_
 [%header%autowidth.stretch]
 |===
 | World | MMU | Capabilities
