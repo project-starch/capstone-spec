@@ -78,7 +78,7 @@ While {proj_name} does not assume any specific modern ISA, we choose to propose
 a {proj_name} extension to RISC-V due to its open nature and the availability
 of toolchains and simulators. 
 
-The {isa_name} ISA is a 64-bit RISC-V extension that makes the following
+The {isa_name} ISA is an {base_isa_name} extension that makes the following
 types of changes to the base architecture:
 
 * Each general-purpose register is extended to 129 bits to accommodate 128-bit capabilities.

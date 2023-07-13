@@ -2,7 +2,7 @@
 
 = Adjustments to Existing Instructions
 
-For most existing instructions in the {base_isa_name}, the adjustments are straightforward.
+For most existing instructions in the {base_isa_name} ISA, the adjustments are straightforward.
 Their behaviour is unchanged, and an exception is raised if any of the operands
 (i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) is a capability.
 For control flow instructions and memory access instructions, however, the
