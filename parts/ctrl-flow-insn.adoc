@@ -39,8 +39,6 @@ in a unconditional or conditional manner.
 
 * _{isa_var_pure}_
 ** `x[rs1]` is not a capability.
-** `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-** `x[rs1].perms` is neither `5` (read-execute) nor `7` (read-write-execute).
 * _{isa_var_hybrid}_
 ** `cwrld` is `0` (normal world).
 ** Any of the conditions for _{isa_var_pure}_ are met.
