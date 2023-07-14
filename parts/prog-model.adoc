@@ -246,26 +246,29 @@ The {isa_name} ISA adds the following registers:
 |===
 |{proj_name} Variant   | Additional Registers
 |_{isa_var_pure}_|
-[cols="1,1,4", options="header"]
+[cols="1,1,1,4", options="header"]
 !===
-! Mnemonic ! CCSR encoding ! Description
-! `ceh`  ! `0x000` ! The sealed capability for the exception handler
-! `cih`  ! `0x001` ! The sealed capability for the interrupt handler
-! `cinit` ! `0x010` ! The initial capability covering the entire address space of the memory
+! Mnemonic ! CCSR encoding ! CSR encoding ! Description
+! `ceh`  ! `0x000` ! - ! The sealed capability for the exception handler
+! `cih`  ! `0x001` ! - ! The sealed capability for the interrupt handler
+! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the memory
+! `cis` ! - ! `0x000` ! The interrupt status register
 !===
 
+TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
+
 |_{isa_var_hybrid}_|
-[cols="1,1,4", options="header"]
+[cols="1,1,1,4", options="header"]
 !===
-! Mnemonic ! CCSR encoding ! Description
-! `ceh`  ! `0x000` ! The sealed capability for the exception handler
-! `cinit` ! `0x010` ! The initial capability covering the entire address space of the secure memory
-! `cwrld`! - ! The currently executed world. `0` = normal world, `1` = secure world
-! `normal_pc`!-! The program counter for the normal world before the secure world is entered
-! `normal_sp`!-!The stack pointer for the normal world before the secure world is entered
-! `switch_reg`!-! The index of the general-purpose register used when switching worlds
-! `switch_cap`!-! The capability used to store contexts when switching worlds
-! `exit_reg`!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
+! Mnemonic ! CCSR encoding ! CSR encoding ! Description
+! `ceh`  ! `0x000` ! - ! The sealed capability for the exception handler
+! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the secure memory
+! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
+! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
+! `normal_sp`!-!-!The stack pointer for the normal world before the secure world is entered
+! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
+! `switch_cap`!-!-! The capability used to store contexts when switching worlds
+! `exit_reg`!-!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
 !===
 |===
 
@@ -282,8 +285,17 @@ The manipulation constraints for each CCSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`ceh` | No constraint | No constraint
-|`cih` | - | The original content must be an invalid capability (`valid = 0`)
+|`cih` | - | The original content must not be a capability
 |`cinit` | One-time only | -
+|===
+
+The manipulation constraints for each additional CSR are indicated below.
+
+.Manipulation Constraints for Additional CSRs
+[%header%autowidth.stretch]
+|===
+|Mnemonic | Read | Write
+|`cis`| `cih` must not be a capability | `cih` must not be a capability 
 |===
 
 .Note

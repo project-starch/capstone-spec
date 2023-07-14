@@ -74,13 +74,69 @@ TODO: specify what "panics" means here
 
 TODO: specify what happens if any of the involved memory accesses fails
 
+=== Interrupt Status
+
+The `cis` CSR encodes the control state associated with interrupts.
+The diagram below shows its layout.
+
+.`cis` CSR layout
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 1, name: 'EIP'},
+    {bits: 1, name: 'EIE' },
+    {bits: 1, name: 'TIP' },
+    {bits: 1, name: 'TIE' },
+    {bits: 1, name: 'SIP' },
+    {bits: 1, name: 'SIE' },
+    {bits: 10, name: 'reserved'}
+]}
+....
+
+Each pair of `xIP` and `xIE` fields describes the status of
+the interrupt type `x`. 
+The interrupt type `x` is pending if the `xIP` field is set to
+`1`, and enabled if the `xIE` field is set to `1`.
+Currently, three types of interrupts
+are supported: external interrupts (`E`), timer interrupts (`T`),
+and software interrupts (`S`).
+The definitions for those interrupt types match those in {base_isa_name}.
+
+All the fields are read-write, but only when
+`cih` contains a capability.
+
+.Note
+****
+We can require that `cih` does not contain a _valid sealed_ capability
+but that would be more costly than a simple check of the
+type of data in `cih`.
+****
+
+=== Interrupt Delivery
+
+The interrupt delivery process starts with a certain event
+typically asynchronous to the execution of the hardware thread.
+The sources of such events include the external interrupt controller,
+the timer, and other CPU cores, which correspond to the external,
+timer, and software interrupt types (i.e., `x = E`, `T`, and `S`).
+When such an event occurs, the `xIP` field in the `cis` register
+is set to `1` to indicate that the interrupt is pending.
+
+At any point during the execution of a hardware thread,
+if any pair of `xIP` and `xIE` fields are both `1` and at the same
+time the `cih` register contains
+a capability, the interrupt is delivered to the interrupt handler
+domain. 
+
+.Note
+****
+In this way, the `cih` register acts as a global interrupt-enable
+flag.
+****
+
 === Handling of Interrupts
 
 TODO: need to specify how to record cause of the interrupt
-
-TODO: interrupt masking
-
-TODO: record the pending interrupts
 
 *The interrupt is ignored if any of the following conditions is met:*
 
@@ -102,6 +158,7 @@ to memory location
 . Write `cih` to the register `c1`.
 . Write the exception code to the register `x10`.
 
+TODO: restore `cih` upon return
 
 === Handling of Exceptions
 
