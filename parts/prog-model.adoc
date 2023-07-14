@@ -291,8 +291,8 @@ The manipulation constraints for each CCSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`ceh` | No constraint | No constraint
-|`cih` | - | The original content must be an invalid capability (`valid = 0`)
-|`cinit` | One-time only | -
+|`cih` | The original content must be an invalid capability (`valid = 0`) | The original content must be an invalid capability (`valid = 0`)
+|`cinit` | No constraint | Silently ignored
 |===
 
 .Note
@@ -310,10 +310,10 @@ To prevent any domain from setting `cih`, we require the original content of
 .Note
 ****
 `cinit` is a capability CSR used to provide the initial capability in the system.
-During system initialisation, the content of `cinit` is set by the hardware according to the
-following rules:
+During system initialisation, `x[cinit]` is set by the hardware
+to a linear capability as follows:
 
-.Initial Capability in `cinit`
+.Initial Capability of `x[cinit]`
 [%header%autowidth.stretch]
 |===
 | Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
@@ -322,9 +322,9 @@ following rules:
 |===
 
 link:#ccsr-man[CCSR manipulation instructions] can be used to read the initial
-capability in `cinit` and store it in a general-purpose register.
-This operation can only be performed once.
-Any attempt to write `cinit` or read it for the second time will be silently ignored.
+capability of `x[cinit]` and store it in one of the general-purpose registers.
+`x[cinit]` is set to `x[cnull]` after the first operation and any attempt to
+write to `x[cinit]` is silently ignored.
 ****
 
 == Instruction Set
