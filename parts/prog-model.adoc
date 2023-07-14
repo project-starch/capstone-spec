@@ -251,8 +251,11 @@ The {isa_name} ISA adds the following registers:
 ! Mnemonic ! CCSR encoding ! CSR encoding ! Description
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
 ! `cih`  ! `0x001` ! - ! The sealed capability for the interrupt handler
+! `epc` ! `0x002` ! - ! The exception program counter register
 ! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the memory
 ! `cis` ! - ! `0x000` ! The interrupt status register
+! `tval` ! - ! `0x001` ! The exception data (trap value) register
+! `cause` ! - ! `0x002` ! The exception cause register
 !===
 
 TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
@@ -262,6 +265,7 @@ TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
 !===
 ! Mnemonic ! CCSR encoding ! CSR encoding ! Description
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
+! `epc` ! `0x002` ! - ! The exception program counter register
 ! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the secure memory
 ! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
 ! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
@@ -269,6 +273,8 @@ TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
 ! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
 ! `switch_cap`!-!-! The capability used to store contexts when switching worlds
 ! `exit_reg`!-!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
+! `tval` ! - ! `0x001` ! The exception data (trap value) register
+! `cause` ! - ! `0x002` ! The exception cause register
 !===
 |===
 

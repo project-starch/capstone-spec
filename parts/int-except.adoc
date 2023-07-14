@@ -56,6 +56,32 @@ Currently, we use the same exit code `1` for all exception types to
 protect the confidentiality of the secure world execution.
 ****
 
+== Exception Data
+
+For {isa_var_pure} and the secure world in {isa_var_hybrid}, the exception-related
+data is stored in the `tval` CSR, similar to {base_isa_name}. The exception handler
+can use the value to decide how to handle the exception.
+However, such data is available only for in-domain exception handling, where the
+exception handling process does not involve a domain switch.
+For exception handling
+that crosses domain or world boundaries (i.e., when `ceh` is a sealed capability or
+when the normal world ends up handling the exception), the exception data is not
+available. This is to protect the confidentiality of domain execution.
+Note that this design does not stop the excepted domain from selectively
+trusting a different domain with such data.
+
+For exceptions defined in {base_isa_name}, the same data as in it is written to `tval`.
+For the added exceptions, the following data is written to `tval`:
+
+.Exception data for {isa_var_pure} and {isa_var_hybrid} secure world
+[%header%autowidth.stretch]
+|===
+| Exception |  Data 
+| Unexpected operand type | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| Invalid capability | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| Unhandleable exception | N/A
+|===
+
 == {isa_var_pure}
 
 For {isa_var_pure}, the handling of interrupts and exceptions is relatively
@@ -162,10 +188,6 @@ to memory location
 
 === Handling of Exceptions
 
-
-TODO: need to specify how to record cause of the exception, potentially with
-extra data
-
 // Having unhandleable exceptions is bad
 
 .Note
@@ -211,8 +233,6 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . If `ceh.type != 1` and `ceh.type != 6`, write `cnull` to `ceh`.
 . Write the exception code to `cause`
 . Write extra exception data to `tval`.
-
-TODO: describe what the exception data is
 
 TODO: scratch registers would be necessary in this case
 
