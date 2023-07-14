@@ -157,8 +157,7 @@ to memory location
 . Set `cih.type` to `5` (sealed-return), `cih.reg` to `0` (asynchronous), and `cih.async` to `1` (asynchronous).
 . Write `cih` to the register `c1`.
 . Write the exception code to the register `x10`.
-
-TODO: restore `cih` upon return
+. Write `cnull` to the register `cih`.
 
 === Handling of Exceptions
 

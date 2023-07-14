@@ -40,8 +40,8 @@ The end memory address of the memory region associated with the capability
 One-hot encoded permissions associated with the capability:
 `0` = no access, `1` = execute-only, `2` = write-only, `3` = write-execute,
 `4` = read-only, `5` = read-execute, `6` = read-write, `7` = read-write-execute
-|`async` | `0..1` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
-Whether the capability is sealed asynchronously: `0` = synchronously, `1` = asynchronously
+|`async` | `0..2` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
+Whether the capability is sealed asynchronously: `0` = synchronously, `1` = upon exception, `2` = upon interrupt
 |`reg` | `0..31` | Only applicable when `type = 5` (sealed-return).
 The index of the general-purpose register to restore the capability to
 |===

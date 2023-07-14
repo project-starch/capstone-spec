@@ -138,7 +138,7 @@ respectively.
 . Set `x[rs1].type` to `4` (sealed), and write the
 capability to the register `x[x[rs1].reg]`.
 
-*When `x[rs1].async = 1` (asynchronous):*
+*When `x[rs1].async = 1` (upon exception) or `2` (upon interrupt):*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . For `i = 1, 2, ..., 31`, load the content at the memory location
@@ -148,8 +148,7 @@ the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of `x[i]` (the `i`-th general-purpose register)
 to the memory location `[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`.
 When `i = rs1`, store the content of `cnull` instead to `[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`.
-. Set the `x[rs1].type` to `4` (sealed), and write the resulting `x[rs1]` to the register `ceh`.
-
+. Set the `x[rs1].type` to `4` (sealed). If `x[rs1].async = 1`, write the resulting `x[rs1]` to the register `ceh`. Otherwise (`x[rs1].async = 2`), write the resulting `x[rs1]` to the register `cih`.
 
 .Note
 ****
