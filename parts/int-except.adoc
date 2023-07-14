@@ -43,9 +43,12 @@ implementation and interoperability.
 | Load access fault | 5 | 1
 | Store/AMO address misaligned | 6 | 1
 | Store/AMO access fault | 7 | 1
-| Unexpected operand type | 8 | 1
-| Invalid capability | 9 | 1
+| Unexpected operand type | 24 | 1
+| Invalid capability | 25 | 1
+| Unhandleable exception | 26 | N/A in {isa_var_hybrid}
 |===
+
+For interrupts, the same encodings as in {base_isa_name} are used.
 
 .Note
 ****
@@ -136,8 +139,6 @@ flag.
 
 === Handling of Interrupts
 
-TODO: need to specify how to record cause of the interrupt
-
 *The interrupt is ignored if any of the following conditions is met:*
 
 * `cih` is not a capability.
@@ -161,15 +162,36 @@ to memory location
 
 === Handling of Exceptions
 
+
+TODO: need to specify how to record cause of the exception, potentially with
+extra data
+
 // Having unhandleable exceptions is bad
 
-*The CPU core panics if any of the following conditions is met:*
+.Note
+****
+Allowing anyone to set `ceh` can lead to DoS (when `ceh` is set to invalid
+values). Ideally, there should be a stack of exception handlers. Each
+domain can only choose to push extra exception handlers onto the stack.
+The bottom one will be provided by the kernel which is responsible for the liveness
+of the system.
+As this can be costly to implement, we limit the size of the stack to 2 for now,
+with the bottom one provided by the interrupt handler domain `cih`.
+
+Exceptions seem to be the dual of interrupts. Interrupt handling should be delegated
+bottom-up, while exception handling should be delegated top-down.
+****
+
+*Follow the interrupt handling procedure with exception code `26` (unhandleable exception) if any of the following conditions is met:*
 
 * The `ceh` register does not contain a capability.
 * The capability in `ceh` is invalid (`valid = 0`).
-* The capability in `ceh` is not a sealed capability (`type != 4`).
+* The capability in `ceh` is not a sealed (`type != 4`),
+linear (`type != 0`), or non-linear capability (`type != 1`).
 
 *Otherwise:*
+
+*If `ceh.type = 4`:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, load the content of `x[i]` from
@@ -181,6 +203,18 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Set `ceh.type` to `5` (sealed-return), `ceh.reg` to `0` (asynchronous), and `ceh.async` to `1` (asynchronous).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
+
+*If `ceh.type = 0` or `1`:*
+
+. Write `pc` to `epc`.
+. Write `ceh` to `pc`.
+. If `ceh.type != 1` and `ceh.type != 6`, write `cnull` to `ceh`.
+. Write the exception code to `cause`
+. Write extra exception data to `tval`.
+
+TODO: describe what the exception data is
+
+TODO: scratch registers would be necessary in this case
 
 == {isa_var_hybrid}
 
@@ -202,7 +236,7 @@ In other words, the secure world will simply resume execution
 from where it was interrupted after the interrupt is handled by the normal-world
 OS.
 
-For exceptions, we want to give the secure world the chance handle
+For exceptions, we want to give the secure world the chance to handle
 them first. If the secure world manages to handle the exception, the
 normal world will not be involved. The end result is that the whole
 exception or its handling is not even visible to the normal world.
@@ -275,6 +309,14 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Write the exception code to the register `x10`.
 
 Note that this is exactly the same as the handling of exceptions in {isa_var_pure}.
+
+*If the content is `ceh` is a valid executable non-linear capability or linear capability:*
+
+. Write `pc` to `epc`.
+. Write `ceh` to `pc`.
+. If `ceh.type != 1` and `ceh.type != 6`, write `cnull` to `ceh`.
+. Write the exception code to `cause`
+. Write extra exception data to `tval`.
 
 *Otherwise:*
 
