@@ -83,7 +83,7 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ** `x[rs1]` is not a capability.
 ** `x[rs1].valid` is `0` (invalid).
 ** `x[rs1].type` is not `4` (sealed).
-** `x[rs1].async` is `1` (asynchronous).
+** `x[rs1].async` is not `0` (synchronous).
 * _{isa_var_hybrid}_
 ** `cwrld` is `0` (normal world).
 ** Any of the conditions for _{isa_var_pure}_ are met.
@@ -153,7 +153,7 @@ When `i = rs1`, store the content of `cnull` instead to `[x[rs1].base + i * CLEN
 .Note
 ****
 
-When the `async` field of a sealed-return capability is `1` (asynchronous), some
+When the `async` field of a sealed-return capability is `0` (synchronous), some
 memory accesses are granted by this capability. The following table shows the
 memory accesses granted by sealed and sealed-return capabilities in different scenarios.
 
@@ -163,8 +163,8 @@ memory accesses granted by sealed and sealed-return capabilities in different sc
 | Capability type | `async` | Read | Write | Execute
 | Sealed | `0` | No | No | No
 | Sealed | `1` | No | No | No
-| Sealed-return | `0` | No | No | No
-| Sealed-return | `1` | `cursor in [base, end)` | `cursor in [base, end)` | No
+| Sealed-return | `0` | `cursor in [base, end)` | `cursor in [base, end)` | No
+| Sealed-return | `1` | No | No | No
 |===
 
 ****
@@ -225,7 +225,7 @@ TODO: we need to find a way to access the content in the switch_cap region
 . Write `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
 
-*When `x[rs1].async = 1` (asynchronous):*
+*Otherwise:*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
@@ -270,7 +270,7 @@ the CPU core exits from the secure world synchronously or asynchronously.
 * `switch_cap` is not a capability.
 * `switch_cap.valid` is `0` (invalid).
 * `switch_cap.type` is not `4` (sealed-return).
-* `switch_cap.async` is `1` (asynchronous).
+* `switch_cap.async` is not `0` (synchronous).
 
 *If no exception is raised:*
 
