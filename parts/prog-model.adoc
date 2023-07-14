@@ -250,8 +250,9 @@ The {isa_name} ISA adds the following registers:
 !===
 ! Mnemonic ! CCSR encoding ! CSR encoding ! Description
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
-! `cih`  ! `0x001` ! - ! The sealed capability for the interrupt handler
-! `epc` ! `0x002` ! - ! The exception program counter register
+! `deh` ! `0x001` ! - !  The data for the exception handler, possibly a capability
+! `cih`  ! `0x002` ! - ! The sealed capability for the interrupt handler
+! `epc` ! `0x003` ! - ! The exception program counter register
 ! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the memory
 ! `cis` ! - ! `0x000` ! The interrupt status register
 ! `tval` ! - ! `0x001` ! The exception data (trap value) register
@@ -265,7 +266,8 @@ TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
 !===
 ! Mnemonic ! CCSR encoding ! CSR encoding ! Description
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
-! `epc` ! `0x002` ! - ! The exception program counter register
+! `deh` ! `0x001` ! - !  The data for the exception handler, possibly a capability
+! `epc` ! `0x003` ! - ! The exception program counter register
 ! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the secure memory
 ! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
 ! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
@@ -291,6 +293,7 @@ The manipulation constraints for each CCSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`ceh` | No constraint | No constraint
+|`deh` | No constraint | No constraint
 |`cih` | - | The original content must not be a capability
 |`cinit` | One-time only | -
 |===

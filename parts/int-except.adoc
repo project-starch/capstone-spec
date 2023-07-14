@@ -232,7 +232,14 @@ memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
 . Write the exception code to `cause`
 . Write extra exception data to `tval`.
 
-TODO: scratch registers would be necessary in this case
+.Note
+****
+The `deh` register is designed to hold data that the in-domain exception handler
+can utilize.
+As the exception handler is in the same domain as the code that caused the exception,
+it is not necessary to seal the content of `deh`, or otherwise prevent the excepted code
+from accessing it.
+****
 
 === Panic
 
