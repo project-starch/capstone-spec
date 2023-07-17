@@ -214,12 +214,13 @@ linear (`type != 0`), or non-linear capability (`type != 1`).
 *If `ceh.type = 4`:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
+. Load new `ceh` from memory location `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, load the content of `x[i]` from
-memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+memory location `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
-`[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+`[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
 . Set `ceh.type` to `5` (sealed-return), `ceh.reg` to `0` (asynchronous), and `ceh.async` to `1` (upon exception).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
@@ -338,12 +339,15 @@ world with a proper error code.
 *If the content in `ceh` is a valid sealed capability:*
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
+. Load new `ceh` from memory location `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
+. Load new `deh` from memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, load the content of `x[i]` from
-memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+memory location `[ceh.base + (i + 2) * CLENBYTES, ceh.base + (i + 3) * CLENBYTES)`.
 . Store the original program counter `pc` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
+. Store the original `deh` to the memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
-`[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
+`[ceh.base + (i + 2) * CLENBYTES, ceh.base + (i + 3) * CLENBYTES)`.
 . Set the `ceh.type` to `5` (sealed-return), and `ceh.async` to `1` (upon exception).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
@@ -364,8 +368,10 @@ Note that this is exactly the same as the handling of exceptions in {isa_var_pur
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
+. Store `ceh` to the memory location `[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)`.
+. Store `deh` to the memory location `[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
-to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
+to the memory location `[switch_cap.base + (i + 2) * CLENBYTES, switch_cap.base + (i + 3) * CLENBYTES)`.
 . Set `switch_cap.async` to `1` (upon exception).
 . Write the content of `switch_cap` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and

@@ -332,7 +332,7 @@ The SEAL instruction seals a linear capability.
 * `x[rd].type` is not `0` (linear).
 * `x[rd].perms` is neither `6` (read-write) nor `7` (read-write-execute).
 * The size of the memory region associated with `x[rd]` is smaller than
-`CLENBYTES * 33` bytes. That is, `x[rd].end - x[rd].base < CLENBYTES * 33`.
+`CLENBYTES * 34` bytes. That is, `x[rd].end - x[rd].base < CLENBYTES * 34`.
 
 *If no exception is raised:* `x[rd].type`
 is set to `2` (sealed), and `x[rd].async` is set to `0` (synchronous).

@@ -92,8 +92,8 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
-. Store the former `pc`, `ceh` and `csp` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
+. Store the former `pc`, `ceh` and `deh` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`
 respectively.
 . Set `x[rs1].type` to `5` (sealed-return), `x[rs1].reg` to `rd`, set `x[rs1].async` to `0` (synchronous),
@@ -131,8 +131,8 @@ and write the resulting `x[rs1]` to the register `cra`.
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to  `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
-. Store the former `pc`, `ceh` and `csp` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
+. Store the former `pc`, `ceh` and `deh` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`
 respectively.
 . Set `x[rs1].type` to `4` (sealed), and write the
@@ -141,13 +141,14 @@ capability to the register `x[x[rs1].reg]`.
 *When `x[rs1].async = 1` (upon exception) or `2` (upon interrupt):*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
+. Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
 . For `i = 1, 2, ..., 31`, load the content at the memory location
-`[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+`[x[rs1].base + (i + 2) * CLENBYTES, x[rs1].base + (i + 3) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Write the former value of `pc`, with the `cursor` field replaced by `x[rs2]`, to
 the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the content of `x[i]` (the `i`-th general-purpose register)
-to the memory location `[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`.
-When `i = rs1`, store the content of `cnull` instead to `[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`.
+. Store the former alue of `ceh` to the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
+. Store the former value of `deh` to the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`.
 . Set the `x[rs1].type` to `4` (sealed). If `x[rs1].async = 1`, write the resulting `x[rs1]` to the register `ceh`. Otherwise (`x[rs1].async = 2`), write the resulting `x[rs1]` to the register `cih`.
 
 .Note
@@ -217,7 +218,7 @@ TODO: we need to find a way to access the content in the switch_cap region
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
 . Set `x[rs1].type` to `5` (sealed-return), `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
 . Write `rs1` to `switch_reg`.
@@ -229,8 +230,9 @@ TODO: we need to find a way to access the content in the switch_cap region
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
 . For `i = 1, 2, ..., 31`, load the content at the memory location
-`[x[rs1].base + (i + 1) * CLENBYTES, x[rs1].base + (i + 2) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+`[x[rs1].base + (i + 2) * CLENBYTES, x[rs1].base + (i + 3) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
 . Set `x[rs1].type` to `5` (sealed-return), `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
 . Write `rs1` to `switch_reg`.
