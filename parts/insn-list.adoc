@@ -37,18 +37,18 @@ include::i-type-format.adoc[]
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
 |link:#rev-operation[REVOKE]      |R |`001`    |`0000000` | C | - | - | - | * | *
 |link:#shrink[SHRINK]      |R |`001`    |`0000001` | I | I | C | - | * | *
-|link:#tighten[TIGHTEN]     |R |`001`    |`0000010` | I | - | C | - | * | *
+|link:#tighten[TIGHTEN]     |R |`001`    |`0000010` | C | Z | C | - | * | *
 |link:#delin[DELIN]       |R |`001`    |`0000011` | - | - | C | - | * | *
-|link:#field-get[LCC]         |I |`001`    |`0000100` | C | - | I | Z | * | *
+|link:#field-get[LCC]         |R |`001`    |`0000100` | C | Z | I | - | * | *
 |link:#cursor-set[SCC]         |R |`001`    |`0000101` | I | - | C | - | * | *
 |link:#split[SPLIT]       |R |`001`    |`0000110` | C | I | C | - | * | *
-|link:#seal[SEAL]        |R |`001`    |`0000111` | - | - | C | - | * | *
+|link:#seal[SEAL]        |R |`001`    |`0000111` | C | - | C | - | * | *
 |link:#revcap-creation[MREV]        |R |`001`    |`0001000` | C | - | C | - | * | *
-|link:#init[INIT]        |R |`001`    |`0001001` | - | - | C | - | * | *
+|link:#init[INIT]        |R |`001`    |`0001001` | C | I | C | - | * | *
 |link:#cap-mov[MOVC]        |R |`001`    |`0001010` | C | - | C | - | * | *
 |link:#drop[DROP]       |R |`001`    |`0001011` | C | - | - | - | * | *
 |link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001100` | C | I | C | - | * | *
-|link:#cursor-inc[CINCOFFSETIMM] |I |`011`    | - | C | - | C | S | * | *
+|link:#cursor-inc[CINCOFFSETIMM] |I |`010`    | - | C | - | C | S | * | *
 |===
 
 .Memory access instructions
@@ -94,6 +94,8 @@ include::i-type-format.adoc[]
 
 I:: Integer register
 C:: Capability register
+S:: Used as sign-extended immediate
+Z:: Used as zero-extended immediate
 -:: Not used
 
 *For immediates:*

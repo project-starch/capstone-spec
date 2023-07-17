@@ -34,9 +34,8 @@ Capabilities can be moved between registers with the MOVC instruction.
 
 *If no exception is raised:*
 If `rs1 = rd`, the instruction is a no-op.
-Otherwise, write `x[rs1]` to `x[rd]`, and if `x[rs1]` is not a non-linear capability (i.e., `type != 1`) or
-an exit capability (i.e., `type != 6`),
-write `cnull` to `x[rs1]`.
+Otherwise, write `x[rs1]` to `x[rd]`, and if `x[rs1]` is neither a non-linear capability
+(i.e., `type != 1`) nor an exit capability (i.e., `type != 6`), write `x[cnull]` to `x[rs1]`.
 
 [#cursor-inc]
 === Cursor Increment
@@ -53,7 +52,7 @@ capability by a give amount (offset).
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: '0b0001101' }
+    {bits: 7, name: '0b0001100' }
 ]}
 ....
 
@@ -63,7 +62,7 @@ capability by a give amount (offset).
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
-    {bits: 3, name: '0b011' },
+    {bits: 3, name: '0b010' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 12, name: 'imm[11:0] (S)' }
 ]}
@@ -95,23 +94,26 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
     {bits: 7, name: '0b0000101' }
 ]}
 ....
 
 *An exception is raised if any of the following conditions are met:*
 
-* `x[rd]` is not a capability.
-* `x[rd]` does not have `type = 0` (linear) or `type = 1` (non-linear).
-* `x[rs1]` is not an integer.
+* `x[rs1]` is not a capability.
+* `x[rs2]` is not an integer.
+* `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+
+*If no exception is raised:*
+The instruction is equivalent to an atomic execution of `MOVC rd, rs1` followed by
+setting `x[rd].cursor` to `x[rs2]`.
 
 [#field-get]
-=== Field Getter
+=== Field Grab
 
-The `cursor` field of a capability can also be directly set and read with
-the SCC and LCC instructions respectively.
+The LCC instruction is used to read a field from a capability.
 
 .LCC instruction format
 [wavedrom,,svg]
@@ -119,39 +121,39 @@ the SCC and LCC instructions respectively.
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b001' },
+    {bits: 3, name: '0b010' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 12, name: 'imm[11:0] (Z)' }
+    {bits: 5, name: 'imm[4:0] (Z)' },
+    {bits: 7, name: '0b0000100' }
 ]}
 ....
 
 *An exception is raised if any of the following conditions are met:*
 
 * `x[rs1]` is not a capability.
-* The immediate value `imm` is greater than `6`.
-* The immediate value `imm` is `0` and `x[rs1]` does not have `type = 0` (linear), `type = 1` (non-linear),
-or `type = 3` (uninitialised).
-* The immediate value `imm` is `2` and `x[rs1]` has `type = 6` (exit).
-* The immediate value `imm` is `3` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-* The immediate value `imm` is `4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-* The immediate value `imm` is `5` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
-* The immediate value `imm` is `6` and `x[rs1]` does not have `type = 5` (sealed-return).
+* `imm = 2` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+* `imm = 3` and `x[rs1]` has `type = 6` (exit).
+* `imm = 4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+* `imm = 5` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+* `imm = 6` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
+* `imm = 7` and `x[rs1]` does not have `type = 5` (sealed-return).
 
 *If no exception is raised:*
-Depending on the immediate value `imm`,
-the instruction write different fields of `x[rs1]` to `x[rd]`
+If `imm > 7`, the instruction writes `x[zero]` to `x[rd]`.
+Otherwise, the instruction write different fields of `x[rs1]` to `x[rd]`
 according to the following table:
 
 [%header,%autowidth.stretch]
 |===
-|`imm` | Field read
-|`0` | `cursor`
-|`1` | `type`
-|`2` | `base`
-|`3` | `end`
-|`4` | `perms`
-|`5` | `async`
-|`6` | `reg`
+|`imm` | Content of `x[rd]` after LCC
+|`0` | `x[rs1].valid`
+|`1` | `x[rs1].type`
+|`2` | `x[rs1].cursor`
+|`3` | `x[rs1].base`
+|`4` | `x[rs1].end`
+|`5` | `x[rs1].perms`
+|`6` | `x[rs1].async`
+|`7` | `x[rs1].reg`
 |===
 
 [#shrink]
@@ -183,6 +185,10 @@ The instruction attempts to set the bounds of the capability
 * `x[rs2]` is not an integer.
 * `x[rs1] >= x[rs2]`.
 * `x[rs1] < x[rd].base` or `x[rs2] > x[rd].end`.
+
+*If no exception is raised:*
+The instruction sets the bounds of the capability  `x[rd]` to `[x[rs1], x[rs2])`,
+i.e., `x[rd].base` is set to `x[rs1]` and `x[rd].end` is set to `x[rs2]`.
 
 [#split]
 === Bounds Splitting
@@ -230,29 +236,30 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'imm[4:0] (Z)' },
     {bits: 7, name: '0b0000010' }
 ]}
 ....
 
-The instruction attempts to set 
-`x[rd].perms` to `x[rs1]`.
-
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rd]` is not a capability.
-* `x[rd].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
-* `x[rs1]` is not an integer.
-* `x[rs1]` is outside the range of `perms`.
-* `x[rs1] \<=p x[rd].perms` does not hold.
+* `x[rs1]` is not a capability.
+* `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+* `x[rs1] \<= 7` and `x[rs1] \<=p x[rd].perms` does not hold.
+
+*If no exception is raised:*
+The instruction is equivalent to:
+
+. If `x[rs1] > 7`, set `x[rs1].perms` to `x[zero]`.
+Otherwise, set `x[rs1].perms` to `x[rs1]`
+. `MOVC rd, rs1`
 
 == Type Manipulation
 
 Some instructions affect the `type` field of a capability. 
-// In general, the `type` field
-// cannot be set arbitrarily. Instead, it is changed as the side effect of certain semantically
-// significant operations.
+// In general, the `type` field cannot be set arbitrarily.
+// Instead, it is changed as the side effect of certain semantically significant operations.
 
 [#delin]
 === Delinearisation
@@ -277,8 +284,7 @@ The DELIN instruction delinearises a linear capability.
 * `x[rd]` is not a capability.
 * `x[rd].type` is not `0` (linear).
 
-*If no exception is raised:* `x[rd].type`
-is set to `1` (non-linear).
+*If no exception is raised:* `x[rd].type` is set to `1` (non-linear).
 
 [#init]
 === Initialisation
@@ -293,20 +299,24 @@ after its associated memory region has been fully initialised (written with new 
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: '*' },
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
     {bits: 7, name: '0b0001001' }
 ]}
 ....
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rd]` is not a capability.
-* `x[rd].type` is not `3` (uninitialised).
-* `x[rd].cursor` and `x[rd].end` are not equal.
+* `x[rs1]` is not a capability.
+* `x[rs1].type` is not `3` (uninitialised).
+* `x[rs1].cursor` and `x[rs1].end` are not equal.
+* `x[rs2]` is not an integer.
 
-*If no exception is raised:* `x[rd].type`
-is set to `0` (linear).
+*If no exception is raised:* 
+The instruction is equivalent to:
+
+. Set `x[rs1].type` to `0` (linear) and `x[rs1].cursor` is set to `x[rs2]`
+. `MOVC rd, rs1`
 
 [#seal]
 === Sealing
@@ -320,7 +330,7 @@ The SEAL instruction seals a linear capability.
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: '*' },
     {bits: 7, name: '0b0000111' }
 ]}
@@ -328,19 +338,20 @@ The SEAL instruction seals a linear capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rd]` is not a capability.
-* `x[rd].type` is not `0` (linear).
-* `x[rd].perms` is neither `6` (read-write) nor `7` (read-write-execute).
-* The size of the memory region associated with `x[rd]` is smaller than
-`CLENBYTES * 33` bytes. That is, `x[rd].end - x[rd].base < CLENBYTES * 33`.
+* `x[rs1]` is not a capability.
+* `x[rs1].type` is not `0` (linear).
+* `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
+* The size of the memory region associated with `x[rs1]` is smaller than
+`CLENBYTES * 33` bytes. That is, `x[rs1].end - x[rs1].base < CLENBYTES * 33`.
 
-*If no exception is raised:* `x[rd].type`
-is set to `2` (sealed), and `x[rd].async` is set to `0` (synchronous).
+*If no exception is raised:* 
+The instruction is equivalent to:
+
+. Set `x[rs1].type` to `2` (sealed) and `x[rs1].async` to `0` (synchronous)
+. `MOVC rd, rs1`
 
 [#drop]
 == Dropping
-
-TODO: check whether dropping is actually necessary.
 
 The DROP instruction invalidates a capability.
 
@@ -393,7 +404,7 @@ The MREV instruction creates a revocation capability.
 * `x[rs1].valid` is `0` (invalid).
 
 *If no exception is raised:* A new capability is created in `x[rd]` with the same
-`base`, `end`, `perms` and `cursor` fields as `x[rs1]`.
+`base`, `end`, `perms`, `cursor` and `valid` fields as `x[rs1]`.
 The `type` field of the new capability is set to `2` (revocation).
 
 [#rev-operation]
@@ -422,7 +433,7 @@ The REVOKE instruction revokes a capability.
 
 *If no exception is raised:*
 
-For all capabilities `c` in the system (in either a register or
+For any capability `c` in the system (in either a register or
 memory location), `c.valid` is set to `0` (invalid)
 if any of the following conditions are met:
 
@@ -431,14 +442,11 @@ and `c` aliases with `x[rs1]`.
 * `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <t c`.
 
 `x[rs1].type` is set to `0` (linear)
-if any of the following conditions are met for each invalidated `c`:
+if, for any each invalidated capability `c`, at least one of the following
+conditions are met:
 
-* The type of `c` is non-linear (i.e., `c.type != 1`)
+* The type of `c` is non-linear (i.e., `c.type` is `1`)
 * `2 \<=p c.perms` does not hold
 
-Otherwise, `x[rs1].type` is set to `3` (uninitialised),
-and `x[rs1].cursor` is set to `x[rs1].base`.
-
-// REVOKE is a bit difficult to describe.
-// We preferably should use a more straightforward
-// way to describe REVOKE than the one in the paper.
+Otherwise, `x[rs1].type` is set to `3` (uninitialised), and `x[rs1].cursor`
+is set to `x[rs1].base`.
