@@ -300,14 +300,14 @@ saves the full context, scrubs it, and exits to the normal world. It then
 generates a corresponding interrupt in the normal world, and and follows
 the normal-world interrupt handling process thereafter.
 
-*If the content in `switch_reg` is a valid sealed capability:*
+*If the content in `switch_cap` is a valid sealed capability:*
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of `x[i]`
 to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
 . Set `switch_cap.aync` to `2` (upon interrupt).
-. Write the content of `switch_cap` to the register `switch_reg`.
+. Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Scrub the other general-purpose registers.
@@ -316,7 +316,7 @@ to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i +
 
 *Otherwise:*
 
-. Write the content of `cnull` to `switch_reg`.
+. Write the content of `cnull` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Scrub the other general-purpose registers.
@@ -364,7 +364,7 @@ Note that this is exactly the same as the handling of exceptions in {isa_var_pur
 
 *Otherwise:*
 
-*If the content in `switch_reg` is a valid sealed capability:*
+*If the content in `switch_cap` is a valid sealed capability:*
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
@@ -373,7 +373,7 @@ Note that this is exactly the same as the handling of exceptions in {isa_var_pur
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + (i + 2) * CLENBYTES, switch_cap.base + (i + 3) * CLENBYTES)`.
 . Set `switch_cap.async` to `1` (upon exception).
-. Write the content of `switch_cap` to `switch_reg`.
+. Write the content of `switch_cap` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Write the exit code to `exit_reg`.
@@ -383,7 +383,7 @@ to the memory location `[switch_cap.base + (i + 2) * CLENBYTES, switch_cap.base 
 
 *Otherwise:*
 
-. Write the content of `cnull` to `switch_reg`.
+. Write the content of `cnull` to `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 . Write the exit code to `exit_reg`.

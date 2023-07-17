@@ -116,7 +116,7 @@ The table below summarises the fields used for each type of capabilities.
 |Uninitialised |`3` |Yes |Yes |Yes |Yes |Yes |- |-
 |Sealed |`4` |Yes |- |Yes |- |- |Yes |-
 |Sealed-return |`5` |Yes |- |Yes |- |- |Yes |Yes
-|Exit |`6` |Yes |- |- |- |- |- |-
+|Exit |`6` |Yes |- |Yes |- |- |- |-
 |===
 ****
 
@@ -273,12 +273,14 @@ TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
 ! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
 ! `normal_sp`!-!-!The stack pointer for the normal world before the secure world is entered
 ! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
-! `switch_cap`!-!-! The capability used to store contexts when switching worlds
+! `switch_cap`!-!-! The capability used to store contexts when switching worlds asynchronously
 ! `exit_reg`!-!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
 ! `tval` ! - ! `0x001` ! The exception data (trap value) register
 ! `cause` ! - ! `0x002` ! The exception cause register
 !===
 |===
+
+TODO: specify how to set `switch_cap`
 
 Some of the registers only allow capability values and have special semantics
 related to the system-wide machine state. They are referred to as

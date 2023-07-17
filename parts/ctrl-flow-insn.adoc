@@ -212,17 +212,14 @@ roughly correspond to the CALL and RETURN instructions respectively.
 
 *If no exception is raised:*
 
-TODO: we need to find a way to access the content in the switch_cap region
-
 *When `x[rs1].async = 0` (synchronous):*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
 . Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
+. Set `x[rs1].type` to `6` (exit), and write the resulting `x[rs1]` to `cra`.
 . Write `rs1` to `switch_reg`.
-. Create a capability of `type = 6` (exit) in `cra`.
 . Write `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
 
@@ -269,20 +266,16 @@ the CPU core exits from the secure world synchronously or asynchronously.
 * `x[rs1].valid` is `0` (invalid).
 * `x[rs1].type` is not `6` (exit).
 * `x[rs2]` is not an integer.
-* `switch_cap` is not a capability.
-* `switch_cap.valid` is `0` (invalid).
-* `switch_cap.type` is not `4` (sealed-return).
-* `switch_cap.async` is not `0` (synchronous).
 
 *If no exception is raised:*
 
 . Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
 . Write the former value of `pc`, with the `cursor` field replaced by `x[rs2]`,
-to the memory location `[switch_cap.base, switch_cap.base + CLENBYTES)`.
+to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 . Write the former value of `ceh` and `csp` to the memory location
-`[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)` and
-`[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)` respectively.
-. Set `switch_cap.type` to `4` (sealed), `switch_cap.async`
-to `0` (synchronous), and write the resulting `switch_cap` to `switch_reg`.
+`[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and
+`[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` respectively.
+. Set `x[rs1].type` to `4` (sealed), `x[rs1].async`
+to `0` (synchronous), and write the resulting `x[rs1]` to `x[switch_reg]`.
 . Set `exit_reg` to `0` (normal exit).
 . Set `cwrld` to `0` (normal world).
