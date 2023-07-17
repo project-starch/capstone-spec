@@ -192,11 +192,11 @@ When `pc` contains a capability, some of the fields of the capability
 are checked before each instruction fetch.
 An exception is raised when any of the following conditions are met:
 
-* `x[pc].valid` is `0` (invalid).
-* `x[pc].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[pc].cursor` is not aligned to `4`.
-* `x[pc].perms` is not executable (i.e., `2 \<=p x[pc].perms` does not hold).
-* `x[pc].cursor` is not in the range
+* `pc.valid` is `0` (invalid).
+* `pc.type` is neither `0` (linear) nor `1` (non-linear).
+* `pc.cursor` is not aligned to `4`.
+* `pc.perms` is not executable (i.e., `2 \<=p pc.perms` does not hold).
+* `pc.cursor` is not in the range
 `[pc.base, pc.end-4]`.
 
 If no exception is raised, the instruction pointed to by `pc.cursor`

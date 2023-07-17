@@ -119,12 +119,12 @@ In {proj_name}, adjustments are made to these instructions to support capability
 
 * _{isa_var_pure}_
 ** An exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` is a capability.
-** `x[pc].cursor`, instead of `pc` itself, is changed by the instruction.
-** If the instruction is `jal` or `jalr`, `x[pc].cursor`, which contains
+** `pc.cursor`, instead of `pc` itself, is changed by the instruction.
+** If the instruction is `jal` or `jalr`, `pc.cursor`, which contains
 the address of the next instruction, is written to `x[rd]`.
 * _{isa_var_hybrid}_
 ** An exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
-** If `cwld` is `1` (secure world), `x[pc].cursor`, instead of `pc` itself,
+** If `cwld` is `1` (secure world), `pc.cursor`, instead of `pc` itself,
 is changed by the instruction.
 ** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`,
 `pc.cursor` (i.e., the address of the next instruction), is written to `x[rd]`.

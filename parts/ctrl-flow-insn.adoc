@@ -283,6 +283,6 @@ to the memory location `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 `[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)` and
 `[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)` respectively.
 . Set `switch_cap.type` to `4` (sealed), `switch_cap.async`
-to `0` (synchronous), and write the resulting `switch_cap` to `x[switch_reg]`.
-. Set `x[exit_reg]` to `0` (normal exit).
+to `0` (synchronous), and write the resulting `switch_cap` to `switch_reg`.
+. Set `exit_reg` to `0` (normal exit).
 . Set `cwrld` to `0` (normal world).
