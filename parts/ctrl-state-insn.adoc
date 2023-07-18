@@ -21,8 +21,10 @@ The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capa
 
 *An exception is raised when any of the following conditions are met:*
 
-* The immediate value `imm` does not correspond to the encoding of a valid capability CSR.
+- Unexpected operand type (24)
 * `x[rs1]` is not a capability.
+- Illegal operand value (29)
+* The immediate value `imm` does not correspond to the encoding of a valid capability CSR.
 
 *If no exception is raised:*
 

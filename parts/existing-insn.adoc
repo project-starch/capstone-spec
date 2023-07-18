@@ -3,7 +3,7 @@
 = Adjustments to Existing Instructions
 
 For most existing instructions in the {base_isa_name} ISA, the adjustments are straightforward.
-Their behaviour is unchanged, and an exception is raised if any of the operands
+Their behaviour is unchanged, and an "unexpected operand type (24)" exception is raised if any of the operands
 (i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) is a capability.
 For control flow instructions and memory access instructions, however, the
 behaviour is slightly changed to be capability-aware.
@@ -118,12 +118,12 @@ In {proj_name}, adjustments are made to these instructions to support capability
 *The following adjustments are made to these instructions:*
 
 * _{isa_var_pure}_
-** An exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` is a capability.
+** An "unexpected operand type (24)" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` is a capability.
 ** `pc.cursor`, instead of `pc` itself, is changed by the instruction.
 ** If the instruction is `jal` or `jalr`, `pc.cursor`, which contains
 the address of the next instruction, is written to `x[rd]`.
 * _{isa_var_hybrid}_
-** An exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
+** An "unexpected operand type (24)" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
 ** If `cwld` is `1` (secure world), `pc.cursor`, instead of `pc` itself,
 is changed by the instruction.
 ** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`,
@@ -267,10 +267,10 @@ memory access.
 *The following adjustments are made to these instructions:*
 
 * _{isa_var_pure}_
-** An exception is raised if any of these instructions is executed.
+** An "illegal instruction (2)" exception is raised if any of these instructions is executed.
 * _{isa_var_hybrid}_
-** An exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
-** An exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
-** An exception is raised if the address to be accessed is within the range `(SBASE-size, SEND)`
+** An "illegal instruction (2)" exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
+** An "unexpected operand type (24)" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
+** Depending on whether the instruction is a load or a store, a "load access fault (5)" or "store/AMO access fault (7)" exception is raised if the address to be accessed is within the range `(SBASE-size, SEND)`
 (i.e. `addr = x[rs1] + sext(imm)` and `SBASE-size < addr < SEND`), where `size` is the size (in bytes)
 of the integer to be loaded or stored.

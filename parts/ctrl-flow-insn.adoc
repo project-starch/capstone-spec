@@ -37,13 +37,16 @@ in a unconditional or conditional manner.
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_pure}_
-** `x[rs1]` is not a capability.
-** `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-** `x[rs1].perms` is neither `5` (read-execute) nor `7` (read-write-execute).
 * _{isa_var_hybrid}_
+- Illegal instruction (2)
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _{isa_var_pure}_ are met.
+* _{isa_var_pure}_ or _{isa_var_hybrid}_
+- Unexpected operand type (24)
+** `x[rs1]` is not a capability.
+- Unexpected capability type (26)
+** `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+- Insufficient capability permissions (27)
+** `x[rs1].perms` is neither `5` (read-execute) nor `7` (read-write-execute).
 
 *If no exception is raised:*
 
@@ -79,14 +82,17 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_pure}_
+* _{isa_var_hybrid}_
+- Illegal instruction (2)
+** `cwrld` is `0` (normal world).
+* _{isa_var_pure}_ or _{isa_var_hybrid}_
+- Unexpected operand type (24)
 ** `x[rs1]` is not a capability.
+- Invalid capability (25)
 ** `x[rs1].valid` is `0` (invalid).
+- Unexpected capability type (26)
 ** `x[rs1].type` is not `4` (sealed).
 ** `x[rs1].async` is not `0` (synchronous).
-* _{isa_var_hybrid}_
-** `cwrld` is `0` (normal world).
-** Any of the conditions for _{isa_var_pure}_ are met.
 
 *If no exception is raised:*
 
@@ -116,14 +122,17 @@ and write the resulting `x[rs1]` to the register `cra`.
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_pure}_
-** `x[rs1]` is not a capability.
-** `x[rs1].valid` is `0` (invalid).
-** `x[rs1].type` is not `5` (sealed-return).
-** `x[rs2]` is not an integer.
 * _{isa_var_hybrid}_
+- Illegal instruction (2)
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _{isa_var_pure}_ are met.
+* _{isa_var_pure}_ or _{isa_var_hybrid}_
+- Unexpected operand type (24)
+** `x[rs1]` is not a capability.
+** `x[rs2]` is not an integer.
+- Invalid capability (25)
+** `x[rs1].valid` is `0` (invalid).
+- Unexpected capability type (26)
+** `x[rs1].type` is not `5` (sealed-return).
 
 *If no exception is raised:*
 
@@ -205,10 +214,14 @@ roughly correspond to the CALL and RETURN instructions respectively.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `cwrld` is `1` (secure world).
-* `x[rs1]` is not a capability.
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].type` is not `4` (sealed).
+* Illegal instruction (0)
+- `cwrld` is `1` (secure world).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `4` (sealed).
 
 *If no exception is raised:*
 
@@ -261,11 +274,15 @@ the CPU core exits from the secure world synchronously or asynchronously.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `cwrld` is `0` (normal world).
-* `x[rs1]` is not a capability.
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].type` is not `6` (exit).
-* `x[rs2]` is not an integer.
+* Illegal instruction (2)
+- `cwrld` is `0` (normal world).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not an integer.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `6` (exit).
 
 *If no exception is raised:*
 

@@ -45,7 +45,11 @@ implementation and interoperability.
 | Store/AMO access fault | 7 | 1
 | Unexpected operand type | 24 | 1
 | Invalid capability | 25 | 1
-| Unhandleable exception | 26 | N/A in {isa_var_hybrid}
+| Unexpected capability type | 26 | 1
+| Insufficient capability permissions | 27 | 1
+| Capability out of bound | 28 | 1
+| Illegal operand value | 29 | 1
+| Unhandleable exception | 30 | N/A in {isa_var_hybrid}
 |===
 
 For interrupts, the same encodings as in {base_isa_name} are used.
