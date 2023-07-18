@@ -2,4 +2,4 @@
 :isa_var_pure: Pure Capstone
 :isa_var_hybrid: TransCapstone
 :proj_name: Capstone
-:base_isa_name: RV64G
+:base_isa_name: RV64I

@@ -226,9 +226,8 @@ In _{isa_var_pure}_, the memory can only be accessed through capabilities.
 
 [%header%autowidth.stretch]
 |===
-| Address Space | Access Method | Allowed Instructions
-| `[0, 2^XLEN)` | Capabilities | link:#load-with-cap[LDD/LDW/LDH/LDB],
-link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
+| Address Space | Access Method
+| `[0, 2^XLEN)` | Capabilities
 |===
 
 In _{isa_var_hybrid}_, the physical memory is divided into two disjoint regions:
@@ -238,11 +237,9 @@ the _secure memory_ can only be accessed through capabilities.
 
 [%header%autowidth.stretch]
 |===
-| Memory Region | Address Space | Access Method | Allowed Instructions
-| _Normal Memory_ | `[0, SBASE) U [SEND, 2^XLEN)` | MMU | link:#riscv-load-store[{base_isa_name} load/store instructions],
-link:#load-cap-raw[LDCR] and link:#store-cap-raw[STCR]
-| _Secure Memory_ | `[SBASE, SEND)` | Capabilities | link:#load-with-cap[LDD/LDW/LDH/LDB],
-link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
+| Memory Region | Address Space | Access Method
+| _Normal Memory_ | `[0, SBASE) U [SEND, 2^XLEN)` | MMU
+| _Secure Memory_ | `[SBASE, SEND)` | Capabilities
 |===
 
 [#ccsrs]
