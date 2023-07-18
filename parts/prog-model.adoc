@@ -260,7 +260,7 @@ The {isa_name} ISA adds the following registers:
 ! Mnemonic ! CCSR encoding ! Description
 ! `ceh`  ! `0x000` ! The sealed capability for the exception handler
 ! `cih`  ! `0x001` ! The sealed capability for the interrupt handler
-! `cinit` ! `0x002` ! The initial capability covering the entire address space of the memory
+! `cinit` ! `0x010` ! The initial capability covering the entire address space of the memory
 !===
 
 |_{isa_var_hybrid}_|
@@ -268,7 +268,8 @@ The {isa_name} ISA adds the following registers:
 !===
 ! Mnemonic ! CCSR encoding ! Description
 ! `ceh`  ! `0x000` ! The sealed capability for the exception handler
-! `cinit` ! `0x002` ! The initial capability covering the entire address space of the secure memory
+! `cinit` ! `0x010` ! The initial capability covering the entire address space of the secure memory
+! `emode` ! `0x011` ! The encoding mode of the system. `0` = integer encoding mode, `1` = capability encoding mode
 ! `cwrld`! - ! The currently executed world. `0` = normal world, `1` = secure world
 ! `normal_pc`!-! The program counter for the normal world before the secure world is entered
 ! `normal_sp`!-!The stack pointer for the normal world before the secure world is entered
