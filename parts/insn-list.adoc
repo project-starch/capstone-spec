@@ -35,6 +35,9 @@ include::r-type-format.adoc[]
 .Instruction format: I-type
 include::i-type-format.adoc[]
 
+.Instruction format: S-type
+include::s-type-format.adoc[]
+
 .Capability manipulation instructions
 [%header%autowidth.stretch]
 |===
@@ -59,14 +62,14 @@ include::i-type-format.adoc[]
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
-|link:#load-cap[LDC] |I |`0` |`011` | - | I | - | C | S | N | T
+|link:#load-store-cap[LDC] |I |`0` |`011` | - | I | - | C | S | N | T
 | |I |`1` |`011` | - | C | - | C | S | N | T
 | |I |- |`011` | - | C | - | C | S | S | T
 | |I |- |`011` | - | C | - | C | S | - | P
-|link:#store-cap[SDC] |I |`0` |`100` | - | C | - | I | S | N | T
-| |I |`1` |`100` | - | C | - | C | S | N | T
-| |I |- |`100` | - | C | - | C | S | S | T
-| |I |- |`100` | - | C | - | C | S | - | P
+|link:#load-store-cap[STC] |S |`0` |`100` | - | I | C | - | S | N | T
+| |I |`1` |`100` | - | C | C | - | S | N | T
+| |I |- |`100` | - | C | C | - | S | S | T
+| |I |- |`100` | - | C | C | - | S | - | P
 |===
 
 .Control flow instructions
