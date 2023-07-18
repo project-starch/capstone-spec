@@ -226,8 +226,9 @@ link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[S
 
 In _{isa_var_hybrid}_, the physical memory is divided into two disjoint regions:
 the _normal memory_ and the _secure memory_.
-While the _normal memory_ is only accessible through MMU (Memory Management Unit),
-the _secure memory_ can only be accessed through capabilities.
+While the normal memory is only accessible through MMU (Memory Management Unit),
+the secure memory can only be accessed through capabilities.
+The bounds of the secure memory `[SBASE, SEND)` are implementation-defined.
 
 [%header%autowidth.stretch]
 |===
@@ -324,22 +325,13 @@ To prevent any domain from setting `cih`, we require the original content of
 
 .Note
 ****
-`cinit` is a special CCSR that is used to initialize the system.
-In the initialisation phase of the system, the `cinit` CCSR is set to
-an initial capability as shown in the table below.
-
-.Initial Capability of `cinit`
-[%header%autowidth.stretch]
-|===
-| Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
-| _{isa_var_pure}_ | `1` (linear) | `0` | `0` | `2^XLEN` | `4` (read-write-execute) | `1` (valid)
-| _{isa_var_hybrid}_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `4` (read-write-execute) | `1` (valid)
-|===
-
+`cinit` is a special CCSR that is used to
+bootstrap capabilities after a link:#reset[system reset].
 link:#ccsr-man[CCSR manipulation instructions] can be used to read this initial
 capability and store it in a general-purpose register. This operation can only
-be performed once. Any attempt to write `cinit` or read it for the second time
-will be silently ignored.
+be performed once after each reset.
+Any attempt to write `cinit` will be silently ignored,
+and any attempt to read it after the first time will return the content of `cnull`.
 ****
 
 == Instruction Set
@@ -361,3 +353,29 @@ include::i-type-format.adoc[]
 
 R-type instructions receive up to three register operands, and I-type instructions
 receive up to two register operands and a 12-bit-wide immediate operand.
+
+[#reset]
+== Reset
+
+Upon reset, the system state must conform to the following
+specifications.
+
+=== {isa_var_pure}
+
+* Each general-purpose register either contains an integer, or a capability with `valid = 0`.
+* No addressable memory location can contain a capability.
+* `ceh`, `deh`, `cih`, and `epc` contain either integers or
+capabilities with `valid = 0` (invalid).
+* `cis = 0`.
+* `cinit = { valid = 1, type = 0, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`,
+and `pc = { valid = 1, type = 0, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`, where `INIT_DATA_BASE`, `INIT_DATA_END`, `INIT_CODE_BASE`, and `INIT_CODE_END` are implementation-defined, and `[INIT_CODE_BASE, INIT_CODE_END)` does not overlap with `[INIT_DATA_BASE, INIT_DATA_END)`.
+
+=== {isa_var_hybrid}
+
+* Each general-purpose register either contains an integer, or a capability with `valid = 0`.
+* No addressable memory location can contain a capability.
+* `ceh` and `deh` contain either integers or
+capabilities with `valid = 0` (invalid).
+* `cwrld = 0` (normal world).
+* `cinit = { valid = 1, type = 0, cursor = SBASE, base = SBASE, end = SEND, perms = 7 }`.
+* Specifications for {base_isa_name}.
