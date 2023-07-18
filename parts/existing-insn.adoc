@@ -280,8 +280,12 @@ of the integer to be loaded or stored.
 == Instructions Made Illegal
 
 Some instructions in {base_isa_name} now raise "illegal instruction (2)"
-exceptions when executed in {isa_var_pure} or {isa_var_hybrid} secure world.
+exceptions when executed in {isa_var_pure} or {isa_var_hybrid} secure world,
+under all or some circumstances.
 
 * All instructions defined in the privileged ISA of {base_isa_name}
+* All instructions defined in the {base_isa_csr_ext} extension, namely
+instructions that directly access CSRs, when the CSR specified is not one
+link:#additional-regs[defined in {isa_name}], or when the link:#csr-man-constr[read/write constraints] are not satisfied
 * ECALL
 * EBREAK
