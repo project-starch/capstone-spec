@@ -319,8 +319,12 @@ the normal-world interrupt handling process thereafter.
 
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
+. Store the current `ceh` to the memory location
+`[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)`.
+. Store the current `deh` to the memory location
+`[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of `x[i]`
-to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
+to the memory location `[switch_cap.base + (i + 2) * CLENBYTES, switch_cap.base + (i + 3) * CLENBYTES)`.
 . Set `switch_cap.aync` to `2` (upon interrupt).
 . Write the content of `switch_cap` to the register `x[switch_reg]`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
