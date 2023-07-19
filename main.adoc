@@ -4,7 +4,7 @@ include::attributes.adoc[]
 :author_1: Jason Zhijingcheng Yu
 :email_1: yu.zhi@comp.nus.edu.sg
 :author_2: Mingkai Li
-:email_2: mingkai@u.nus.edu
+:email_2: mingkai@comp.nus.edu.sg
 :institution_1: National University of Singapore
 :institution_2: National University of Singapore
 :reproducible:

@@ -39,16 +39,15 @@ include::i-type-format.adoc[]
 |link:#shrink[SHRINK]      |R |`001`    |`0000001` | I | I | C | - | * | *
 |link:#tighten[TIGHTEN]     |R |`001`    |`0000010` | I | - | C | - | * | *
 |link:#delin[DELIN]       |R |`001`    |`0000011` | - | - | C | - | * | *
-|link:#cursor-set-get[LCC]         |R |`001`    |`0000100` | C | - | I | - | * | *
-|link:#cursor-set-get[SCC]         |R |`001`    |`0000101` | I | - | C | - | * | *
+|link:#field-get[LCC]         |I |`001`    |`0000100` | C | - | I | Z | * | *
+|link:#cursor-set[SCC]         |R |`001`    |`0000101` | I | - | C | - | * | *
 |link:#split[SPLIT]       |R |`001`    |`0000110` | C | I | C | - | * | *
 |link:#seal[SEAL]        |R |`001`    |`0000111` | - | - | C | - | * | *
 |link:#revcap-creation[MREV]        |R |`001`    |`0001000` | C | - | C | - | * | *
 |link:#init[INIT]        |R |`001`    |`0001001` | - | - | C | - | * | *
 |link:#cap-mov[MOVC]        |R |`001`    |`0001010` | C | - | C | - | * | *
 |link:#drop[DROP]       |R |`001`    |`0001011` | C | - | - | - | * | *
-|CAPGET      |R |`001`    |`0001100` | - | - | C | - | N | *
-|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001101` | C | I | C | - | * | *
+|link:#cursor-inc[CINCOFFSET]  |R |`001`    |`0001100` | C | I | C | - | * | *
 |link:#cursor-inc[CINCOFFSETIMM] |I |`011`    | - | C | - | C | S | * | *
 |===
 

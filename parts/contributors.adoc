@@ -1,5 +1,5 @@
 :reproducible:
 
 Contributors to this document include (in alphabetical order):
-Mingkai Li,
-Jason Zhijingcheng Yu
+Jason Zhijingcheng Yu,
+Mingkai Li

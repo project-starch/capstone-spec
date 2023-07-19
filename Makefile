@@ -1,6 +1,7 @@
 PARTS_DIR?=parts
 ADOC_PARTS_SRC=$(wildcard parts/*.adoc)
 ADOC_TOP_SRC=main.adoc
+ADOC_EXTRA_DEPS=attributes.adoc
 OUTPUT_DIR?=output
 OUTPUT_PDF=$(OUTPUT_DIR)/main.pdf
 OUTPUT_HTML=$(OUTPUT_DIR)/index.html
@@ -17,11 +18,11 @@ else
 CONTAINER_IMG=$(EXTERNAL_CONTAINER_IMG)
 endif
 
-$(OUTPUT_PDF): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(CONTAINER_IMG)
+$(OUTPUT_PDF): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
 	$(CONTAINER_IMG) -r asciidoctor-pdf -r asciidoctor-diagram -b pdf -o $@ $<
 
-$(OUTPUT_HTML): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(CONTAINER_IMG)
+$(OUTPUT_HTML): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
 	$(CONTAINER_IMG) -r asciidoctor-diagram -b html5 -o $@ $<
 

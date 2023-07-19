@@ -37,13 +37,16 @@ in a unconditional or conditional manner.
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_pure}_
-** `x[rs1]` is not a capability.
-** `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-** `x[rs1].perms` is neither `2` (read-execute) nor `4` (read-write-execute).
 * _{isa_var_hybrid}_
+- Illegal instruction (2)
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _{isa_var_pure}_ are met.
+* _{isa_var_pure}_ or _{isa_var_hybrid}_
+- Unexpected operand type (24)
+** `x[rs1]` is not a capability.
+- Unexpected capability type (26)
+** `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+- Insufficient capability permissions (27)
+** `x[rs1].perms` is neither `5` (read-execute) nor `7` (read-write-execute).
 
 *If no exception is raised:*
 
@@ -79,21 +82,24 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_pure}_
-** `x[rs1]` is not a capability.
-** `x[rs1].valid` is `0` (invalid).
-** `x[rs1].type` is not `4` (sealed).
-** `x[rs1].async` is `1` (asynchronous).
 * _{isa_var_hybrid}_
+- Illegal instruction (2)
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _{isa_var_pure}_ are met.
+* _{isa_var_pure}_ or _{isa_var_hybrid}_
+- Unexpected operand type (24)
+** `x[rs1]` is not a capability.
+- Invalid capability (25)
+** `x[rs1].valid` is `0` (invalid).
+- Unexpected capability type (26)
+** `x[rs1].type` is not `4` (sealed).
+** `x[rs1].async` is not `0` (synchronous).
 
 *If no exception is raised:*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
-. Store the former `pc`, `ceh` and `csp` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
+. Store the former `pc`, `ceh` and `deh` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`
 respectively.
 . Set `x[rs1].type` to `5` (sealed-return), `x[rs1].reg` to `rd`, set `x[rs1].async` to `0` (synchronous),
@@ -116,14 +122,17 @@ and write the resulting `x[rs1]` to the register `cra`.
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_pure}_
-** `x[rs1]` is not a capability.
-** `x[rs1].valid` is `0` (invalid).
-** `x[rs1].type` is not `5` (sealed-return).
-** `x[rs2]` is not an integer.
 * _{isa_var_hybrid}_
+- Illegal instruction (2)
 ** `cwrld` is `0` (normal world).
-** Any of the conditions for _{isa_var_pure}_ are met.
+* _{isa_var_pure}_ or _{isa_var_hybrid}_
+- Unexpected operand type (24)
+** `x[rs1]` is not a capability.
+** `x[rs2]` is not an integer.
+- Invalid capability (25)
+** `x[rs1].valid` is `0` (invalid).
+- Unexpected capability type (26)
+** `x[rs1].type` is not `5` (sealed-return).
 
 *If no exception is raised:*
 
@@ -131,30 +140,30 @@ and write the resulting `x[rs1]` to the register `cra`.
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to  `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
-. Store the former `pc`, `ceh` and `csp` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
+. Store the former `pc`, `ceh` and `deh` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`
 respectively.
 . Set `x[rs1].type` to `4` (sealed), and write the
 capability to the register `x[x[rs1].reg]`.
 
-*When `x[rs1].async = 1` (asynchronous):*
+*When `x[rs1].async = 1` (upon exception) or `2` (upon interrupt):*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
+. Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
 . For `i = 1, 2, ..., 31`, load the content at the memory location
-`[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+`[x[rs1].base + (i + 2) * CLENBYTES, x[rs1].base + (i + 3) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Write the former value of `pc`, with the `cursor` field replaced by `x[rs2]`, to
 the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the content of `x[i]` (the `i`-th general-purpose register)
-to the memory location `[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`.
-When `i = rs1`, store the content of `cnull` instead to `[x[rs1].base + i * CLENBYTES, x[rs1].base + (i + 1) * CLENBYTES)`.
-. Set the `x[rs1].type` to `4` (sealed), and write the resulting `x[rs1]` to the register `ceh`.
-
+. Store the former alue of `ceh` to the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
+. Store the former value of `deh` to the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`.
+. Set the `x[rs1].type` to `4` (sealed). If `x[rs1].async = 1`, write the resulting `x[rs1]` to the register `ceh`. Otherwise (`x[rs1].async = 2`), write the resulting `x[rs1]` to the register `cih`.
 
 .Note
 ****
 
-When the `async` field of a sealed-return capability is `1` (asynchronous), some
+When the `async` field of a sealed-return capability is `0` (synchronous), some
 memory accesses are granted by this capability. The following table shows the
 memory accesses granted by sealed and sealed-return capabilities in different scenarios.
 
@@ -164,8 +173,8 @@ memory accesses granted by sealed and sealed-return capabilities in different sc
 | Capability type | `async` | Read | Write | Execute
 | Sealed | `0` | No | No | No
 | Sealed | `1` | No | No | No
-| Sealed-return | `0` | No | No | No
-| Sealed-return | `1` | `cursor in [base, end)` | `cursor in [base, end)` | No
+| Sealed-return | `0` | `cursor in [base, end)` | `cursor in [base, end)` | No
+| Sealed-return | `1` | No | No | No
 |===
 
 ****
@@ -205,35 +214,35 @@ roughly correspond to the CALL and RETURN instructions respectively.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `cwrld` is `1` (secure world).
-* `x[rs1]` is not a capability.
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].type` is not `4` (sealed).
+* Illegal instruction (0)
+- `cwrld` is `1` (secure world).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `4` (sealed).
 
 *If no exception is raised:*
-
-// TODO: the resumption of an asynchronous exit needs to be handled
-
-// TODO: we need to find a way to access the content in the switch_cap region
 
 *When `x[rs1].async = 0` (synchronous):*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
+. Set `x[rs1].type` to `6` (exit), and write the resulting `x[rs1]` to `cra`.
 . Write `rs1` to `switch_reg`.
-. Create a capability of `type = 6` (exit) in `cra`.
 . Write `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
 
-*When `x[rs1].async = 1` (asynchronous):*
+*Otherwise:*
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
 . For `i = 1, 2, ..., 31`, load the content at the memory location
-`[x[rs1].base + (i + 1) * CLENBYTES, x[rs1].base + (i + 2) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
+`[x[rs1].base + (i + 2) * CLENBYTES, x[rs1].base + (i + 3) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
 . Set `x[rs1].type` to `5` (sealed-return), `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
 . Write `rs1` to `switch_reg`.
@@ -265,25 +274,25 @@ the CPU core exits from the secure world synchronously or asynchronously.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `cwrld` is `0` (normal world).
-* `x[rs1]` is not a capability.
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].type` is not `6` (exit).
-* `x[rs2]` is not an integer.
-* `switch_cap` is not a capability.
-* `switch_cap.valid` is `0` (invalid).
-* `switch_cap.type` is not `4` (sealed-return).
-* `switch_cap.async` is `1` (asynchronous).
+* Illegal instruction (2)
+- `cwrld` is `0` (normal world).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not an integer.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `6` (exit).
 
 *If no exception is raised:*
 
 . Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
 . Write the former value of `pc`, with the `cursor` field replaced by `x[rs2]`,
-to the memory location `[switch_cap.base, switch_cap.base + CLENBYTES)`.
+to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 . Write the former value of `ceh` and `csp` to the memory location
-`[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)` and
-`[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)` respectively.
-. Set `switch_cap.type` to `4` (sealed), `switch_cap.async`
-to `0` (synchronous), and write the resulting `switch_cap` to `x[switch_reg]`.
-. Set `x[exit_reg]` to `0` (normal exit).
+`[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and
+`[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` respectively.
+. Set `x[rs1].type` to `4` (sealed), `x[rs1].async`
+to `0` (synchronous), and write the resulting `x[rs1]` to `x[switch_reg]`.
+. Set `exit_reg` to `0` (normal exit).
 . Set `cwrld` to `0` (normal world).

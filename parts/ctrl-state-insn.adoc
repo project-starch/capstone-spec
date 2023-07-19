@@ -5,7 +5,7 @@
 [#ccsr-man]
 == Capability CSR (CCSR) Manipulation
 
-The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capability CSRs].
+The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capability CSRs] (CCSRs).
 
 .CCSRRW instruction format
 [wavedrom,,svg]
@@ -21,14 +21,19 @@ The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capa
 
 *An exception is raised when any of the following conditions are met:*
 
-* The immediate value `imm` does not correspond to the encoding of a valid capability CSR.
+- Unexpected operand type (24)
 * `x[rs1]` is not a capability.
+- Illegal operand value (29)
+* The immediate value `imm` does not correspond to the encoding of a valid capability CSR.
 
 *If no exception is raised:*
 
-. If the link:#ccsr-man-constr[read constraint] is satisfied, the content of the capability CSR specified by the immediate value `imm` is written to the register `rd`.
-Otherwise, the content of the register `rd` is set to the content of `cnull`.
-. If the link:#ccsr-man-constr[write constraint] is satisfied, `x[rs1]` is written to the capability CSR specified by the immediate value `imm`.
-If the former `x[rs1]` is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`),
+. Read from capability CSR
+** If the link:#ccsr-man-constr[read constraint] is satisfied, the content of the capability CSR specified by the immediate value `imm` is written to `x[rd]`.
+If the current content of the capability CSR is neither a non-linear capability (i.e., `type != 1`) nor an exit capability (i.e., `type != 6`), it will be set to the content of `cnull`.
+** Otherwise, `x[rd]` is set to the content of `cnull`.
+. Write to capability CSR
+** If the link:#ccsr-man-constr[write constraint] is satisfied, `x[rs1]` is written to the capability CSR specified by the immediate value `imm`.
+If `x[rs1]` is neither a non-linear capability (i.e., `type != 1`) nor an exit capability (i.e., `type != 6`),
 it will be set to the content of `cnull`.
-Otherwise, the original content of the capability CSR is preserved.
+** Otherwise, the original current of the capability CSR is preserved.

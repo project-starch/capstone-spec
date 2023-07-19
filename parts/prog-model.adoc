@@ -28,28 +28,36 @@ Each capability has the following architecturally-visible fields:
 |`type` | `0..6` | The type of the capability:
 `0` = linear, `1` = non-linear, `2` = revocation,
 `3` = uninitialised, `4` = sealed, `5` = sealed-return, `6` = exit
-|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
+|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 2` (revocation), `type = 4` (sealed), `type = 5` (sealed-return), or
 `type = 6` (exit).
 The memory address the capability points to (to be used for the next memory access)
 |`base` | `0..2^XLEN-1` | Not applicable when `type = 6` (exit). The base memory address of the memory region associated with the capability
 |`end` | `0..2^XLEN-1` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
 `type = 6` (exit).
 The end memory address of the memory region associated with the capability
-|`perms` | `0..4` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return) or
+|`perms` | `0..7` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return) or
 `type = 6` (exit).
-The permissions associated with the capability:
-`0` = no access, `1` = read-only, `2` = read-execute,
-`3` = read-write, `4` = read-write-execute
-|`async` | `0..1` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
-Whether the capability is sealed asynchronously: `0` = synchronously, `1` = asynchronously
+One-hot encoded permissions associated with the capability:
+`0` = no access, `1` = execute-only, `2` = write-only, `3` = write-execute,
+`4` = read-only, `5` = read-execute, `6` = read-write, `7` = read-write-execute
+|`async` | `0..2` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
+Whether the capability is sealed asynchronously: `0` = synchronously, `1` = upon exception, `2` = upon interrupt
 |`reg` | `0..31` | Only applicable when `type = 5` (sealed-return).
 The index of the general-purpose register to restore the capability to
 |===
 
 The range of the `perms` field has a partial order `\<=p` defined as follows:
 ....
-<=p = { (0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (0, 1), (0, 2), (0, 3), (0, 4),
-       (1, 2), (1, 3), (1, 4), (2, 4), (3, 4) }
+<=p = {
+    (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7),
+    (1, 1), (1, 3), (1, 5), (1, 7),
+    (2, 2), (2, 3), (2, 6), (2, 7),
+    (3, 3), (3, 7),
+    (4, 4), (4, 5), (4, 6), (4, 7),
+    (5, 5), (5, 7),
+    (6, 6), (6, 7),
+    (7, 7)
+}
 ....
 
 We say a capability `c` aliases with a capability `d` if and only if the intersection
@@ -93,15 +101,24 @@ nothing and always return a capability with `valid = 0` (TODO:
 double-check this claim).
 ****
 
-== Variants
+.Note
+****
+For different types of capabilities, a specific subset of the fields is used.
+The table below summarises the fields used for each type of capabilities.
 
-{proj_name} currently supports two variants of the ISA, i.e., _{isa_var_pure}_ and _{isa_var_hybrid}_.
-While _{isa_var_pure}_ is a pure capability-based ISA, _{isa_var_hybrid}_ is a hybrid ISA that
-supports both capabilities and traditional virtual memory. In _{isa_var_hybrid}_, the memory
-is divided into two parts, i.e., the secure memory and the untrusted memory. The range of
-the secure memory is defined as `[SBASE, SEND)`, where `SBASE` and `SEND` are required to
-be aligned to `CLEN` bits. These two variants share most of the parts of the ISA, and separate
-descriptions are provided for the parts that are different.
+.Fields used for each type of capabilities
+[%header,%autowidth.stretch]
+|===
+|Type |`type` |`valid` |`cursor` |`base` |`end` |`perms` |`async` |`reg`
+|Linear |`0` |Yes |Yes |Yes |Yes |Yes |- |-
+|Non-linear |`1` |Yes |Yes |Yes |Yes |Yes |- |-
+|Revocation |`2` |Yes |- |Yes |Yes |Yes |- |-
+|Uninitialised |`3` |Yes |Yes |Yes |Yes |Yes |- |-
+|Sealed |`4` |Yes |- |Yes |- |- |Yes |-
+|Sealed-return |`5` |Yes |- |Yes |- |- |Yes |Yes
+|Exit |`6` |Yes |- |Yes |- |- |- |-
+|===
+****
 
 == Extension to General-Purpose Registers
 
@@ -173,18 +190,53 @@ the program counter (`pc`) is also extended to contain a capability or an intege
 
 When `pc` contains a capability, some of the fields of the capability
 are checked before each instruction fetch.
-An exception is raised when any of the following conditions are met:
+An exception is raised when any of the following conditions are met
+(in priority order):
 
-* `x[pc].valid` is `0` (invalid).
-* `x[pc].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[pc].cursor` is not aligned to `4`.
-* `x[pc].perms` is not executable (i.e., `2 \<=p x[pc].perms` does not hold).
-* `x[pc].cursor` is not in the range
-`[pc.base, pc.end-4]`.
+* Instruction access fault (1)
+- `pc.valid` is `0` (invalid).
+- `pc.type` is neither `0` (linear) nor `1` (non-linear).
+- `pc.perms` is not executable (i.e., `2 \<=p pc.perms` does not hold).
+- `pc.cursor` is not in the range `[pc.base, pc.end-4]`.
+* Instruction address misaligned (0)
+- `pc.cursor` is not aligned to `4`.
 
 If no exception is raised, the instruction pointed to by `pc.cursor`
 is fetched and executed. The `pc.cursor` is then incremented by `4` (i.e.,
 `pc.cursor += 4`).
+
+[#mem-extension]
+== Extension to Memory
+
+The memory is addressed using an `XLEN`-bit integer at byte-level
+granularity.
+In addition to raw integers, each `CLEN`-bit aligned address can
+also store a capability.
+The type of data contained in a memory location is maintained and
+confusion of the type is not allowed.
+
+In _{isa_var_pure}_, the memory can only be accessed through capabilities.
+
+[%header%autowidth.stretch]
+|===
+| Address Space | Access Method | Allowed Instructions
+| `[0, 2^XLEN)` | Capabilities | link:#load-with-cap[LDD/LDW/LDH/LDB],
+link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
+|===
+
+In _{isa_var_hybrid}_, the physical memory is divided into two disjoint regions:
+the _normal memory_ and the _secure memory_.
+While the _normal memory_ is only accessible through MMU (Memory Management Unit),
+the _secure memory_ can only be accessed through capabilities.
+
+[%header%autowidth.stretch]
+|===
+| Memory Region | Address Space | Access Method | Allowed Instructions
+| _Normal Memory_ | `[0, SBASE) U [SEND, 2^XLEN)` | MMU | link:#riscv-load-store[{base_isa_name} load/store instructions],
+link:#load-cap-raw[LDCR] and link:#store-cap-raw[STCR]
+| _Secure Memory_ | `[SBASE, SEND)` | Capabilities | link:#load-with-cap[LDD/LDW/LDH/LDB],
+link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
+|===
 
 == Added Registers
 
@@ -196,24 +248,37 @@ The {isa_name} ISA adds the following registers:
 |===
 |{proj_name} Variant   | Additional Registers
 |_{isa_var_pure}_|
-[cols="1,1,4", options="header"]
+[cols="1,1,1,4", options="header"]
 !===
-! Mnemonic ! CCSR encoding ! Description
-! `ceh`  ! `0x000` ! The sealed capability for the exception handler
-! `cih`  ! `0x001` ! The sealed capability for the interrupt handler
+! Mnemonic ! CCSR encoding ! CSR encoding ! Description
+! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
+! `deh` ! `0x001` ! - !  The data for the exception handler, possibly a capability
+! `cih`  ! `0x002` ! - ! The sealed capability for the interrupt handler
+! `epc` ! `0x003` ! - ! The exception program counter register
+! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the memory
+! `cis` ! - ! `0x000` ! The interrupt status register
+! `tval` ! - ! `0x001` ! The exception data (trap value) register
+! `cause` ! - ! `0x002` ! The exception cause register
 !===
 
+TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
+
 |_{isa_var_hybrid}_|
-[cols="1,1,4", options="header"]
+[cols="1,1,1,4", options="header"]
 !===
-! Mnemonic ! CCSR encoding ! Description
-! `ceh`  ! `0x000` ! The sealed capability for the exception handler
-! `cwrld`! - ! The currently executed world. `0` = normal world, `1` = secure world
-! `normal_pc`!-! The program counter for the normal world before the secure world is entered
-! `normal_sp`!-!The stack pointer for the normal world before the secure world is entered
-! `switch_reg`!-! The index of the general-purpose register used when switching worlds
-! `switch_cap`!-! The capability used to store contexts when switching worlds
-! `exit_reg`!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
+! Mnemonic ! CCSR encoding ! CSR encoding ! Description
+! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
+! `deh` ! `0x001` ! - !  The data for the exception handler, possibly a capability
+! `epc` ! `0x003` ! - ! The exception program counter register
+! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the secure memory
+! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
+! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
+! `normal_sp`!-!-!The stack pointer for the normal world before the secure world is entered
+! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
+! `switch_cap`! `0x005` !-! The capability used to store contexts when switching worlds asynchronously
+! `exit_reg`!-!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
+! `tval` ! - ! `0x001` ! The exception data (trap value) register
+! `cause` ! - ! `0x002` ! The exception cause register
 !===
 |===
 
@@ -229,8 +294,20 @@ The manipulation constraints for each CCSR are indicated below.
 [%header%autowidth.stretch]
 |===
 |Mnemonic | Read | Write
-|`ceh` | No constraint | No constraint
-|`cih` | The original content must be an invalid capability (`valid = 0`) | The original content must be an invalid capability (`valid = 0`)
+|`ceh` | {isa_var_pure} or secure world | {isa_var_pure} or secure world
+|`deh` | {isa_var_pure} or secure world | {isa_var_pure} or secure world
+|`cih` | - | {isa_var_pure} or secure world; the original content must not be a capability
+|`cinit` | {isa_var_pure} or normal world; one-time only | -
+|`switch_cap` | Normal world | Normal world
+|===
+
+The manipulation constraints for each additional CSR are indicated below.
+
+.Manipulation Constraints for Additional CSRs
+[%header%autowidth.stretch]
+|===
+|Mnemonic | Read | Write
+|`cis`| `cih` must not be a capability | `cih` must not be a capability 
 |===
 
 .Note
@@ -245,21 +322,32 @@ To prevent any domain from setting `cih`, we require the original content of
 `cih` to be invalid for an attempt to change it to succeed.
 ****
 
-== Extension to Memory
+.Note
+****
+`cinit` is a special CCSR that is used to initialize the system.
+In the initialisation phase of the system, the `cinit` CCSR is set to
+an initial capability as shown in the table below.
 
-The memory is addressed using an `XLEN`-bit integer at byte-level
-granularity.
-In addition to raw integers, each `CLEN`-bit aligned address can
-also store a capability.
-The type of data contained in a memory location is maintained and
-confusion of the type is not allowed.
+.Initial Capability of `cinit`
+[%header%autowidth.stretch]
+|===
+| Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
+| _{isa_var_pure}_ | `1` (linear) | `0` | `0` | `2^XLEN` | `4` (read-write-execute) | `1` (valid)
+| _{isa_var_hybrid}_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `4` (read-write-execute) | `1` (valid)
+|===
+
+link:#ccsr-man[CCSR manipulation instructions] can be used to read this initial
+capability and store it in a general-purpose register. This operation can only
+be performed once. Any attempt to write `cinit` or read it for the second time
+will be silently ignored.
+****
 
 == Instruction Set
 
 The {isa_name} instruction set is based on the {base_isa_name} instruction set.
 The (uncompressed) instructions are fixed 32-bit wide, and laid out in memory
 in little-endian order. In the encoding space of the {base_isa_name} instruction set,
-{isa_name} instructions occupies the "custom-2" subset, i.e., the opcode
+{isa_name} instructions occupies the "`custom-2`" subset, i.e., the opcode
 of all {isa_name} instructions is `0b1011011`.
 
 {isa_name} instruction encodings follow two basic formats: R-type and I-type,
