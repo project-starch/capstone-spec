@@ -30,7 +30,8 @@ Capabilities can be moved between registers with the MOVC instruction.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability
 
 *If no exception is raised:*
 If `rs1 = rd`, the instruction is a no-op.
@@ -70,9 +71,11 @@ capability by a give amount (offset).
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs2]` is not an integer (for CINCOFFSET).
-* `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not an integer (for CINCOFFSET).
+* Unexpected capability type (26)
+- `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
 
 *If no exception is raised:*
 For CINCOFFSET, the offset is read from `x[rs2]`.
@@ -102,9 +105,12 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 
 *An exception is raised if any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs2]` is not an integer.
-* `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not an integer.
+* Unexpected capability type (26)
+- `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
 
 *If no exception is raised:*
 The instruction is equivalent to an atomic execution of `MOVC rd, rs1` followed by
@@ -130,13 +136,15 @@ The LCC instruction is used to read a field from a capability.
 
 *An exception is raised if any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `imm = 2` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-* `imm = 3` and `x[rs1]` has `type = 6` (exit).
-* `imm = 4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-* `imm = 5` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-* `imm = 6` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
-* `imm = 7` and `x[rs1]` does not have `type = 5` (sealed-return).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Unexpected capability type (26)
+- `imm = 2` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+- `imm = 3` and `x[rs1]` has `type = 6` (exit).
+- `imm = 4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+- `imm = 5` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+- `imm = 6` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
+- `imm = 7` and `x[rs1]` does not have `type = 5` (sealed-return).
 
 *If no exception is raised:*
 If `imm > 7`, the instruction writes `x[zero]` to `x[rd]`.
@@ -179,12 +187,14 @@ The instruction attempts to set the bounds of the capability
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rd]` is not a capability.
-* `x[rd].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
-* `x[rs1]` is not an integer.
-* `x[rs2]` is not an integer.
-* `x[rs1] >= x[rs2]`.
-* `x[rs1] < x[rd].base` or `x[rs2] > x[rd].end`.
+* Unexpected operand type (24)
+- `x[rd]` is not a capability.
+- `x[rs1]` is not an integer.
+- `x[rs2]` is not an integer.
+* Illegal operand value (29)
+- `x[rd].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+- `x[rs1] >= x[rs2]`.
+- `x[rs1] < x[rd].base` or `x[rs2] > x[rd].end`.
 
 *If no exception is raised:*
 The instruction sets the bounds of the capability  `x[rd]` to `[x[rs1], x[rs2])`,
@@ -214,11 +224,15 @@ the capability `x[rs1]` into two capabilities, one with bounds `[x[rs1].base, x[
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].type` is neither `0` nor `1` (neither linear nor non-linear).
-* `x[rs2]` is not an integer.
-* `x[rs2] \<= x[rs1].base` or `x[rs2] >= x[rs1].end`.
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is neither `0` nor `1` (neither linear nor non-linear).
+* Illegal operand value (29)
+- `x[rs2]` is not an integer.
+- `x[rs2] \<= x[rs1].base` or `x[rs2] >= x[rs1].end`.
 
 *If no exception is raised:* 
 Set `x[rs1].end` to `x[rs2]`. A new
@@ -244,9 +258,12 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
-* `x[rs1] \<= 7` and `x[rs1] \<=p x[rd].perms` does not hold.
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Unexpected capability type (26)
+- `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+* Illegal operand value (29)
+- `x[rs1] \<= 7` and `x[rs1] \<=p x[rd].perms` does not hold.
 
 *If no exception is raised:*
 The instruction is equivalent to:
@@ -281,8 +298,10 @@ The DELIN instruction delinearises a linear capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rd]` is not a capability.
-* `x[rd].type` is not `0` (linear).
+* Unexpected operand type (24)
+- `x[rd]` is not a capability.
+* Unexpected capability type (26)
+- `x[rd].type` is not `0` (linear).
 
 *If no exception is raised:* `x[rd].type` is set to `1` (non-linear).
 
@@ -307,10 +326,13 @@ after its associated memory region has been fully initialised (written with new 
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `3` (uninitialised).
-* `x[rs1].cursor` and `x[rs1].end` are not equal.
-* `x[rs2]` is not an integer.
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not an integer.
+* Unexpected capability type (26)
+- `x[rs1].type` is not `3` (uninitialised).
+* Illegal operand value (29)
+- `x[rs1].cursor` and `x[rs1].end` are not equal.
 
 *If no exception is raised:* 
 The instruction is equivalent to:
@@ -338,11 +360,15 @@ The SEAL instruction seals a linear capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `0` (linear).
-* `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
-* The size of the memory region associated with `x[rs1]` is smaller than
-`CLENBYTES * 33` bytes. That is, `x[rs1].end - x[rs1].base < CLENBYTES * 33`.
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Unexpected capability type (26)
+- `x[rs1].type` is not `0` (linear).
+* Insufficient capability permissions (27)
+- `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
+* Capability out of bound (28)
+- The size of the memory region associated with `x[rs1]` is smaller than
+`CLENBYTES * 34` bytes. That is, `x[rs1].end - x[rs1].base < CLENBYTES * 34`.
 
 *If no exception is raised:* 
 The instruction is equivalent to:
@@ -370,8 +396,10 @@ The DROP instruction invalidates a capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].valid` is `0` (invalid).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
 
 *If no exception is raised:* `x[rs1].valid`
 is set to `0` (invalid).
@@ -399,9 +427,12 @@ The MREV instruction creates a revocation capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `0` (linear).
-* `x[rs1].valid` is `0` (invalid).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `0` (linear).
 
 *If no exception is raised:* A new capability is created in `x[rd]` with the same
 `base`, `end`, `perms`, `cursor` and `valid` fields as `x[rs1]`.
@@ -427,9 +458,12 @@ The REVOKE instruction revokes a capability.
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `2` (revocation).
-* `x[rs1].valid` is `0` (invalid).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `2` (revocation).
 
 *If no exception is raised:*
 

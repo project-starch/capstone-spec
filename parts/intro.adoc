@@ -67,7 +67,7 @@ Revocation capabilities::
 Uninitialised capabilities::
     Uninitialised capabilities convey write-only authority to memory.
     They can be turned into linear capabilities after the memory region has
-    been "initialised", that is, when the whole memory region has been
+    been "`initialised`", that is, when the whole memory region has been
     overwritten with fresh data. Uninitialised capabilities enable
     safe initialisation of memory regions and prevent secret leakage without
     incurring extra performance overhead.

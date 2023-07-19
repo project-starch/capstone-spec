@@ -3,7 +3,7 @@
 = Adjustments to Existing Instructions
 
 For most existing instructions in {base_isa_name}, the adjustments are straightforward.
-Their behaviour is unchanged, and an exception is raised if any of the operands
+Their behaviour is unchanged, and an "`unexpected operand type (24)`" exception is raised if any of the operands
 (i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) is a capability.
 Apart from this operand constraint, the following instructions in {base_isa_name} are adjusted in {proj_name}:
 
@@ -81,13 +81,19 @@ The loaded integer is sign-extended to the size of the destination register (i.e
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[rs1].valid` is `0` (invalid).
-* `4 \<=p x[rs1].perms` does not hold.
-* `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+* Insufficient capability permissions (27)
+- `4 \<=p x[rs1].perms` does not hold.
+* Capability out of bound (28)
+- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
 where `size` is the size (in bytes) of the integer being loaded.
-* `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
+* Load address misaligned (4)
+- `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
 
 *If no exception is raised:*
 The content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` is loaded
@@ -138,13 +144,19 @@ The loaded integer is zero-extended to the size of the destination register (i.e
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[rs1].valid` is `0` (invalid).
-* `4 \<=p x[rs1].perms` does not hold.
-* `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+* Insufficient capability permissions (27)
+- `4 \<=p x[rs1].perms` does not hold.
+* Capability out of bound (28)
+- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
 where `size` is the size (in bytes) of the integer being loaded.
-* `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
+* Load address misaligned (4)
+- `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
 
 *If no exception is raised:*
 The content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` is loaded
@@ -210,15 +222,23 @@ as an unsigned integer to `x[rd]`, where `size` is the size of the integer being
 
 *An exception is raised when any of the following conditions are met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
-* `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
-* `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not an integer.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+* Illegal operand value (29)
+- `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
+* Insufficient capability permissions (27)
+- `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
+* Capability out of bound (28)
+- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
 where `size` is the size (in bytes) of the integer being stored.
-* `x[rs1].cursor + imm` is not aligned to the size of the integer being stored.
-* `x[rs2]` is not an integer.
+* Store/AMO address misaligned (6)
+- `x[rs1].cursor + imm` is not aligned to the size of the integer being stored.
+
 
 *If no exception is raised:*
 
@@ -240,10 +260,12 @@ differently in different _encoding modes_.
 behave the same as in _{isa_var_pure}_.
 * When `cwld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
 behave the same as in {base_isa_name} except that the following adjustments are made to these instructions:
-** An exception is raised if any of `x[rs1]`, `x[rs2]` and `x[rd]` contains a capability.
-** An exception is raised if the address to be accessed (i.e., `x[rs1] + imm`) is within
+- An "`Unexpected operand type (24)`" exception is raised
+if any of `x[rs1]`, `x[rs2]` and `x[rd]` contains a capability.
+- An "`Capability out of bound (28)`" exception is raised
+if the address to be accessed (i.e., `x[rs1] + imm`) is within
 the range `(SBASE - size, SEND)`, where `size` is the size (in bytes) of the integer to be loaded/stored.
-** For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLEN`-bit aligned memory location
+- For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLEN`-bit aligned memory location
 `[cbase, cend)`, which alias with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
 is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
 
@@ -346,13 +368,13 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 
 _{isa_var_pure}_
 
-* An exception is raised if `x[rs1]` or `x[rs2]` is a capability.
-* `x[pc].cursor`, instead of `x[pc]`, is changed by the instruction.
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` or `x[rs2]` is a capability.
+* `pc.cursor`, instead of `pc`, is changed by the instruction.
 
 _{isa_var_hybrid}_
 
-* An exception is raised if `x[rs1]` or `x[rs2]` is a capability.
-* When `cwld` is `1` (secure world), `x[pc].cursor`, instead of `x[pc]`, is changed by the instruction.
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` or `x[rs2]` is a capability.
+* When `cwld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 
 === Jump Instructions
 
@@ -382,13 +404,13 @@ _{isa_var_hybrid}_
 
 _{isa_var_pure}_
 
-* An exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
-* `x[pc].cursor`, instead of `x[pc]`, is changed by the instruction.
-* `x[pc].cursor` (i.e., the address of the next instruction) is written to `x[rd]`.
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
+* `pc.cursor`, instead of `pc`, is changed by the instruction.
+* `pc.cursor` (i.e., the address of the next instruction) is written to `x[rd]`.
 
 _{isa_var_hybrid}_
 
-* An exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
-* When `cwld` is `1` (secure world), `x[pc].cursor`, instead of `x[pc]`, is changed by the instruction.
-* When `cwld` is `1` (secure world), `x[pc].cursor` (i.e., the address of the next instruction)
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
+* When `cwld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+* When `cwld` is `1` (secure world), former `pc.cursor` (i.e., the address of the next instruction)
 is written to `x[rd]`.
