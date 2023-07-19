@@ -221,13 +221,14 @@ where `size` is the size (in bytes) of the integer being stored.
 * `x[rs2]` is not an integer.
 
 *If no exception is raised:*
-The content of `x[rs2]` is stored as an integer to the memory location
+
+. The content of `x[rs2]` is stored as an integer to the memory location
 `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, where `size` is the size of the integer being stored
 (i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes for `sb`, `sh`, `sw`, and `sd` respectively).
-If `x[rs1].type` is `3` (uninitialised), `x[rs1].cursor` is set to `x[rs1].cursor + size`.
-The content in the `CLEN`-bit aligned memory location `[cbase, cend)`, which alias with memory location
+. If `x[rs1].type` is `3` (uninitialised), `x[rs1].cursor` is set to `x[rs1].cursor + size`.
+. The content in the `CLEN`-bit aligned memory location `[cbase, cend)`, which alias with memory location
 `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set to integer type,
-where `cbase = (cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
 
 === _{isa_var_hybrid}_
 
@@ -242,6 +243,18 @@ behave the same as in {base_isa_name} except that the following adjustments are 
 ** An exception is raised if any of `x[rs1]`, `x[rs2]` and `x[rd]` contains a capability.
 ** An exception is raised if the address to be accessed (i.e., `x[rs1] + imm`) is within
 the range `(SBASE - size, SEND)`, where `size` is the size (in bytes) of the integer to be loaded/stored.
+** For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLEN`-bit aligned memory location
+`[cbase, cend)`, which alias with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
+is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+
+.Note
+****
+In {isa_name}, when using these instructions to access the memory location that does not contain an integer-type value,
+the result of the following operations is undefined:
+
+* Load an integer from the memory location.
+* Store an integer to the memory location and then load an integer from the rest of the `CLEN`-bit aligned memory location.
+****
 
 == Control Flow Instructions
 
