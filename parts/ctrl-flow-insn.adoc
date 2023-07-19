@@ -15,41 +15,55 @@ in a unconditional or conditional manner.
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
-    {bits: 3, name: '0b001' },
+    {bits: 3, name: '0b101' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0100010' }
+    {bits: 12, name: 'imm[11:0] (S)' }
 ]}
 ....
+
+*An exception is raised when any of the following conditions are met:*
+
+_{isa_var_pure}_
+
+* `x[rs1]` is not a capability.
+
+_{isa_var_hybrid}_
+
+* `cwrld` is `0` (normal world).
+* `x[rs1]` is not a capability.
+
+*If no exception is raised:*
+Set `x[pc]` to `x[rs1]`, and `x[pc].cursor` to `x[rs1].cursor + imm`.
+Meanwhile, former `x[pc]` (`x[pc].cursor` is the address of the next instruction) is written to `x[rd]`.
 
 .CBNZ instruction format
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: '0b0100011' }
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
 ]}
 ....
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_pure}_
-** `x[rs1]` is not a capability.
-* _{isa_var_hybrid}_
-** `cwrld` is `0` (normal world).
-** Any of the conditions for _{isa_var_pure}_ are met.
+_{isa_var_pure}_
+
+* `x[rd]` is not a capability.
+* `x[rs1]` is not an integer.
+
+_{isa_var_hybrid}_
+
+* `cwrld` is `0` (normal world).
+* `x[rd]` is not a capability.
+* `x[rs1]` is not an integer.
 
 *If no exception is raised:*
-
-* CJAL: Set the program counter (`pc`) to `x[rs1]`. Meanwhile, the existing
-capability in `pc`, with its `cursor` field replaced by the address of the next instruction,
-is written to the register `rd`.
-* CBNZ: If `x[rs2]` is zero (`0`), the behaviour is the same as for NOP.
-Otherwise, set the program counter (`pc`) to `x[rs1]`.
+If `x[rs1]` is `0`, the instruction is a no-op.
+Otherwise, set `x[pc]` to `x[rs1]`, and `x[pc].cursor` to `x[rs1].cursor + imm`.
 
 [#domain-cross]
 == Domain Crossing
