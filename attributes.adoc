@@ -3,3 +3,5 @@
 :isa_var_hybrid: TransCapstone
 :proj_name: Capstone
 :base_isa_name: RV64I
+:cheri_isa_name: CHERI-RISC-V
+:cheriot_isa_name: CHERIoT
