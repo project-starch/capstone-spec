@@ -218,7 +218,7 @@ An exception is raised when any of the following conditions are met
 * Instruction access fault (1)
 - `pc.valid` is `0` (invalid).
 - `pc.type` is neither `0` (linear) nor `1` (non-linear).
-- `pc.perms` is not executable (i.e., `2 \<=p pc.perms` does not hold).
+- `pc.perms` is not executable (i.e., `1 \<=p pc.perms` does not hold).
 - `pc.cursor` is not in the range `[pc.base, pc.end-4]`.
 * Instruction address misaligned (0)
 - `pc.cursor` is not aligned to `4`.

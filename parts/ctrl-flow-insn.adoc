@@ -46,7 +46,7 @@ in a unconditional or conditional manner.
 - Unexpected capability type (26)
 ** `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
 - Insufficient capability permissions (27)
-** `x[rs1].perms` is neither `5` (read-execute) nor `7` (read-write-execute).
+** `1 \<=p x[rs1].perms` does not hold.
 
 *If no exception is raised:*
 
