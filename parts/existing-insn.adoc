@@ -253,12 +253,12 @@ where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLE
 === _{isa_var_hybrid}_
 
 In _{isa_var_hybrid}_, {base_isa_name} memory access instructions behave the same as in _{isa_var_pure}_
-if `cwld` is `1` (secure world). However, if `cwld` is `0` (normal world), these instructions behave
+if `cwrld` is `1` (secure world). However, if `cwrld` is `0` (normal world), these instructions behave
 differently in different _encoding modes_.
 
-* When `cwld` is `0` (normal world) and `emode` is `1` (capability encoding mode), these instructions
+* When `cwrld` is `0` (normal world) and `emode` is `1` (capability encoding mode), these instructions
 behave the same as in _{isa_var_pure}_.
-* When `cwld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
+* When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
 behave the same as in {base_isa_name} except that the following adjustments are made to these instructions:
 - An "`Unexpected operand type (24)`" exception is raised
 if any of `x[rs1]`, `x[rs2]` and `x[rd]` contains a capability.
@@ -374,7 +374,7 @@ _{isa_var_pure}_
 _{isa_var_hybrid}_
 
 * An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` or `x[rs2]` is a capability.
-* When `cwld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 
 === Jump Instructions
 
@@ -411,6 +411,6 @@ _{isa_var_pure}_
 _{isa_var_hybrid}_
 
 * An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
-* When `cwld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
-* When `cwld` is `1` (secure world), former `pc.cursor` (i.e., the address of the next instruction)
+* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+* When `cwrld` is `1` (secure world), former `pc.cursor` (i.e., the address of the next instruction)
 is written to `x[rd]`.

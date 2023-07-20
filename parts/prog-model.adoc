@@ -204,18 +204,18 @@ _{isa_var_pure}_
 
 _{isa_var_hybrid}_
 
-* link:#ccsrs[`cwld`] is `1` (secure world) and any of the conditions for _{isa_var_pure}_ are met.
-* link:#ccsrs[`cwld`] is `0` (normal world) and any of the conditions for {base_isa_name} are met.
+* link:#ccsrs[`cwrld`] is `1` (secure world) and any of the conditions for _{isa_var_pure}_ are met.
+* link:#ccsrs[`cwrld`] is `0` (normal world) and any of the conditions for {base_isa_name} are met.
 * Instruction access fault (1)
-** link:#ccsrs[`cwld`] is `0` (normal world) and `pc` does not contain an integer.
+** link:#ccsrs[`cwrld`] is `0` (normal world) and `pc` does not contain an integer.
 
 *If no exception is raised:*
 
 * _{isa_var_pure}_: The instruction pointed to by `pc.cursor` is fetched and executed.
 The `pc.cursor` is then incremented by `4` (i.e., `pc.cursor += 4`).
 * _{isa_var_hybrid}_:
-** link:#ccsrs[`cwld`] is `1` (secure world): Same as _{isa_var_pure}_.
-** link:#ccsrs[`cwld`] is `0` (normal world): The instruction pointed to by `pc` is fetched and executed.
+** link:#ccsrs[`cwrld`] is `1` (secure world): Same as _{isa_var_pure}_.
+** link:#ccsrs[`cwrld`] is `0` (normal world): The instruction pointed to by `pc` is fetched and executed.
 The `pc` is then incremented by `4` (i.e., `pc += 4`).
 
 [#mem-extension]
@@ -336,10 +336,10 @@ To prevent any domain from setting `cih`, we require the original content of
 .Note
 ****
 `cinit` is a capability CSR used to provide the initial capability in the system.
-During system initialisation, `x[cinit]` is set by the hardware
+During system initialisation, `cinit` is set by the hardware
 to a linear capability as follows:
 
-.Initial Capability of `x[cinit]`
+.Initial Capability of `cinit`
 [%header%autowidth.stretch]
 |===
 | Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
@@ -348,9 +348,9 @@ to a linear capability as follows:
 |===
 
 link:#ccsr-man[CCSR manipulation instructions] can be used to read the initial
-capability of `x[cinit]` and store it in one of the general-purpose registers.
-`x[cinit]` is set to `x[cnull]` after the first operation and any attempt to
-write to `x[cinit]` is silently ignored.
+capability of `cinit` and store it in one of the general-purpose registers.
+`cinit` is set to `cnull` after the first operation and any attempt to
+write to `cinit` is silently ignored.
 ****
 
 == Instruction Set

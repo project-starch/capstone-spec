@@ -46,7 +46,7 @@ include::s-type-format.adoc[]
 |link:#shrink[SHRINK]      |R |`001`    |`0000001` | I | I | C | - | * | *
 |link:#tighten[TIGHTEN]     |R |`001`    |`0000010` | C | Z | C | - | * | *
 |link:#delin[DELIN]       |R |`001`    |`0000011` | - | - | C | - | * | *
-|link:#field-get[LCC]         |R |`001`    |`0000100` | C | Z | I | - | * | *
+|link:#field-query[LCC]         |R |`001`    |`0000100` | C | Z | I | - | * | *
 |link:#cursor-set[SCC]         |R |`001`    |`0000101` | I | - | C | - | * | *
 |link:#split[SPLIT]       |R |`001`    |`0000110` | C | I | C | - | * | *
 |link:#seal[SEAL]        |R |`001`    |`0000111` | C | - | C | - | * | *

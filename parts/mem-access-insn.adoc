@@ -49,7 +49,7 @@ and `x[rs1].perms` is neither `6` (read-write) or `7` (read-write-execute).
 Load the capability at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` into `x[rd]`.
 If the capability being loaded is not a non-linear capability (i.e., `type != 1`) or an exit
 capability (i.e., `type != 6`), the data contained in the memory location
-`[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` will be set to `x[cnull]`.
+`[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` will be set to `cnull`.
 
 === Store Capabilities
 
@@ -92,22 +92,22 @@ Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm
 If `x[rs1]` is an uninitialised capability (i.e., `x[rs1].type` is `3`), 
 `x[rs1].cursor` is set to `x[rs1].cursor + CLENBYTES`.
 If `x[rs2]` is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`),
-`x[rs2]` will be set to `x[cnull]`.
+`x[rs2]` will be set to `cnull`.
 
 == _{isa_var_hybrid}_
 
 In _{isa_var_hybrid}_, the LDC and STC instructions are extended to support loading and storing capabilities
 from/to the normal memory using raw addresses.
 
-* In the secure world (i.e., `cwld` is `1`), the LDC and STC instructions remain the same as in _{isa_var_pure}_.
-* In the normal world (i.e., `cwld` is `0`), the LDC and STC instructions behave differently in different _encoding modes_.
+* In the secure world (i.e., `cwrld` is `1`), the LDC and STC instructions remain the same as in _{isa_var_pure}_.
+* In the normal world (i.e., `cwrld` is `0`), the LDC and STC instructions behave differently in different _encoding modes_.
 When `emode` is `1` (capability encoding mode), the LDC and STC instructions behave the same as in _{isa_var_pure}_.
 When `emode` is `0` (integer encoding mode), the LDC and STC instructions are used to load and store capabilities
 from/to the normal memory using raw addresses.
 
 === Load Capabilities in integer encoding mode
 
-When `cwld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
+When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
 the LDC instruction loads a capability from the normal memory using raw addresses.
 
 .LDC instruction format
@@ -136,11 +136,11 @@ the LDC instruction loads a capability from the normal memory using raw addresse
 *If no exception is raised:*
 Load the capability at the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)` into `x[rd]`.
 If the `type` field of the capability being loaded is neither `1` (non-linear) nor `6` (exit),
-the data contained in the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)` will be set to `x[cnull]`.
+the data contained in the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)` will be set to `cnull`.
 
 === Store Capabilities in integer encoding mode
 
-When `cwld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
+When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
 the STC instruction stores a capability to the normal memory using raw addresses.
 
 .STC instruction format
@@ -169,4 +169,4 @@ the STC instruction stores a capability to the normal memory using raw addresses
 *If no exception is raised:*
 Store `x[rs2]` to the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)`.
 If the `type` field of the capability being stored is neither `1` (non-linear) nor `6` (exit),
-`x[rs2]` will be set to `x[cnull]`.
+`x[rs2]` will be set to `cnull`.

@@ -36,7 +36,7 @@ Capabilities can be moved between registers with the MOVC instruction.
 *If no exception is raised:*
 If `rs1 = rd`, the instruction is a no-op.
 Otherwise, write `x[rs1]` to `x[rd]`, and if `x[rs1]` is neither a non-linear capability
-(i.e., `type != 1`) nor an exit capability (i.e., `type != 6`), write `x[cnull]` to `x[rs1]`.
+(i.e., `type != 1`) nor an exit capability (i.e., `type != 6`), write `cnull` to `x[rs1]`.
 
 [#cursor-inc]
 === Cursor Increment
@@ -116,8 +116,8 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 The instruction is equivalent to an atomic execution of `MOVC rd, rs1` followed by
 setting `x[rd].cursor` to `x[rs2]`.
 
-[#field-get]
-=== Field Grab
+[#field-query]
+=== Field Query
 
 The LCC instruction is used to read a field from a capability.
 

@@ -36,8 +36,8 @@ _{isa_var_hybrid}_
 - `x[rs1]` is not a capability.
 
 *If no exception is raised:*
-Set `x[pc]` to `x[rs1]`, and `x[pc].cursor` to `x[rs1].cursor + imm`.
-Meanwhile, former `x[pc]` (`x[pc].cursor` is the address of the next instruction) is written to `x[rd]`.
+Set `pc` to `x[rs1]`, and `pc.cursor` to `x[rs1].cursor + imm`.
+Meanwhile, former `pc` (`pc.cursor` is the address of the next instruction) is written to `x[rd]`.
 
 .CBNZ instruction format
 [wavedrom,,svg]
@@ -69,7 +69,7 @@ _{isa_var_hybrid}_
 
 *If no exception is raised:*
 If `x[rs1]` is `0`, the instruction is a no-op.
-Otherwise, set `x[pc]` to `x[rs1]`, and `x[pc].cursor` to `x[rs1].cursor + imm`.
+Otherwise, set `pc` to `x[rs1]`, and `pc.cursor` to `x[rs1].cursor + imm`.
 
 [#domain-cross]
 == Domain Crossing
