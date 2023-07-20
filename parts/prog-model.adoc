@@ -260,6 +260,7 @@ link:#load-cap-raw[LDCR] and link:#store-cap-raw[STCR]
 link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
 |===
 
+[#additional-regs]
 == Added Registers
 
 The {isa_name} ISA adds the following registers:
@@ -323,6 +324,7 @@ The manipulation constraints for each CCSR are indicated below.
 The manipulation constraints for each additional CSR are indicated below.
 
 .Manipulation Constraints for Additional CSRs
+[#csr-man-constr]
 [%header%autowidth.stretch]
 |===
 |Mnemonic | Read | Write

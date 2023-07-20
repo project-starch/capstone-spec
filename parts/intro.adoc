@@ -115,10 +115,10 @@ and virtual memory accesses, and is therefore compatible with existing softwares
 * The _secure world_ is limited to memory accesses through capabilities and provides the security
 guarantees of {proj_name}.
 
-_{isa_var_hybrid}_ provides an isolation between the 2 worlds, which prevents the _secure world_ from
+_{isa_var_hybrid}_ provides an isolation between the two worlds, which prevents the _secure world_ from
 being compromised by the _normal world_.
 A link:#world-switch[world switching mechanism] is added in _{isa_var_hybrid}_ to allow
-a secure switching between the 2 worlds.
+a secure switching between the two worlds.
 The _secure world_ of _{isa_var_hybrid}_ is mostly the same as _{isa_var_pure}_,
 and separate descriptions are provided for the parts that are different.
 
