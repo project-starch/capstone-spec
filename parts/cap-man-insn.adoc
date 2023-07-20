@@ -147,7 +147,7 @@ The LCC instruction is used to read a field from a capability.
 - `imm = 7` and `x[rs1]` does not have `type = 5` (sealed-return).
 
 *If no exception is raised:*
-If `imm > 7`, the instruction writes `x[zero]` to `x[rd]`.
+If `imm > 7`, the instruction writes `zero` to `x[rd]`.
 Otherwise, the instruction write different fields of `x[rs1]` to `x[rd]`
 according to the following table:
 
@@ -268,7 +268,7 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 *If no exception is raised:*
 The instruction is equivalent to:
 
-. If `x[rs1] > 7`, set `x[rs1].perms` to `x[zero]`.
+. If `x[rs1] > 7`, set `x[rs1].perms` to `zero`.
 Otherwise, set `x[rs1].perms` to `x[rs1]`
 . `MOVC rd, rs1`
 
