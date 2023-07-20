@@ -81,11 +81,11 @@ include::i-type-format.adoc[]
 |link:#world-switch[CAPEXIT]     |R |`001`    |`0100101` | C | I | - | - | S | T
 |===
 
-.Control state instructions
+.Control and status instructions
 [%header%autowidth.stretch]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
-|link:#ccsr-man[CCSRRW] |I |`100`    | - | C | - | C | Z | * | *
+|link:#ctrl-status[CCSRRW] |I |`100`    | - | C | - | C | Z | * | *
 |===
 
 .Note

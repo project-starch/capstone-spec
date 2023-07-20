@@ -28,8 +28,7 @@ Each capability has the following architecturally-visible fields:
 |`type` | `0..6` | The type of the capability:
 `0` = linear, `1` = non-linear, `2` = revocation,
 `3` = uninitialised, `4` = sealed, `5` = sealed-return, `6` = exit
-|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 2` (revocation), `type = 4` (sealed), `type = 5` (sealed-return), or
-`type = 6` (exit).
+|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 2` (revocation), `type = 4` (sealed).
 The memory address the capability points to (to be used for the next memory access)
 |`base` | `0..2^XLEN-1` | Not applicable when `type = 6` (exit). The base memory address of the memory region associated with the capability
 |`end` | `0..2^XLEN-1` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
@@ -115,10 +114,33 @@ The table below summarises the fields used for each type of capabilities.
 |Revocation |`2` |Yes |- |Yes |Yes |Yes |- |-
 |Uninitialised |`3` |Yes |Yes |Yes |Yes |Yes |- |-
 |Sealed |`4` |Yes |- |Yes |- |- |Yes |-
-|Sealed-return |`5` |Yes |- |Yes |- |- |Yes |Yes
-|Exit |`6` |Yes |- |Yes |- |- |- |-
+|Sealed-return |`5` |Yes |Yes |Yes |- |- |Yes |Yes
+|Exit |`6` |Yes |Yes |Yes |- |- |- |-
 |===
 ****
+
+.Note
+****
+
+When the `async` field of a sealed-return capability is `0` (synchronous), some
+memory accesses are granted by this capability. The following table shows the
+memory accesses granted by sealed and sealed-return capabilities in different scenarios.
+
+.Memory accesses granted by sealed and sealed-return capabilities
+[%header%autowidth.stretch]
+|===
+| Capability type | `async` | Read | Write | Execute
+| Sealed | `0` | No | No | No
+| Sealed | `1` | No | No | No
+| Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, base + 34 * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + 34 * CLENBYTES - size]` | No
+| Sealed-return | `1` | No | No | No
+|===
+
+In other scenarios and for other capability types without the `perms` field, no read/write/execute
+memory accesses are granted by the capability.
+
+****
+
 
 == Extension to General-Purpose Registers
 
@@ -253,9 +275,8 @@ The {isa_name} ISA adds the following registers:
 !===
 ! Mnemonic ! CCSR encoding ! CSR encoding ! Description
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
-! `deh` ! `0x001` ! - !  The data for the exception handler, possibly a capability
-! `cih`  ! `0x002` ! - ! The sealed capability for the interrupt handler
-! `epc` ! `0x003` ! - ! The exception program counter register
+! `cih`  ! `0x001` ! - ! The sealed capability for the interrupt handler
+! `epc` ! `0x002` ! - ! The exception program counter register
 ! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the memory
 ! `cis` ! - ! `0x000` ! The interrupt status register
 ! `tval` ! - ! `0x001` ! The exception data (trap value) register
@@ -269,8 +290,7 @@ TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
 !===
 ! Mnemonic ! CCSR encoding ! CSR encoding ! Description
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
-! `deh` ! `0x001` ! - !  The data for the exception handler, possibly a capability
-! `epc` ! `0x003` ! - ! The exception program counter register
+! `epc` ! `0x002` ! - ! The exception program counter register
 ! `cinit` ! `0x010` ! - ! The initial capability covering the entire address space of the secure memory
 ! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
 ! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
@@ -285,8 +305,8 @@ TODO: we might reuse the encoding space for some {base_isa_name} CSRs.
 
 Some of the registers only allow capability values and have special semantics
 related to the system-wide machine state. They are referred to as
-_capability control state registers (CCSRs)_. Under their respective constraints,
-CCSRs can be manipulated using link:#ccsr-man[CCSR manipulation instructions].
+_capability control and status registers (CCSRs)_. Under their respective constraints,
+CCSRs can be manipulated using link:#ctrl-status[CCSR manipulation instructions].
 
 The manipulation constraints for each CCSR are indicated below.
 
@@ -296,7 +316,6 @@ The manipulation constraints for each CCSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`ceh` | {isa_var_pure} or secure world | {isa_var_pure} or secure world
-|`deh` | {isa_var_pure} or secure world | {isa_var_pure} or secure world
 |`cih` | - | {isa_var_pure} or secure world; the original content must not be a capability
 |`cinit` | {isa_var_pure} or normal world; one-time only | -
 |`switch_cap` | Normal world | Normal world
@@ -339,7 +358,7 @@ and any attempt to read it after the first time will return the content of `cnul
 The {isa_name} instruction set is based on the {base_isa_name} instruction set.
 The (uncompressed) instructions are fixed 32-bit wide, and laid out in memory
 in little-endian order. In the encoding space of the {base_isa_name} instruction set,
-{isa_name} instructions occupies the "custom-2" subset, i.e., the opcode
+{isa_name} instructions occupies the "`custom-2`" subset, i.e., the opcode
 of all {isa_name} instructions is `0b1011011`.
 
 {isa_name} instruction encodings follow two basic formats: R-type and I-type,

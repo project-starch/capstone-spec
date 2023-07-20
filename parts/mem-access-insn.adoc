@@ -78,13 +78,15 @@ are defined as `XLENBYTES/2`, `XLENBYTES/4`, and `XLENBYTES/8` bytes respectivel
 * Invalid capability (25)
 - `x[rs1].valid` is `0` (invalid).
 * Unexpected capability type (26)
-- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `5` (sealed-return), or `6` (exit).
 * Insufficient capability permissions (27)
-- `4 \<=p x[rs1].perms` does not hold.
+- `x[rs1].type` is `0` (linear) or `1` (non-linear) and 4 \<=p x[rs1].perms` does not hold.
 * Capability out of bound (28)
-- `x[rs1].cursor` is
+- `x[rs1].type` is `0` (lienar) or `1` (non-linear) and x[rs1].cursor` is
 not in the range `[x[rs1].base, x[rs1].end-size]`, where `size`
 is the size (in bytes) of the integer being loaded.
+- `x[rs1].type` is `5` (sealed-return) or `6` (exit) and `x[rs1].cursor` is not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 34 * CLENBYTES - size]`,
+where `size` is the size (in bytes) of the integer being loaded.
 * Load address misaligned (4)
 - `x[rs1].cursor` is not aligned to the size of the integer being loaded.
 
@@ -157,13 +159,16 @@ The STD, STW, STH, STB instructions store an integer in the size of doubleword, 
 * Invalid capability (25)
 - `x[rs1].valid` is `0` (invalid).
 * Unexpected capability type (26)
-- `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
+- `x[rs1].type` is not `0`, `1`, `3`, `5`, or `6` (linear, non-linear, uninitialized, sealed-return, or exit).
 * Insufficient capability permissions (27)
-- `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
+- `x[rs1].type` is `0`, `1`, or `3` and `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
 * Capability out of bound (28)
-- `x[rs1].cursor` is
+- `x[rs1].type` is `0`, `1`, or `3` and `x[rs1].cursor` is
 not in the range `[x[rs1].base, x[rs1].end-size]`, where `size`
 is the size (in bytes) of the integer being stored.
+- `x[rs1].type` is `5` or `6` and `x[rs1].cursor` is
+not in the range `[x[rs1].base + 34 * CLENBYTES, x[rs1].base + 34 * CLENBYTES -size]`,
+where `size` is the size (in bytes) of the integer being stored.
 * Store/AMO address misaligned (6)
 - `x[rs1].cursor` is not aligned to the size of the scalar value being loaded.
 
@@ -203,23 +208,23 @@ The LDC instruction loads a capability from memory.
 * Invalid capability (25)
 - `x[rs1].valid` is `0` (invalid).
 * Unexpected capability type (26)
-- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `5` (sealed-return), or `6` (exit).
 * Insufficient capability permissions (27)
-- `2 \<=p x[rs1].perms` does not hold.
+- `x[rs1].type` is `0` (linear) or 1 (non-linear) and `2 \<=p x[rs1].perms` does not hold.
 * Capability out of bound (28)
-- `x[rs1].cursor` is
+- `x[rs1].type` is `0` (linear) or `1` (non-linear) and `x[rs1].cursor` is
 not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
+- `x[rs1].type` is `5` (sealed-return) or `6` (exit) and `x[rs1].cursor` is not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 34 * CLENBYTES - CLENBYTES]`.
 * Load address misaligned (4)
 - `x[rs1].cursor` is not aligned to `CLEN` bits.
 * Unexpected operand type (24) (TODO)
 - The data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` is not a capability.
 * Insufficient capability permissions (27)
-- The capability being loaded is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`), and `x[rs1].perms`
-is not `3` or `4` (read-write or read-write-execute).
+- The capability being loaded is not a non-linear capability (i.e., `type != 1`), `x[rs1].type` is `0` (linear) or `1` (non-linear), and
+`x[rs1].perms` is not `3` or `4` (read-write or read-write-execute).
 
 *If no exception is raised:* Load the capability at the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` into `x[rd]`. If the capability being loaded is not a non-linear
-capability (i.e., `type != 1`) or an exit
-capability (i.e., `type != 6`), the data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` will be
+capability (i.e., `type != 1`), the data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` will be
 set to the content of `cnull`.
 
 [#store-cap]
@@ -248,18 +253,20 @@ The STC instruction stores a capability to memory.
 * Invalid capability (25)
 - `x[rs1].valid` is `0` (invalid).
 * Unexpected capability type (26)
-- `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
+- `x[rs1].type` is not `0`, `1`, `3`, `5`, or `6` (linear, non-linear, uninitialized, sealed-return, or exit).
 * Insufficient capability permissions (27)
-- `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
+- `x[rs1].type` is `0` or `1` and `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
 * Capability out of bound (28)
-- `x[rs1].cursor` is
+- `x[rs1].type` is `0`, `1`, or `3` and `x[rs1].cursor` is
 not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
+- `x[rs1].type` is `5` or `6` and `x[rs1].cursor` is
+not in the range `[x[rs1].base, x[rs1].base + 34 * CLENBYTES - CLENBYTES]`.
 * Store/AMO address misaligned (6)
 - `x[rs1].cursor` is not aligned to `CLEN` bits.
 
 *If no exception is raised:*
 Store `x[rs2]` to the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)`. `x[rs1].cursor`
-is set to `x[rs1].cursor + CLENBYTES`. If `x[rs2]` is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`),
+is set to `x[rs1].cursor + CLENBYTES`. If `x[rs2]` is not a non-linear capability (i.e., `type != 1`),
 `x[rs2]` will be set to the content of `cnull`.
 
 == _{isa_var_hybrid}_ Added Instructions
