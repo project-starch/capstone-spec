@@ -102,7 +102,7 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 . Store the former `pc`, `ceh` and `csp` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`
 respectively.
-. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].reg` to `rd`, set `x[rs1].async` to `0` (synchronous),
+. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].cursor` to `x[rs1].base`, x[rs1].reg` to `rd`, set `x[rs1].async` to `0` (synchronous),
 and write the resulting `x[rs1]` to the register `cra`.
 
 === RETURN
@@ -160,27 +160,6 @@ the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 . Store the former value of `csp` to the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`.
 . Set the `x[rs1].type` to `4` (sealed). If `x[rs1].async = 1`, write the resulting `x[rs1]` to the register `ceh`. Otherwise (`x[rs1].async = 2`), write the resulting `x[rs1]` to the register `cih`.
 
-.Note
-****
-
-When the `async` field of a sealed-return capability is `0` (synchronous), some
-memory accesses are granted by this capability. The following table shows the
-memory accesses granted by sealed and sealed-return capabilities in different scenarios.
-
-.Memory accesses granted by sealed and sealed-return capabilities
-[%header%autowidth.stretch]
-|===
-| Capability type | `async` | Read | Write | Execute
-| Sealed | `0` | No | No | No
-| Sealed | `1` | No | No | No
-| Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, end)` | `cursor in [base + 3 * CLENBYTES, end)` | No
-| Sealed-return | `1` | No | No | No
-|===
-
-TODO: this condition needs to be reflected in the load/store instructions.
-
-****
-
 [#world-switch]
 == A World Switching Extension for _{isa_var_hybrid}_
 
@@ -233,7 +212,7 @@ roughly correspond to the CALL and RETURN instructions respectively.
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
 . Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Set `x[rs1].type` to `6` (exit), and write the resulting `x[rs1]` to `cra`.
+. Set `x[rs1].type` to `6` (exit), `x[rs1].cursor` to `x[rs1].base`, and write the resulting `x[rs1]` to `cra`.
 . Write `rs1` to `switch_reg`.
 . Write `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
@@ -246,7 +225,7 @@ roughly correspond to the CALL and RETURN instructions respectively.
 . For `i = 1, 2, ..., 31`, load the content at the memory location
 `[x[rs1].base + (i + 2) * CLENBYTES, x[rs1].base + (i + 3) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
+. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].cursor` to `x[rs1].base`, `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
 . Write `rs1` to `switch_reg`.
 . Write `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
