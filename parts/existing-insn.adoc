@@ -9,6 +9,7 @@ Apart from this operand constraint, the following instructions in {base_isa_name
 
 * For memory access instructions, they are extended to use capabilities as addresses for memory access.
 * For control flow instructions, they are slightly adjusted to support capability-aware control flow.
+* Certain instructions, especially those belonging to the privileged ISA, are illegal under certain circumstances.
 
 [#load-store]
 == Memory Access Instructions
@@ -414,3 +415,16 @@ _{isa_var_hybrid}_
 * When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 * When `cwrld` is `1` (secure world), former `pc.cursor` (i.e., the address of the next instruction)
 is written to `x[rd]`.
+
+== Instructions Made Illegal
+
+Some instructions in {base_isa_name} now raise "illegal instruction (2)"
+exceptions when executed in {isa_var_pure} or {isa_var_hybrid} secure world,
+under all or some circumstances.
+
+* All instructions defined in the privileged ISA of {base_isa_name}
+* All instructions defined in the {base_isa_csr_ext} extension, namely
+instructions that directly access CSRs, when the CSR specified is not one
+link:#additional-regs[defined in {isa_name}], or when the link:#csr-man-constr[read/write constraints] are not satisfied
+* ECALL
+* EBREAK

@@ -1,11 +1,9 @@
 :reproducible:
 
-= Control State Instructions
+[#ctrl-status]
+= Control and Status Instructions
 
-[#ccsr-man]
-== Capability CSR (CCSR) Manipulation
-
-The CCSRRW instruction is used to read and write specified link:#ccsrs-list[capability CSRs] (CCSRs).
+The CCSRRW instruction is used to read and write specified link:add-reg-list[capability CSRs] (CCSRs).
 
 .CCSRRW instruction format
 [wavedrom,,svg]

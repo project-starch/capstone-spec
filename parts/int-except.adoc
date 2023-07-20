@@ -107,7 +107,7 @@ TODO: specify what happens if any of the involved memory accesses fails
 
 === Interrupt Status
 
-The `cis` CSR encodes the control state associated with interrupts.
+The `cis` CSR encodes the control and status associated with interrupts.
 The diagram below shows its layout.
 
 .`cis` CSR layout
@@ -177,19 +177,19 @@ flag.
 
 . Load the program counter `pc` from memory location `[cih.base, cih.base + CLENBYTES)`.
 . Load `ceh` from memory location `[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES]`.
-. Load `deh` from memory location `[cih.base + 2 * CLENBYTES, cih.base + 3 * CLENBYTES]`.
+. Load `csp` from memory location `[cih.base + 2 * CLENBYTES, cih.base + 3 * CLENBYTES]`.
 . For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[cih.base + (i + 2) * CLENBYTES, cih.base + (i + 3) * CLENBYTES)`.
 . Store the original program counter `pc` to the memory location
 `[cih.base, cih.base + CLENBYTES)`.
 . Store the original `ceh` to the memory location
 `[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`.
-. Store the original `deh` to the memory location
+. Store the original `csp` to the memory location
 `[cih.base + 2 * CLENBYTES, cih.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]`
 to memory location
 `[cih.base + (i + 2) * CLENBYTES, cih.base + (i + 3) * CLENBYTES)`.
-. Set `cih.type` to `5` (sealed-return), `cih.reg` to `0` (asynchronous), and `cih.async` to `2` (upon interrupt).
+. Set `cih.type` to `5` (sealed-return), `x[rs1].cursor` to `x[rs1].base`, `cih.reg` to `0`, and `cih.async` to `2` (upon interrupt).
 . Write `cih` to the register `c1`.
 . Write the exception code to the register `x10`.
 . Write `cnull` to the register `cih`.
@@ -225,18 +225,18 @@ linear (`type != 0`), or non-linear capability (`type != 1`).
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
 . Load new `ceh` from memory location `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. Load new `deh` from memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
+. Load new `csp` from memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[ceh.base + (i + 2) * CLENBYTES, ceh.base + (i + 3) * CLENBYTES)`.
 . Store the original program counter `pc` to the memory location
 `[ceh.base, ceh.base + CLENBYTES)`.
 . Store the original `ceh` to the memory location
 `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. Store the original `deh` to the memory location
+. Store the original `csp` to the memory location
 `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
 `[ceh.base + (i + 2) * CLENBYTES, ceh.base + (i + 3) * CLENBYTES)`.
-. Set the original `ceh.type` to `5` (sealed-return), `ceh.reg` to `0` (asynchronous), and `ceh.async` to `1` (upon exception).
+. Set the original `ceh.type` to `5` (sealed-return), `x[rs1].cursor` to `x[rs1].base`, `ceh.reg` to `0`, and `ceh.async` to `1` (upon exception).
 . Write the modified content of original `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
 
@@ -250,10 +250,10 @@ memory location `[ceh.base + (i + 2) * CLENBYTES, ceh.base + (i + 3) * CLENBYTES
 
 .Note
 ****
-The `deh` register is designed to hold data that the in-domain exception handler
+The `csp` register is designed to hold data that the in-domain exception handler
 can utilize.
 As the exception handler is in the same domain as the code that caused the exception,
-it is not necessary to seal the content of `deh`, or otherwise prevent the excepted code
+it is not necessary to seal the content of `csp`, or otherwise prevent the excepted code
 from accessing it.
 ****
 
@@ -321,7 +321,7 @@ the normal-world interrupt handling process thereafter.
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . Store the current `ceh` to the memory location
 `[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)`.
-. Store the current `deh` to the memory location
+. Store the current `csp` to the memory location
 `[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of `x[i]`
 to the memory location `[switch_cap.base + (i + 2) * CLENBYTES, switch_cap.base + (i + 3) * CLENBYTES)`.
@@ -359,15 +359,15 @@ world with a proper error code.
 
 . Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
 . Load new `ceh` from memory location `[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. Load new `deh` from memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
+. Load new `csp` from memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, load the content of `x[i]` from
 memory location `[ceh.base + (i + 2) * CLENBYTES, ceh.base + (i + 3) * CLENBYTES)`.
 . Store the original program counter `pc` to the memory location
 `[ceh.base, ceh.base + CLENBYTES)`.
-. Store the original `deh` to the memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
+. Store the original `csp` to the memory location `[ceh.base + 2 * CLENBYTES, ceh.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
 `[ceh.base + (i + 2) * CLENBYTES, ceh.base + (i + 3) * CLENBYTES)`.
-. Set the `ceh.type` to `5` (sealed-return), and `ceh.async` to `1` (upon exception).
+. Set the `ceh.type` to `5` (sealed-return), `x[rs1].cursor` to `x[rs1].base`, and `ceh.async` to `1` (upon exception).
 . Write the content of `ceh` to the register `c1`.
 . Write the exception code to the register `x10`.
 
@@ -388,7 +388,7 @@ Note that this is exactly the same as the handling of exceptions in {isa_var_pur
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
 . Store `ceh` to the memory location `[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)`.
-. Store `deh` to the memory location `[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)`.
+. Store `csp` to the memory location `[switch_cap.base + 2 * CLENBYTES, switch_cap.base + 3 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
 to the memory location `[switch_cap.base + (i + 2) * CLENBYTES, switch_cap.base + (i + 3) * CLENBYTES)`.
 . Set `switch_cap.async` to `1` (upon exception).
