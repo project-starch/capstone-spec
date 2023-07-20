@@ -124,9 +124,9 @@ In {proj_name}, adjustments are made to these instructions to support capability
 the address of the next instruction, is written to `x[rd]`.
 * _{isa_var_hybrid}_
 ** An "`unexpected operand type (24)`" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
-** If `cwld` is `1` (secure world), `pc.cursor`, instead of `pc` itself,
+** If `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc` itself,
 is changed by the instruction.
-** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`,
+** If `cwrld` is `1` (secure world) and the instruction is `jal` or `jalr`,
 `pc.cursor` (i.e., the address of the next instruction), is written to `x[rd]`.
 
 [#riscv-load-store]
@@ -269,7 +269,7 @@ memory access.
 * _{isa_var_pure}_
 ** An "`illegal instruction (2)`" exception is raised if any of these instructions is executed.
 * _{isa_var_hybrid}_
-** An "`illegal instruction (2)`" exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
+** An "`illegal instruction (2)`" exception is raised if any of these instructions is executed when `cwrld` is `1` (secure world).
 ** An "`unexpected operand type (24)`" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
 ** Depending on whether the instruction is a load or a store, a "`load access fault (5)`" or "`store/AMO access fault (7)`" exception is raised if the address to be accessed is within the range `(SBASE-size, SEND)`
 (i.e. `addr = x[rs1] + sext(imm)` and `SBASE-size < addr < SEND`), where `size` is the size (in bytes)
