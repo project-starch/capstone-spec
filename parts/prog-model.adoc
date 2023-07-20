@@ -396,7 +396,7 @@ specifications.
 
 * Each general-purpose register either contains an integer, or a capability with `valid = 0`.
 * No addressable memory location can contain a capability.
-* `ceh`, `deh`, `cih`, and `epc` contain either integers or
+* `ceh`, `cih`, and `epc` contain either integers or
 capabilities with `valid = 0` (invalid).
 * `cis = 0`.
 * `cinit = { valid = 1, type = 0, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`,
@@ -406,8 +406,8 @@ and `pc = { valid = 1, type = 0, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE,
 
 * Each general-purpose register either contains an integer, or a capability with `valid = 0`.
 * No addressable memory location can contain a capability.
-* `ceh` and `deh` contain either integers or
-capabilities with `valid = 0` (invalid).
+* `ceh` contains either an integer or
+a capability with `valid = 0` (invalid).
 * `cwrld = 0` (normal world).
 * `cinit = { valid = 1, type = 0, cursor = SBASE, base = SBASE, end = SEND, perms = 7 }`.
 * Specifications for {base_isa_name}.

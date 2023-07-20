@@ -418,7 +418,7 @@ is written to `x[rd]`.
 
 == Instructions Made Illegal
 
-Some instructions in {base_isa_name} now raise "illegal instruction (2)"
+Some instructions in {base_isa_name} now raise "`illegal instruction (2)`"
 exceptions when executed in {isa_var_pure} or {isa_var_hybrid} secure world,
 under all or some circumstances.
 
