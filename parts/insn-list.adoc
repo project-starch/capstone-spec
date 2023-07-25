@@ -178,7 +178,9 @@ include::s-type-format.adoc[]
 | |S |- |`011` | - | C | I | - | S | - | P
 |===
 
-.Note
+.*Note: the meaning of abbreviations in the table*
+[%collapsible]
+====
 ****
 *For instruction operands:*
 
@@ -206,3 +208,4 @@ P:: _{isa_var_pure}_
 T:: _{isa_var_hybrid}_
 *:: Either variant
 ****
+====
