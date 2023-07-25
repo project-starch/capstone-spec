@@ -2,6 +2,7 @@
 :isa_var_pure: Pure Capstone
 :isa_var_hybrid: TransCapstone
 :proj_name: Capstone
-:base_isa_name: RV64I
+:base_isa_name: RV64IZicsr
+:base_isa_csr_ext: Zicsr
 :cheri_isa_name: CHERI-RISC-V
 :cheriot_isa_name: CHERIoT

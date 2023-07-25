@@ -2,29 +2,301 @@
 
 = Adjustments to Existing Instructions
 
-For most existing instructions in the {base_isa_name} ISA, the adjustments are straightforward.
-Their behaviour is unchanged, and an "unexpected operand type (24)" exception is raised if any of the operands
+For most existing instructions in {base_isa_name}, the adjustments are straightforward.
+Their behaviour is unchanged, and an "`unexpected operand type (24)`" exception is raised if any of the operands
 (i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) is a capability.
-For control flow instructions and memory access instructions, however, the
-behaviour is slightly changed to be capability-aware.
+Apart from this operand constraint, the following instructions in {base_isa_name} are adjusted in {proj_name}:
+
+* For memory access instructions, they are extended to use capabilities as addresses for memory access.
+* For control flow instructions, they are slightly adjusted to support capability-aware control flow.
+* Certain instructions, especially those belonging to the privileged ISA, are illegal under certain circumstances.
+
+[#load-store]
+== Memory Access Instructions
+
+In {base_isa_name}, memory access instructions include load instructions
+(i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`, `lwu`, `ld`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`).
+In {base_isa_name}, these instructions take an integer as a raw address, and load or store a value from/to this address.
+In {proj_name}, these instructions are extended to take a capability as an address.
+
+=== _{isa_var_pure}_
+
+==== Load Instructions
+
+In _{isa_var_pure}_, {base_isa_name} load instructions are modified to load integers of different
+sizes using capabilities.
+
+===== Signed Load Instructions
+
+`lb`, `lh`, `lw`, `ld` instructions are modified to load an integer in the size of byte, halfword, word, and doubleword
+(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes), using capabilities respectively.
+The loaded integer is sign-extended to the size of the destination register (i.e., `XLEN` bits).
+
+.lb instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+.lh instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+.lw instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b010' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+.ld instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b011' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+* Insufficient capability permissions (27)
+- `4 \<=p x[rs1].perms` does not hold.
+* Capability out of bound (28)
+- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
+where `size` is the size (in bytes) of the integer being loaded.
+* Load address misaligned (4)
+- `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
+
+*If no exception is raised:*
+The content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` is loaded
+as a signed integer to `x[rd]`, where `size` is the size of the integer being loaded
+(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes for `lb`, `lh`, `lw`, and `ld` respectively).
+
+===== Unsigned Load Instructions
+
+`lbu`, `lhu`, `lwu` instructions are modified to load an integer in the size of byte, halfword, and word
+(i.e., `XLENBYTES/8`, `XLENBYTES/4`, and `XLENBYTES/2` bytes), using capabilities respectively.
+The loaded integer is zero-extended to the size of the destination register (i.e., `XLEN` bits).
+
+.lbu instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b100' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+.lhu instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b101' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+.lwu instruction format (I-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0000011'},
+    {bits: 5, name: 'rd (I)' },
+    {bits: 3, name: '0b110' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+* Insufficient capability permissions (27)
+- `4 \<=p x[rs1].perms` does not hold.
+* Capability out of bound (28)
+- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
+where `size` is the size (in bytes) of the integer being loaded.
+* Load address misaligned (4)
+- `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
+
+*If no exception is raised:*
+The content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` is loaded
+as an unsigned integer to `x[rd]`, where `size` is the size of the integer being loaded
+(i.e., `XLENBYTES/8`, `XLENBYTES/4`, and `XLENBYTES/2` bytes for `lbu`, `lhu`, and `lwu` respectively).
+
+==== Store Instructions
+
+`sb`, `sh`, `sw`, `sd` instructions are modified to store an integer in the size of byte, halfword, word, and doubleword
+(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes), using capabilities respectively.
+
+.sb instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0] (S)' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5] (S)' }
+]}
+....
+
+.sh instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0] (S)' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5] (S)' }
+]}
+....
+
+.sw instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0] (S)' },
+    {bits: 3, name: '0b010' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5] (S)' }
+]}
+....
+
+.sd instruction format (S-type)
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0100011'},
+    {bits: 5, name: 'imm[4:0]' },
+    {bits: 3, name: '0b011' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs2 (I)' },
+    {bits: 7, name: 'imm[11:5]' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not an integer.
+* Invalid capability (25)
+- `x[rs1].valid` is `0` (invalid).
+* Unexpected capability type (26)
+- `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+* Illegal operand value (29)
+- `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
+* Insufficient capability permissions (27)
+- `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
+* Capability out of bound (28)
+- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
+where `size` is the size (in bytes) of the integer being stored.
+* Store/AMO address misaligned (6)
+- `x[rs1].cursor + imm` is not aligned to the size of the integer being stored.
+
+
+*If no exception is raised:*
+
+. The content of `x[rs2]` is stored as an integer to the memory location
+`[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, where `size` is the size of the integer being stored
+(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes for `sb`, `sh`, `sw`, and `sd` respectively).
+. If `x[rs1].type` is `3` (uninitialised), `x[rs1].cursor` is set to `x[rs1].cursor + size`.
+. The content in the `CLEN`-bit aligned memory location `[cbase, cend)`, which alias with memory location
+`[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set to integer type,
+where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+
+=== _{isa_var_hybrid}_
+
+In _{isa_var_hybrid}_, {base_isa_name} memory access instructions behave the same as in _{isa_var_pure}_
+if `cwrld` is `1` (secure world). However, if `cwrld` is `0` (normal world), these instructions behave
+differently in different _encoding modes_.
+
+* When `cwrld` is `0` (normal world) and `emode` is `1` (capability encoding mode), these instructions
+behave the same as in _{isa_var_pure}_.
+* When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
+behave the same as in {base_isa_name} except that the following adjustments are made to these instructions:
+- An "`Unexpected operand type (24)`" exception is raised
+if any of `x[rs1]`, `x[rs2]` and `x[rd]` contains a capability.
+- An "`Capability out of bound (28)`" exception is raised
+if the address to be accessed (i.e., `x[rs1] + imm`) is within
+the range `(SBASE - size, SEND)`, where `size` is the size (in bytes) of the integer to be loaded/stored.
+- For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLEN`-bit aligned memory location
+`[cbase, cend)`, which alias with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
+is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+
+.Note
+****
+In {isa_name}, when using these instructions to access the memory location that does not contain an integer-type value,
+the result of the following operations is undefined:
+
+* Load an integer from the memory location.
+* Store an integer to the memory location and then load an integer from the rest of the `CLEN`-bit aligned memory location.
+****
 
 == Control Flow Instructions
 
-In {base_isa_name}, a set of instructions are used to control the flow of execution.
-These instructions include conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
-and unconditional jump instructions (i.e., `jal` and `jalr`).
-In {proj_name}, adjustments are made to these instructions to support capability-aware execution.
+In {base_isa_name}, conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
+and unconditional jump instructions (i.e., `jal` and `jalr`) are used to control the flow of execution.
+In {proj_name}, these instructions are adjusted to support the situation where the program counter is a capability.
+
+=== Branch Instructions
 
 .beq instruction format (B-type)
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1100011'},
-    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 5, name: 'imm[4:1|11] (S)' },
     {bits: 3, name: '0b000' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[12|10:5]' }
+    {bits: 7, name: 'imm[12|10:5] (S)' }
 ]}
 ....
 
@@ -33,11 +305,11 @@ In {proj_name}, adjustments are made to these instructions to support capability
 ....
 {reg: [
     {bits: 7, name: '0b1100011'},
-    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 5, name: 'imm[4:1|11] (S)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[12|10:5]' }
+    {bits: 7, name: 'imm[12|10:5] (S)' }
 ]}
 ....
 
@@ -46,11 +318,11 @@ In {proj_name}, adjustments are made to these instructions to support capability
 ....
 {reg: [
     {bits: 7, name: '0b1100011'},
-    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 5, name: 'imm[4:1|11] (S)' },
     {bits: 3, name: '0b100' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[12|10:5]' }
+    {bits: 7, name: 'imm[12|10:5] (S)' }
 ]}
 ....
 
@@ -59,11 +331,11 @@ In {proj_name}, adjustments are made to these instructions to support capability
 ....
 {reg: [
     {bits: 7, name: '0b1100011'},
-    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 5, name: 'imm[4:1|11] (S)' },
     {bits: 3, name: '0b101' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[12|10:5]' }
+    {bits: 7, name: 'imm[12|10:5] (S)' }
 ]}
 ....
 
@@ -72,11 +344,11 @@ In {proj_name}, adjustments are made to these instructions to support capability
 ....
 {reg: [
     {bits: 7, name: '0b1100011'},
-    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 5, name: 'imm[4:1|11] (S)' },
     {bits: 3, name: '0b110' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[12|10:5]' }
+    {bits: 7, name: 'imm[12|10:5] (S)' }
 ]}
 ....
 
@@ -85,13 +357,27 @@ In {proj_name}, adjustments are made to these instructions to support capability
 ....
 {reg: [
     {bits: 7, name: '0b1100011'},
-    {bits: 5, name: 'imm[4:1|11]' },
+    {bits: 5, name: 'imm[4:1|11] (S)' },
     {bits: 3, name: '0b111' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[12|10:5]' }
+    {bits: 7, name: 'imm[12|10:5] (S)' }
 ]}
 ....
+
+*The following adjustments are made to these instructions:*
+
+_{isa_var_pure}_
+
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` or `x[rs2]` is a capability.
+* `pc.cursor`, instead of `pc`, is changed by the instruction.
+
+_{isa_var_hybrid}_
+
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` or `x[rs2]` is a capability.
+* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+
+=== Jump Instructions
 
 .jal instruction format (J-type)
 [wavedrom,,svg]
@@ -99,7 +385,7 @@ In {proj_name}, adjustments are made to these instructions to support capability
 {reg: [
     {bits: 7, name: '0b1101111'},
     {bits: 5, name: 'rd (I)' },
-    {bits: 20, name: 'imm[20|10:1|11|19:12]' }
+    {bits: 20, name: 'imm[20|10:1|11|19:12] (S)' }
 ]}
 ....
 
@@ -111,166 +397,34 @@ In {proj_name}, adjustments are made to these instructions to support capability
     {bits: 5, name: 'rd (I)' },
     {bits: 3, name: '0b000' },
     {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0]' }
+    {bits: 12, name: 'imm[11:0] (S)' }
 ]}
 ....
 
 *The following adjustments are made to these instructions:*
 
-* _{isa_var_pure}_
-** An "unexpected operand type (24)" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` is a capability.
-** `pc.cursor`, instead of `pc` itself, is changed by the instruction.
-** If the instruction is `jal` or `jalr`, `pc.cursor`, which contains
-the address of the next instruction, is written to `x[rd]`.
-* _{isa_var_hybrid}_
-** An "unexpected operand type (24)" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
-** If `cwld` is `1` (secure world), `pc.cursor`, instead of `pc` itself,
-is changed by the instruction.
-** If `cwld` is `1` (secure world) and the instruction is `jal` or `jalr`,
-`pc.cursor` (i.e., the address of the next instruction), is written to `x[rd]`.
+_{isa_var_pure}_
 
-[#riscv-load-store]
-== Memory Access Instructions
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
+* `pc.cursor`, instead of `pc`, is changed by the instruction.
+* `pc.cursor` (i.e., the address of the next instruction) is written to `x[rd]`.
 
-In {base_isa_name}, memory access instructions include load instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
-`lwu`, `ld`, and `fld`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`, and `fsd`).
-As the {isa_name} ISA extends each of the 32 general-purpose registers, instructions that take
-these registers as operands are also extended. These instructions (i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`,
-`lwu`, `ld`, `sb`, `sh`, `sw`, and `sd`) take an integer as a raw address, and load or store a value
-from or to this address. In {proj_name}, adjustments are made to these instructions to support capability-aware
-memory access.
+_{isa_var_hybrid}_
 
-.lb instruction format (I-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0000011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b000' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0]' }
-]}
-....
+* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
+* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+* When `cwrld` is `1` (secure world), former `pc.cursor` (i.e., the address of the next instruction)
+is written to `x[rd]`.
 
-.lh instruction format (I-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0000011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0]' }
-]}
-....
+== Instructions Made Illegal
 
-.lw instruction format (I-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0000011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b010' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0]' }
-]}
-....
+Some instructions in {base_isa_name} now raise "`illegal instruction (2)`"
+exceptions when executed in {isa_var_pure} or {isa_var_hybrid} secure world,
+under all or some circumstances.
 
-.lbu instruction format (I-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0000011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b100' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0]' }
-]}
-....
-
-.lhu instruction format (I-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0000011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b101' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0]' }
-]}
-....
-
-.lwu instruction format (I-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0000011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b110' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0]' }
-]}
-....
-
-.sb instruction format (S-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0100011'},
-    {bits: 5, name: 'imm[4:0]' },
-    {bits: 3, name: '0b000' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[11:5]' }
-]}
-....
-
-.sh instruction format (S-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0100011'},
-    {bits: 5, name: 'imm[4:0]' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[11:5]' }
-]}
-....
-
-.sw instruction format (S-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0100011'},
-    {bits: 5, name: 'imm[4:0]' },
-    {bits: 3, name: '0b010' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[11:5]' }
-]}
-....
-
-.sd instruction format (S-type)
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0100011'},
-    {bits: 5, name: 'imm[4:0]' },
-    {bits: 3, name: '0b011' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: 'imm[11:5]' }
-]}
-....
-
-*The following adjustments are made to these instructions:*
-
-* _{isa_var_pure}_
-** An "illegal instruction (2)" exception is raised if any of these instructions is executed.
-* _{isa_var_hybrid}_
-** An "illegal instruction (2)" exception is raised if any of these instructions is executed when `cwld` is `1` (secure world).
-** An "unexpected operand type (24)" exception is raised if `x[rs1]`, `x[rs2]` or `x[rd]` contains a capability.
-** Depending on whether the instruction is a load or a store, a "load access fault (5)" or "store/AMO access fault (7)" exception is raised if the address to be accessed is within the range `(SBASE-size, SEND)`
-(i.e. `addr = x[rs1] + sext(imm)` and `SBASE-size < addr < SEND`), where `size` is the size (in bytes)
-of the integer to be loaded or stored.
+* All instructions defined in the privileged ISA of {base_isa_name}
+* All instructions defined in the {base_isa_csr_ext} extension, namely
+instructions that directly access CSRs, when the CSR specified is not one
+link:#additional-regs[defined in {isa_name}], or when the link:#csr-man-constr[read/write constraints] are not satisfied
+* ECALL
+* EBREAK

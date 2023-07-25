@@ -15,46 +15,61 @@ in a unconditional or conditional manner.
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
-    {bits: 3, name: '0b001' },
+    {bits: 3, name: '0b101' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0100010' }
+    {bits: 12, name: 'imm[11:0] (S)' }
 ]}
 ....
+
+*An exception is raised when any of the following conditions are met:*
+
+_{isa_var_pure}_
+
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+
+_{isa_var_hybrid}_
+
+* Illegal instruction (2)
+- `cwrld` is `0` (normal world).
+* Unexpected operand type (24)
+- `x[rs1]` is not a capability.
+
+*If no exception is raised:*
+Set `pc` to `x[rs1]`, and `pc.cursor` to `x[rs1].cursor + imm`.
+Meanwhile, former `pc` (`pc.cursor` is the address of the next instruction) is written to `x[rd]`.
 
 .CBNZ instruction format
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: '0b0100011' }
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
 ]}
 ....
 
 *An exception is raised when any of the following conditions are met:*
 
-* _{isa_var_hybrid}_
-- Illegal instruction (2)
-** `cwrld` is `0` (normal world).
-* _{isa_var_pure}_ or _{isa_var_hybrid}_
-- Unexpected operand type (24)
-** `x[rs1]` is not a capability.
-- Unexpected capability type (26)
-** `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-- Insufficient capability permissions (27)
-** `x[rs1].perms` is neither `5` (read-execute) nor `7` (read-write-execute).
+_{isa_var_pure}_
+
+* Unexpected operand type (24)
+- `x[rd]` is not a capability.
+- `x[rs1]` is not an integer.
+
+_{isa_var_hybrid}_
+
+* Illegal instruction (2)
+- `cwrld` is `0` (normal world).
+* Unexpected operand type (24)
+- `x[rd]` is not a capability.
+- `x[rs1]` is not an integer.
 
 *If no exception is raised:*
-
-* CJAL: Set the program counter (`pc`) to `x[rs1]`. Meanwhile, the existing
-capability in `pc`, with its `cursor` field replaced by the address of the next instruction,
-is written to the register `rd`.
-* CBNZ: If `x[rs2]` is zero (`0`), the behaviour is the same as for NOP.
-Otherwise, set the program counter (`pc`) to `x[rs1]`.
+If `x[rs1]` is `0`, the instruction is a no-op.
+Otherwise, set `pc` to `x[rs1]`, and `pc.cursor` to `x[rs1].cursor + imm`.
 
 [#domain-cross]
 == Domain Crossing
@@ -98,11 +113,11 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
-. Store the former `pc`, `ceh` and `deh` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
+. Store the former `pc`, `ceh` and `csp` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`
 respectively.
-. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].reg` to `rd`, set `x[rs1].async` to `0` (synchronous),
+. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].cursor` to `x[rs1].base`, x[rs1].reg` to `rd`, set `x[rs1].async` to `0` (synchronous),
 and write the resulting `x[rs1]` to the register `cra`.
 
 === RETURN
@@ -140,8 +155,8 @@ and write the resulting `x[rs1]` to the register `cra`.
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to  `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
-. Store the former `pc`, `ceh` and `deh` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
+. Store the former `pc` with `cursor` replaced with `x[rs2]`, `ceh` and `csp` values to the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`,
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` and `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`
 respectively.
 . Set `x[rs1].type` to `4` (sealed), and write the
@@ -151,33 +166,14 @@ capability to the register `x[x[rs1].reg]`.
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
 . For `i = 1, 2, ..., 31`, load the content at the memory location
 `[x[rs1].base + (i + 2) * CLENBYTES, x[rs1].base + (i + 3) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Write the former value of `pc`, with the `cursor` field replaced by `x[rs2]`, to
 the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 . Store the former alue of `ceh` to the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
-. Store the former value of `deh` to the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`.
+. Store the former value of `csp` to the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)`.
 . Set the `x[rs1].type` to `4` (sealed). If `x[rs1].async = 1`, write the resulting `x[rs1]` to the register `ceh`. Otherwise (`x[rs1].async = 2`), write the resulting `x[rs1]` to the register `cih`.
-
-.Note
-****
-
-When the `async` field of a sealed-return capability is `0` (synchronous), some
-memory accesses are granted by this capability. The following table shows the
-memory accesses granted by sealed and sealed-return capabilities in different scenarios.
-
-.Memory accesses granted by sealed and sealed-return capabilities
-[%header%autowidth.stretch]
-|===
-| Capability type | `async` | Read | Write | Execute
-| Sealed | `0` | No | No | No
-| Sealed | `1` | No | No | No
-| Sealed-return | `0` | `cursor in [base, end)` | `cursor in [base, end)` | No
-| Sealed-return | `1` | No | No | No
-|===
-
-****
 
 [#world-switch]
 == A World Switching Extension for _{isa_var_hybrid}_
@@ -229,9 +225,9 @@ roughly correspond to the CALL and RETURN instructions respectively.
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Set `x[rs1].type` to `6` (exit), and write the resulting `x[rs1]` to `cra`.
+. Set `x[rs1].type` to `6` (exit), `x[rs1].cursor` to `x[rs1].base`, and write the resulting `x[rs1]` to `cra`.
 . Write `rs1` to `switch_reg`.
 . Write `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
@@ -240,11 +236,11 @@ roughly correspond to the CALL and RETURN instructions respectively.
 
 . Load the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)` to the program counter (`pc`).
 . Load the content at the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `deh`.
+. Load the content at the memory location `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 3 * CLENBYTES)` to `csp`.
 . For `i = 1, 2, ..., 31`, load the content at the memory location
 `[x[rs1].base + (i + 2) * CLENBYTES, x[rs1].base + (i + 3) * CLENBYTES)`, to `x[i]` (the `i`-th general-purpose register).
 . Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
+. Set `x[rs1].type` to `5` (sealed-return), `x[rs1].cursor` to `x[rs1].base`, `x[rs1].async` to `0` (synchronous), and write the resulting `x[rs1]` to `switch_cap`.
 . Write `rs1` to `switch_reg`.
 . Write `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
