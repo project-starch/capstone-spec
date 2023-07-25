@@ -9,6 +9,8 @@ The CJALR and CBNZ instructions allow jumping to a capability,
 i.e., setting the program counter to a given capability,
 in a unconditional or conditional manner.
 
+=== CJALR
+
 .CJALR instruction format
 [wavedrom,,svg]
 ....
@@ -23,22 +25,29 @@ in a unconditional or conditional manner.
 
 *An exception is raised when any of the following conditions are met:*
 
+====
 _{isa_var_pure}_
 
-* Unexpected operand type (24)
+* `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
 
 _{isa_var_hybrid}_
 
-* Illegal instruction (2)
+* `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
-* Unexpected operand type (24)
+* `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
+====
 
 *If no exception is raised:*
-Set `pc` to `x[rs1]`, and `pc.cursor` to `x[rs1].cursor + imm`.
-Meanwhile, former `pc` (`pc.cursor` is the address of the former address of the next instruction) is written to `x[rd]`.
-If `x[rs1]` is not a non-linear capability (i.e., `x[rs1].type != 1`), write `cnull` to `x[rs1]`.
+
+====
+. Set `pc.cursor` to `pc.cursor + 4`, and `x[rs1].cursor` to `x[rs1].cursor + imm`.
+. Write `x[rs1]` to `pc`, and `pc` to `x[rd]`.
+. If `rs1 != rd` and `x[rs1].type != 1`, write `cnull` to `x[rs1]`.
+====
+
+=== CBNZ
 
 .CBNZ instruction format
 [wavedrom,,svg]
@@ -54,25 +63,32 @@ If `x[rs1]` is not a non-linear capability (i.e., `x[rs1].type != 1`), write `cn
 
 *An exception is raised when any of the following conditions are met:*
 
+====
 _{isa_var_pure}_
 
-* Unexpected operand type (24)
+* `Unexpected operand type (24)`
 - `x[rd]` is not a capability.
 - `x[rs1]` is not an integer.
 
 _{isa_var_hybrid}_
 
-* Illegal instruction (2)
+* `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
-* Unexpected operand type (24)
+* `Unexpected operand type (24)`
 - `x[rd]` is not a capability.
 - `x[rs1]` is not an integer.
+====
+
 
 *If no exception is raised:*
 
+====
 * If `x[rs1]` is `0`, the instruction is a no-op.
-* Otherwise, set `pc` to `x[rd]`, and `pc.cursor` to `x[rd].cursor + imm`.
-If `x[rd]` is not a non-linear capability (i.e., `x[rd].type != 1`), write `cnull` to `x[rd]`.
+* Otherwise
+. Set `x[rd].cursor` to `x[rd].cursor + imm`.
+. Write `x[rd]` to `pc`.
+. If `x[rd].type != 1`, write `cnull` to `x[rd]`.
+====
 
 [#domain-cross]
 == Domain Crossing
@@ -100,29 +116,34 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 *An exception is raised when any of the following conditions are met:*
 
+//FIXME
+====
 _{isa_var_hybrid}_
 
-* Illegal instruction (2)
+* `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
 
 _{isa_var_pure}_ or _{isa_var_hybrid}_
 
-* Unexpected operand type (24)
+* `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
-* Invalid capability (25)
+* `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
-* Unexpected capability type (26)
+* `Unexpected capability type (26)`
 - `x[rs1].type` is not `4` (sealed).
 - `x[rs1].async` is not `0` (synchronous).
+====
 
 *If no exception is raised:*
 
+====
 . `MOVC cra, rs1`.
-. Swap the content at the memory location `[cra.base, cra.base + CLENBYTES)` with the program counter (`pc`).
-. Swap the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)` with `ceh`.
-. Swap the content at the memory location `[cra.base + 2 * CLENBYTES, cra.base + 3 * CLENBYTES)` with `csp`.
+. Swap the program counter (`pc`) with the content at the memory location `[cra.base, cra.base + CLENBYTES)`.
+. Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
+. Swap `csp` with the content at the memory location `[cra.base + 2 * CLENBYTES, cra.base + 3 * CLENBYTES)`.
 . Set `cra.type` to `5` (sealed-return), `cra.cursor` to `cra.base`, `cra.reg` to `rd`,
 and `cra.async` to `0` (synchronous).
+====
 
 === RETURN
 
@@ -141,52 +162,72 @@ and `cra.async` to `0` (synchronous).
 
 *An exception is raised when any of the following conditions are met:*
 
+====
 _{isa_var_hybrid}_
 
-* Illegal instruction (2)
+* `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
 
 _{isa_var_pure}_ or _{isa_var_hybrid}_
 
-* Unexpected operand type (24)
-- `x[rs1]` is not a capability.
+* `Unexpected operand type (24)`
+- `rs1 != 0` and `x[rs1]` is not a capability.
 - `x[rs2]` is not an integer.
-* Invalid capability (25)
-- `x[rs1].valid` is `0` (invalid).
-* Unexpected capability type (26)
-- `x[rs1].type` is not `5` (sealed-return).
+* `Invalid capability (25)`
+- `rs1 != 0` and `x[rs1].valid` is `0` (invalid).
+* `Unexpected capability type (26)`
+- `rs1 != 0` and `x[rs1].type` is not `5` (sealed-return).
+====
 
 *If no exception is raised:*
 
+*If `rs1 = 0`:*
+
+====
+. Set `pc.cursor` to `x[rs2]`.
+. Write `epc` to `pc`, and `pc` to `ceh`.
+. If `epc.type != 1`, write `cnull` to `epc`.
+====
+
+*Otherwise:*
+
 *When `x[rs1].async = 0` (synchronous):*
 
+====
 . Write `x[rs1]` to `cap` and `cnull` to `x[rs1]`.
 // Use swap here in case rs2 is the register sp
-. Set `pc.cursor` to `x[rs2]`, and swap the content at the memory location
-`[cap.base, cap.base + CLENBYTES)` with the program counter (`pc`).
-. Swap the content at the memory location `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)` with  `ceh`.
-. Swap the content at the memory location `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)` with `csp`.
+. Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
+the content at the memory location `[cap.base, cap.base + CLENBYTES)`.
+. Swap `ceh` with the content at the memory location `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)`.
+. Swap `csp` with the content at the memory location `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)`.
 . Write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to `4` (sealed).
+====
 
 *When `x[rs1].async = 1` (upon exception):*
 
-. Set `pc.cursor` to `x[rs2]`, and swap the content at the memory location
-`[x[rs1].base, x[rs1].base + CLENBYTES)` with the program counter (`pc`).
+====
+. Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
+the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 // ceh is going to be overwritten, no need for a swap
 . Store `ceh` to the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
-. Set `x[rs1].type` to `4` (sealed), and write the resulting `x[rs1]` to `ceh`.
-. For `i = 1, 2, ..., 31`, store `x[i]` to the memory location
+. Set `x[rs1].type` to `4` (sealed).
+. Write the resulting `x[rs1]` to `ceh`, and `cnull` to `x[rs1]`.
+. For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the memory location
 `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
+====
 
 *When `x[rs1].async = 2` (upon interrupt):*
 
-. Set `pc.cursor` to `x[rs2]`, and swap the content at the memory location
-`[x[rs1].base, x[rs1].base + CLENBYTES)` with the program counter (`pc`).
-. Swap the content at the memory location
-`[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)` with `ceh`.
-. Set `x[rs1].type` to `4` (sealed), and write the resulting `x[rs1]` to `cih`.
-. For `i = 1, 2, ..., 31`, store `x[i]` to the memory location
+====
+. Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
+the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
+. Swap `ceh` with the content at the memory location
+`[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
+. Set `x[rs1].type` to `4` (sealed).
+. Write the resulting `x[rs1]` to `cih`, and `cnull` to `x[rs1]`.
+. For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the memory location
 `[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
+====
 
 [#world-switch]
 == A World Switching Extension for _{isa_var_hybrid}_

@@ -190,9 +190,11 @@ disabled globally.
 
 *The interrupt is ignored if any of the following conditions is met:*
 
+====
 * `cih` is not a capability.
 * `cih.valid = 0` (invalid).
 * `cih.type != 4` (sealed capability).
+====
 
 *Otherwise:*
 
