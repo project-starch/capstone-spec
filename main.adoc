@@ -65,6 +65,10 @@ include::parts/insn-list.adoc[leveloffset=+1]
 
 <<<
 
+include::parts/cmp.adoc[leveloffset=+1]
+
+<<<
+
 include::parts/asm-examples.adoc[leveloffset=+1]
 
 <<<
