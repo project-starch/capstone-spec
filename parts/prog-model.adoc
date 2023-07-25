@@ -59,9 +59,11 @@ The range of the `perms` field has a partial order `\<=p` defined as follows:
 }
 ....
 
+[#alias-definition]
 We say a capability `c` aliases with a capability `d` if and only if the intersection
 between `[c.base, c.end)` and `[d.base, d.end)` is non-empty.
 
+[#smaller-t-definition]
 For two revocation capabilities `c` and `d` (i.e., `c.type = d.type = 2`),
 we say `c <t d` if and only if
 
