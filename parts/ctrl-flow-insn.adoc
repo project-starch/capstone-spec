@@ -25,7 +25,7 @@ in a unconditional or conditional manner.
 
 *An exception is raised when any of the following conditions are met:*
 
-====
+****
 _{isa_var_pure}_
 
 * `Unexpected operand type (24)`
@@ -37,7 +37,7 @@ _{isa_var_hybrid}_
 - `cwrld` is `0` (normal world).
 * `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
-====
+****
 
 *If no exception is raised:*
 
@@ -63,7 +63,7 @@ _{isa_var_hybrid}_
 
 *An exception is raised when any of the following conditions are met:*
 
-====
+****
 _{isa_var_pure}_
 
 * `Unexpected operand type (24)`
@@ -77,7 +77,7 @@ _{isa_var_hybrid}_
 * `Unexpected operand type (24)`
 - `x[rd]` is not a capability.
 - `x[rs1]` is not an integer.
-====
+****
 
 
 *If no exception is raised:*
@@ -116,8 +116,7 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 *An exception is raised when any of the following conditions are met:*
 
-//FIXME
-====
+****
 _{isa_var_hybrid}_
 
 * `Illegal instruction (2)`
@@ -131,8 +130,9 @@ _{isa_var_pure}_ or _{isa_var_hybrid}_
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
 - `x[rs1].type` is not `4` (sealed).
+//FIXME
 - `x[rs1].async` is not `0` (synchronous).
-====
+****
 
 *If no exception is raised:*
 
@@ -162,7 +162,7 @@ and `cra.async` to `0` (synchronous).
 
 *An exception is raised when any of the following conditions are met:*
 
-====
+****
 _{isa_var_hybrid}_
 
 * `Illegal instruction (2)`
@@ -177,7 +177,7 @@ _{isa_var_pure}_ or _{isa_var_hybrid}_
 - `rs1 != 0` and `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
 - `rs1 != 0` and `x[rs1].type` is not `5` (sealed-return).
-====
+****
 
 *If no exception is raised:*
 
@@ -210,7 +210,7 @@ the content at the memory location `[cap.base, cap.base + CLENBYTES)`.
 the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 // ceh is going to be overwritten, no need for a swap
 . Store `ceh` to the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
-. Set `x[rs1].type` to `4` (sealed).
+. Set `x[rs1].type` to `4` (sealed), `x[rs1].async` to `0` (synchronous).
 . Write the resulting `x[rs1]` to `ceh`, and `cnull` to `x[rs1]`.
 . For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the memory location
 `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
@@ -223,7 +223,7 @@ the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 . Swap `ceh` with the content at the memory location
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
-. Set `x[rs1].type` to `4` (sealed).
+. Set `x[rs1].type` to `4` (sealed), `x[rs1].async` to `0` (synchronous).
 . Write the resulting `x[rs1]` to `cih`, and `cnull` to `x[rs1]`.
 . For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the memory location
 `[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
@@ -238,7 +238,7 @@ is added to support switching between the _secure world_ and the _normal world_.
 === CAPENTER
 
 The CAPENTER instruction causes an entry into the secure world from the normal world.
-The instruction is only available in the normal world and is roughly equivalent to the CALL instruction.
+And it is only available in the normal world.
 
 .CAPENTER instruction format
 [wavedrom,,svg]
@@ -255,53 +255,66 @@ The instruction is only available in the normal world and is roughly equivalent 
 
 *An exception is raised when any of the following conditions are met:*
 
-* Illegal instruction (0)
+****
+* `Illegal instruction (0)`
 - `cwrld` is `1` (secure world).
-* Unexpected operand type (24)
+* `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
-* Invalid capability (25)
+* `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
-* Unexpected capability type (26)
+* `Unexpected capability type (26)`
 - `x[rs1].type` is not `4` (sealed).
+****
 
 *If no exception is raised:*
 
 *When `x[rs1].async = 0` (synchronous):*
 
+====
 . `MOVC cra, rs1`.
-. Load the content at the memory location `[cra.base, cra.base + CLENBYTES)` to the program counter (`pc`).
-. Load the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)` to `ceh`.
-. Load the content at the memory location `[cra.base + 2 * CLENBYTES, cra.base + 3 * CLENBYTES)` to `csp`.
-. Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
+. Write `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
+// Ideally, we should check whether the memory content is a linear capability before zeroing it.
+// However, the cost of doing so is too high.
+// Instead, we zero the memory content unconditionally.
+. Write `cnull` to `pc`, `csp` and `ceh`.
+. Swap the program counter (`pc`) with the content at the memory location `[cra.base, cra.base + CLENBYTES)`.
+. Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
+. Swap `csp` with the content at the memory location `[cra.base + 2 * CLENBYTES, cra.base + 3 * CLENBYTES)`.
 . Set `cra.type` to `6` (exit), `cra.cursor` to `cra.base`.
 . Write `rs1` to `switch_reg`, `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
+====
 
-*When `x[rs1].async = 1` (asynchronous):*
+*When `x[rs1].async` is `1` (upon exception) or `2` (upon interrupt):*
 
+====
 . Write `x[rs1]` to `switch_cap`, and `cnull` to `x[rs1]`.
-. Load the content at the memory location `[switch_cap.base, switch_cap.base + CLENBYTES)` to the program counter (`pc`).
-. Load the content at the memory location `[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)` to `ceh`.
-. For `i = 1, 2, ..., 31`, load the content at the memory location
-`[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`, to `x[i]`.
-. Store the former value of `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Set `switch_cap.type` to `5` (sealed-return), `switch_cap.cursor` to `switch_cap.base`, `switch_cap.async` to `0` (synchronous).
+. Write `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
+. Write `cnull` to `pc` and `ceh`.
+. Swap the program counter (`pc`) with the content at the memory location `[cra.base, cra.base + CLENBYTES)`.
+. Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, write `zero` to `x[i]`, and then
+swap `x[i]` with the content at the memory location
+`[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
+// Keep the type of switch_cap unchanged (i.e., sealed) for compatibility.
+. Set `switch_cap.async` to `0` (synchronous).
 . Write `rs1` to `switch_reg`, `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
+====
 
-.Note
+.*Note: the purpose of the `rd` operand*
+[%collapsible]
+====
 ****
-
 The `rd` register will be set to a value indicating the cause of exit when
 the CPU core exits from the secure world synchronously or asynchronously.
-
 ****
+====
 
 === CAPEXIT
 
 The CAPEXIT instruction causes an exit from the secure world into the normal world.
-The instruction is only available in the secure world and can only be used with an exit capability.
-It's roughly equivalent to the RETURN instruction.
+It is only available in the secure world and can only be used with an exit capability.
 
 .CAPEXIT instruction format
 [wavedrom,,svg]
@@ -318,25 +331,30 @@ It's roughly equivalent to the RETURN instruction.
 
 *An exception is raised when any of the following conditions are met:*
 
-* Illegal instruction (2)
+****
+* `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
-* Unexpected operand type (24)
+* `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
 - `x[rs2]` is not an integer.
-* Invalid capability (25)
+* `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
-* Unexpected capability type (26)
+* `Unexpected capability type (26)`
 - `x[rs1].type` is not `6` (exit).
+****
 
 *If no exception is raised:*
 
-. Write `x[rs1]` to `cap` and `cnull` to `x[rs1]`.
+====
+. Write `x[rs1]` to `cap`, and `cnull` to `x[rs1]`.
 . Set `pc.cursor` to `x[rs2]`, and write `pc`, `ceh`, and `csp`
 to the memory location `[cap.base, cap.base + CLENBYTES)`,
 `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)`, and
 `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)` respectively.
 . Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
+. Write `cnull` to `ceh`.
 . Set `cap.type` to `4` (sealed), `cap.async`
 to `0` (synchronous), and write the resulting `cap` to `x[switch_reg]`.
-. Set `exit_reg` to `0` (normal exit).
+. Set `x[exit_reg]` to `0` (normal exit).
 . Set `cwrld` to `0` (normal world).
+====
