@@ -86,17 +86,18 @@ The {isa_name} ISA is an {base_isa_name} extension that makes the following
 types of changes to the base architecture:
 
 * Each general-purpose register is extended to 129 bits to accommodate 128-bit capabilities.
+* Part of the machine state is extended and new instructions are added to support it.
 * New instructions for manipulating capabilities are added.
 * New instructions for memory accesses using capabilities are added.
 * New instructions for control flow transfers using capabilities are added.
-* New instructions for machine state control are added.
-* Semantics of some existing instructions are changed to support capabilities.
-* Semantics of interrupts and exceptions are changed to support capabilities.
+* Semantics of some existing instructions are adjusted to support capabilities.
+* Semantics of interrupts and exceptions are adjusted to support capabilities.
 
 == {proj_name} Variants
 
 In addition to {proj_name}, which is referred to as _{isa_var_pure}_ in the {isa_name} ISA,
 we propose a variant of {proj_name}, called _{isa_var_hybrid}_.
+
 While memory accesses and control flow transfers are only possible using capabilities
 in _{isa_var_pure}_, _{isa_var_hybrid}_ fuses capabilities with privilege levels and
 virtual memory found in traditional architectures, which allows for a smooth transition
@@ -104,7 +105,6 @@ from existing architectures to {proj_name}.
 
 The following types of changes are made to _{isa_var_pure}_ to obtain _{isa_var_hybrid}_:
 
-****
 * The physical memory is partitioned into two disjoint regions,
 one exclusively for accesses through capabilities and the other exclusively for accesses
 through the virtual memory.
@@ -117,7 +117,14 @@ and provides the security guarantees of {proj_name}.
 * A world switching mechanism is added to support the secure switching between the two worlds.
 * Semantics of some _{isa_var_pure}_ instructions are changed to support the two worlds separately.
 * Semantics of interrupts and exceptions are extended to support the two worlds separately.
-****
+
+.Memory Accesses in _{isa_var_hybrid}_
+[%header%autowidth.stretch]
+|===
+| World | Memory Management Unit (MMU) | Capabilities
+| Normal world | Yes | Yes
+| Secure world | No | Yes
+|===
 
 == Assembly Mnemonics
 

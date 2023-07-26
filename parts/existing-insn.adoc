@@ -49,7 +49,7 @@ The `size` used in this sections is the size (in bytes) of the integer being loa
 ****
 ====
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -239,7 +239,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -269,7 +269,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 ====
 . Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` as an integer.
 . If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + size`.
-. The content in the `CLEN`-bit aligned memory location `[cbase, cend)`, which aliases with
+. The content in the `CLENBYTES`-byte aligned memory location `[cbase, cend)`, which aliases with
 the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set to integer type,
 where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
 ====
@@ -291,7 +291,7 @@ behave the same as in {base_isa_name} except that the following adjustments are 
 (i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) contains a capability.
 - An `Load access fault (5)` (for load) or `Store/AMO access fault(7)` (for store) exception is raised
 if the address to be accessed (i.e., `x[rs1] + imm`) is within the range `(SBASE - size, SEND)`.
-- For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLEN`-bit aligned memory location
+- For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLENBYTES`-byte aligned memory location
 `[cbase, cend)`, which aliases with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
 is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
 ****
@@ -304,7 +304,7 @@ In {proj_name}, when using these instructions to access the memory location that
 the results of the following operations are _undefined_:
 
 * Load an integer from the memory location.
-* Store an integer to the memory location and then load an integer from the rest of the `CLEN`-bit aligned memory location.
+* Store an integer to the memory location and then load an integer from the rest of the `CLENBYTES`-byte aligned memory location.
 ****
 ====
 

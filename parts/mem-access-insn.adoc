@@ -25,7 +25,7 @@ The LDC instruction loads a capability from the memory.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -45,7 +45,7 @@ not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
 - `x[rs1].type` is `5` (sealed-return) or `6` (exit), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
 * `Load address misaligned (4)`
-- `x[rs1].cursor + imm` is not aligned to `CLEN` bits.
+- `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
 // FIXME
 * `Load access fault (5)`
 - The data contained in the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` is not a capability.
@@ -76,7 +76,7 @@ The STC instruction stores a capability to the memory.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -98,7 +98,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 * `Illegal operand value (29)`
 - `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
 * `Store/AMO address misaligned (6)`
-- `x[rs1].cursor + imm` is not aligned to `CLEN` bits.
+- `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
 ****
 
 *If no exception is raised:*
@@ -139,13 +139,13 @@ the LDC instruction loads a capability from the normal memory using raw addresse
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
 - `x[rs1]` is not an integer.
 * `Load address misaligned (4)`
-- `x[rs1] + imm` is not aligned to `CLEN` bits.
+- `x[rs1] + imm` is not aligned to `CLENBYTES` bytes.
 * `Load access fault (5)`
 - `x[rs1] + imm` is in the range `[SBASE, SEND)`.
 // FIXME
@@ -178,14 +178,14 @@ the STC instruction stores a capability to the normal memory using raw addresses
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
 - `x[rs1]` is not an integer.
 - `x[rs2]` is not a capability.
 * `Store/AMO address misaligned (6)`
-- `x[rs1] + imm` is not aligned to `CLEN` bits.
+- `x[rs1] + imm` is not aligned to `CLENBYTES` bytes.
 * `Store/AMO access fault (7)`
 - `x[rs1] + imm` is in the range `[SBASE, SEND)`.
 ****

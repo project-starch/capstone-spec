@@ -23,7 +23,7 @@ in a unconditional or conditional manner.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_pure}_
@@ -61,7 +61,7 @@ _{isa_var_hybrid}_
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_pure}_
@@ -114,7 +114,7 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_hybrid}_
@@ -160,7 +160,7 @@ and `cra.async` to `0` (synchronous).
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_hybrid}_
@@ -253,7 +253,7 @@ And it is only available in the normal world.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Illegal instruction (0)`
@@ -329,7 +329,7 @@ It is only available in the secure world and can only be used with an exit capab
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Illegal instruction (2)`

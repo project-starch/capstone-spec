@@ -28,7 +28,7 @@ Capabilities can be moved between registers with the MOVC instruction.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -66,7 +66,7 @@ capability by a give amount (offset).
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -97,7 +97,7 @@ capability by a give amount (offset).
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -220,7 +220,7 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -262,7 +262,7 @@ one with bounds `[x[rs1].base, x[rs2])` and the other with bounds `[x[rs2], x[rs
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -302,7 +302,7 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -345,7 +345,7 @@ The DELIN instruction delinearises a linear capability.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -379,7 +379,7 @@ after its associated memory region has been fully initialised (written with new 
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -416,7 +416,7 @@ The SEAL instruction seals a linear capability.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -429,7 +429,7 @@ The SEAL instruction seals a linear capability.
 * `Illegal operand value (29)`
 - The size of the memory region associated with `x[rs1]` is smaller than
 `CLENBYTES * 33` bytes (i.e., `x[rs1].end - x[rs1].base < CLENBYTES * 33`).
-- `x[rs1].base` is not aligned to `CLEN` bits.
+- `x[rs1].base` is not aligned to `CLENBYTES` bytes.
 ****
 
 *If no exception is raised:* 
@@ -457,7 +457,7 @@ The DROP instruction invalidates a capability.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -493,7 +493,7 @@ The MREV instruction creates a revocation capability.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -529,7 +529,7 @@ The REVOKE instruction revokes a capability.
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*an exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
