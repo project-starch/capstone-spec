@@ -57,10 +57,6 @@ include::parts/mem-consistency.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/debug-insn.adoc[leveloffset=+1]
-
-<<<
-
 include::parts/insn-list.adoc[leveloffset=+1]
 
 <<<
