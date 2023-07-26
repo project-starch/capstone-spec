@@ -70,7 +70,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 - `x[rs1].cursor + imm` is not aligned to `size` bytes.
 ****
 
-.lb instruction format (I-type)
+.lb instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -82,7 +82,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 ]}
 ....
 
-.lh instruction format (I-type)
+.lh instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -94,7 +94,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 ]}
 ....
 
-.lw instruction format (I-type)
+.lw instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -106,7 +106,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 ]}
 ....
 
-.ld instruction format (I-type)
+.ld instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -125,7 +125,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 as a signed integer to `x[rd]`.
 ====
 
-.lbu instruction format (I-type)
+.lbu instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -137,7 +137,7 @@ as a signed integer to `x[rd]`.
 ]}
 ....
 
-.lhu instruction format (I-type)
+.lhu instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -149,7 +149,7 @@ as a signed integer to `x[rd]`.
 ]}
 ....
 
-.lwu instruction format (I-type)
+.lwu instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -187,7 +187,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ****
 ====
 
-.sb instruction format (S-type)
+.sb instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -200,7 +200,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-.sh instruction format (S-type)
+.sh instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -213,7 +213,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-.sw instruction format (S-type)
+.sw instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -226,7 +226,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-.sd instruction format (S-type)
+.sd instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -316,7 +316,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 
 === Branch Instructions
 
-.beq instruction format (B-type)
+.beq instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -329,7 +329,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 ]}
 ....
 
-.bne instruction format (B-type)
+.bne instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -342,7 +342,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 ]}
 ....
 
-.blt instruction format (B-type)
+.blt instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -355,7 +355,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 ]}
 ....
 
-.bge instruction format (B-type)
+.bge instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -368,7 +368,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 ]}
 ....
 
-.bltu instruction format (B-type)
+.bltu instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -381,7 +381,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 ]}
 ....
 
-.bgeu instruction format (B-type)
+.bgeu instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -396,19 +396,21 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 
 *The following adjustments are made to these instructions:*
 
+****
 _{isa_var_pure}_
 
-* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` or `x[rs2]` is a capability.
-* `pc.cursor`, instead of `pc`, is changed by the instruction.
+. An `Unexpected operand type (24)` exception is raised if `x[rs1]` or `x[rs2]` is a capability.
+. `pc.cursor`, instead of `pc`, is changed by the instruction.
 
 _{isa_var_hybrid}_
 
-* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` or `x[rs2]` is a capability.
-* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+. An `Unexpected operand type (24)` exception is raised if `x[rs1]` or `x[rs2]` is a capability.
+. When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+****
 
 === Jump Instructions
 
-.jal instruction format (J-type)
+.jal instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -418,7 +420,7 @@ _{isa_var_hybrid}_
 ]}
 ....
 
-.jalr instruction format (I-type)
+.jalr instruction format
 [wavedrom,,svg]
 ....
 {reg: [
@@ -432,28 +434,33 @@ _{isa_var_hybrid}_
 
 *The following adjustments are made to these instructions:*
 
+****
 _{isa_var_pure}_
 
-* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
-* `pc.cursor`, instead of `pc`, is changed by the instruction.
-* `pc.cursor` (i.e., the address of the next instruction) is written to `x[rd]`.
+. An `Unexpected operand type (24)` exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
+. `pc.cursor + 4` is written to `x[rd]`.
+. `pc.cursor`, instead of `pc`, is changed by the instruction.
 
 _{isa_var_hybrid}_
 
-* An "`Unexpected operand type (24)`" exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
-* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
-* When `cwrld` is `1` (secure world), former `pc.cursor` (i.e., the address of the next instruction)
-is written to `x[rd]`.
+. An `Unexpected operand type (24)` exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
+. When `cwrld` is `1` (secure world), `pc.cursor + 4` is written to `x[rd]`.
+. When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+****
 
-== Instructions Made Illegal
+== Illegal Instructions
 
-Some instructions in {base_isa_name} now raise "`illegal instruction (2)`"
-exceptions when executed in {isa_var_pure} or {isa_var_hybrid} secure world,
-under all or some circumstances.
+Some instructions in {base_isa_name} now raise `illegal instruction (2)` exceptions
+when executed in _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world, under all or some circumstances.
 
-* All instructions defined in the privileged ISA of {base_isa_name}
+These instructions are:
+
+****
+* All instructions defined in the privileged ISA of {base_isa_name}.
 * All instructions defined in the {base_isa_csr_ext} extension, namely
-instructions that directly access CSRs, when the CSR specified is not one
-link:#additional-regs[defined in {isa_name}], or when the link:#csr-man-constr[read/write constraints] are not satisfied
-* ECALL
-* EBREAK
+instructions that directly access CSRs, when the CSR specified is not
+link:#additional-regs[one defined in {isa_name}],
+or when the link:#csr-man-constr[read/write constraints] are not satisfied.
+* `ecall`.
+* `ebreak`.
+****
