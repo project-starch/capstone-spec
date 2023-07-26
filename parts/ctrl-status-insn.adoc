@@ -18,7 +18,7 @@ _link:#add-reg-list[capability control and status registers]_ (CCSRs).
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 - `Unexpected operand type (24)`

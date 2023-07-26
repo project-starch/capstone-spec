@@ -28,7 +28,7 @@ Capabilities can be moved between registers with the MOVC instruction.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -66,7 +66,7 @@ capability by a give amount (offset).
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -97,7 +97,7 @@ capability by a give amount (offset).
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -131,7 +131,7 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 ]}
 ....
 
-*An exception is raised if any of the following conditions are met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -161,28 +161,28 @@ The LCC instruction is used to read a field from a capability.
     {bits: 5, name: 'rd (I)' },
     {bits: 3, name: '0b010' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (Z)' },
+    {bits: 5, name: 'imm[4:0] (Z)' },
     {bits: 7, name: '0b0000100' }
 ]}
 ....
 
-*An exception is raised if any of the following conditions are met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
 * `Unexpected capability type (26)`
-- `rs2 = 2` and `x[rs1]` has `type = 4` (sealed).
-- `rs2 = 4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-- `rs2 = 5` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-- `rs2 = 6` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
-- `rs2 = 7` and `x[rs1]` does not have `type = 5` (sealed-return).
+- `imm = 2` and `x[rs1]` has `type = 4` (sealed).
+- `imm = 4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+- `imm = 5` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+- `imm = 6` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
+- `imm = 7` and `x[rs1]` does not have `type = 5` (sealed-return).
 ****
 
 *If no exception is raised:*
 
 ====
-* If `rs2 > 7`, write `zero` to `x[rd]`
+* If `imm > 7`, write `zero` to `x[rd]`
 * Otherwise, write `field` to `x[rd]`
 according to the link:#lcc-multiplex[LCC multiplexing table].
 ====
@@ -191,7 +191,7 @@ according to the link:#lcc-multiplex[LCC multiplexing table].
 .LCC multiplexing table
 [%header,%autowidth.stretch]
 |===
-|`rs2` | `field`
+|`imm` | `field`
 |`0` | `x[rs1].valid`
 |`1` | `x[rs1].type`
 |`2` | `x[rs1].cursor`
@@ -220,7 +220,7 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -262,7 +262,7 @@ one with bounds `[x[rs1].base, x[rs2])` and the other with bounds `[x[rs2], x[rs
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -297,12 +297,12 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
     {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (Z)' },
+    {bits: 5, name: 'imm[4:0] (Z)' },
     {bits: 7, name: '0b0000010' }
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -310,14 +310,14 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 * `Unexpected capability type (26)`
 - `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
 * `Illegal operand value (29)`
-- `rs2 \<= 7` and `rs2 \<=p x[rs1].perms` does not hold.
+- `imm \<= 7` and `imm \<=p x[rs1].perms` does not hold.
 ****
 
 *If no exception is raised:*
 
 ====
-. If `rs2 > 7`, set `x[rs1].perms` to `0`.
-Otherwise, set `x[rs1].perms` to `rs2`.
+. If `imm > 7`, set `x[rs1].perms` to `0`.
+Otherwise, set `x[rs1].perms` to `imm`.
 . `MOVC rd, rs1`.
 ====
 
@@ -345,7 +345,7 @@ The DELIN instruction delinearises a linear capability.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -379,7 +379,7 @@ after its associated memory region has been fully initialised (written with new 
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -416,7 +416,7 @@ The SEAL instruction seals a linear capability.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -457,7 +457,7 @@ The DROP instruction invalidates a capability.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -493,7 +493,7 @@ The MREV instruction creates a revocation capability.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -529,7 +529,7 @@ The REVOKE instruction revokes a capability.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`

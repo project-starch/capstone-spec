@@ -49,7 +49,7 @@ The `size` used in this sections is the size (in bytes) of the integer being loa
 ****
 ====
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -239,7 +239,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`

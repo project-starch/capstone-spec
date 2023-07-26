@@ -2,13 +2,13 @@
 
 = Control Flow Instructions
 
-[#jmp-cap]
 == Jump to Capabilities
 
 The CJALR and CBNZ instructions allow jumping to a capability,
 i.e., setting the program counter to a given capability,
 in a unconditional or conditional manner.
 
+[#jmp-cap]
 === CJALR
 
 .CJALR instruction format
@@ -23,7 +23,7 @@ in a unconditional or conditional manner.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_pure}_
@@ -47,6 +47,7 @@ _{isa_var_hybrid}_
 . If `rs1 != rd` and `x[rs1].type != 1`, write `cnull` to `x[rs1]`.
 ====
 
+[#branch-cap]
 === CBNZ
 
 .CBNZ instruction format
@@ -61,7 +62,7 @@ _{isa_var_hybrid}_
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_pure}_
@@ -106,7 +107,7 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (Z)' },
+    {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: '*' },
@@ -114,7 +115,7 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_hybrid}_
@@ -160,7 +161,7 @@ and `cra.async` to `0` (synchronous).
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 _{isa_var_hybrid}_
@@ -229,12 +230,12 @@ the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 `[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
 ====
 
-[#world-switch]
 == A World Switching Extension for _{isa_var_hybrid}_
 
 In _{isa_var_hybrid}_, a pair of extra instructions, i.e., CAPENTER and CAPEXIT,
 is added to support switching between the _secure world_ and the _normal world_.
 
+[#world-enter]
 === CAPENTER
 
 The CAPENTER instruction causes an entry into the secure world from the normal world.
@@ -245,7 +246,7 @@ And it is only available in the normal world.
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (Z)' },
+    {bits: 5, name: 'rd (I)' },
     {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: '*' },
@@ -253,7 +254,7 @@ And it is only available in the normal world.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Illegal instruction (0)`
@@ -311,6 +312,7 @@ the CPU core exits from the secure world synchronously or asynchronously.
 ****
 ====
 
+[#world-exit]
 === CAPEXIT
 
 The CAPEXIT instruction causes an exit from the secure world into the normal world.
@@ -329,7 +331,7 @@ It is only available in the secure world and can only be used with an exit capab
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Illegal instruction (2)`

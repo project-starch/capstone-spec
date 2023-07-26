@@ -25,7 +25,7 @@ The LDC instruction loads a capability from the memory.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -76,7 +76,7 @@ The STC instruction stores a capability to the memory.
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -139,7 +139,7 @@ the LDC instruction loads a capability from the normal memory using raw addresse
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
@@ -178,7 +178,7 @@ the STC instruction stores a capability to the normal memory using raw addresses
 ]}
 ....
 
-*an exception is raised when any of the following conditions is met:*
+*An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
