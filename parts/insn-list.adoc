@@ -11,11 +11,11 @@ include::r-type-format.adoc[]
 .Instruction format: I-type
 include::i-type-format.adoc[]
 
-.Instruction format: CI-type
-include::ci-type-format.adoc[]
-
 .Instruction format: S-type
 include::s-type-format.adoc[]
+
+.Instruction format: CI-type
+include::ci-type-format.adoc[]
 
 .Capability manipulation instructions
 [%header%autowidth.stretch]
