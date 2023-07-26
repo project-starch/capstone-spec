@@ -3,20 +3,23 @@
 = Adjustments to Existing Instructions
 
 For most existing instructions in {base_isa_name}, the adjustments are straightforward.
-Their behaviour is unchanged, and an "`unexpected operand type (24)`" exception is raised if any of the operands
+Their behaviour is unchanged, and an `unexpected operand type (24)` exception is raised if any of the operands
 (i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) is a capability.
+
 Apart from this operand constraint, the following instructions in {base_isa_name} are adjusted in {proj_name}:
 
+****
 * For memory access instructions, they are extended to use capabilities as addresses for memory access.
 * For control flow instructions, they are slightly adjusted to support capability-aware control flow.
 * Certain instructions, especially those belonging to the privileged ISA, are illegal under certain circumstances.
+****
 
 [#load-store]
 == Memory Access Instructions
 
 In {base_isa_name}, memory access instructions include load instructions
-(i.e., `lb`, `lh`, `lw`, `lbu`, `lhu`, `lwu`, `ld`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`).
-In {base_isa_name}, these instructions take an integer as a raw address, and load or store a value from/to this address.
+(i.e., `lb`, `lh`, `ld`, `lw`, `lbu`, `lhu`, `lwu`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`).
+These instructions take an integer as a raw address, and load or store a value from/to this address.
 In {proj_name}, these instructions are extended to take a capability as an address.
 
 === _{isa_var_pure}_
@@ -26,11 +29,46 @@ In {proj_name}, these instructions are extended to take a capability as an addre
 In _{isa_var_pure}_, {base_isa_name} load instructions are modified to load integers of different
 sizes using capabilities.
 
-===== Signed Load Instructions
+.*Note: `size` of load instructions*
+[%collapsible]
+====
+****
+The `size` used in this sections is the size (in bytes) of the integer being loaded.
 
-`lb`, `lh`, `lw`, `ld` instructions are modified to load an integer in the size of byte, halfword, word, and doubleword
-(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes), using capabilities respectively.
-The loaded integer is sign-extended to the size of the destination register (i.e., `XLEN` bits).
+[%header,%autowidth.stretch]
+|===
+|Mnemonic | `size`
+|`lb` | `1`
+|`lbu` | `1`
+|`lh` | `2`
+|`lhu` | `2`
+|`lw` | `4`
+|`lwu` | `4`
+|`ld` | `8`
+|===
+****
+====
+
+*An exception is raised when any of the following conditions are met:*
+
+****
+* `Unexpected operand type (24)`
+- `x[rs1]` is not a capability.
+* `Invalid capability (25)`
+- `x[rs1].valid` is `0` (invalid).
+* `Unexpected capability type (26)`
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
+* `Insufficient capability permissions (27)`
+- `x[rs1].type` is `0` (linear) or 1 (non-linear) and `4 \<=p x[rs1].perms` does not hold.
+* `Capability out of bound (28)`
+- `x[rs1].type` is `0` (linear) or `1` (non-linear), and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base, x[rs1].end - size]`.
+- `x[rs1].type` is `5` (sealed-return) or `6` (exit), and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - size]`.
+* `Load address misaligned (4)`
+- `x[rs1].cursor + imm` is not aligned to `size` bytes.
+****
 
 .lb instruction format (I-type)
 [wavedrom,,svg]
@@ -80,32 +118,12 @@ The loaded integer is sign-extended to the size of the destination register (i.e
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
-
-* Unexpected operand type (24)
-- `x[rs1]` is not a capability.
-* Invalid capability (25)
-- `x[rs1].valid` is `0` (invalid).
-* Unexpected capability type (26)
-- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-* Insufficient capability permissions (27)
-- `4 \<=p x[rs1].perms` does not hold.
-* Capability out of bound (28)
-- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
-where `size` is the size (in bytes) of the integer being loaded.
-* Load address misaligned (4)
-- `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
-
 *If no exception is raised:*
-The content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` is loaded
-as a signed integer to `x[rd]`, where `size` is the size of the integer being loaded
-(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes for `lb`, `lh`, `lw`, and `ld` respectively).
 
-===== Unsigned Load Instructions
-
-`lbu`, `lhu`, `lwu` instructions are modified to load an integer in the size of byte, halfword, and word
-(i.e., `XLENBYTES/8`, `XLENBYTES/4`, and `XLENBYTES/2` bytes), using capabilities respectively.
-The loaded integer is zero-extended to the size of the destination register (i.e., `XLEN` bits).
+====
+* Load the content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`
+as a signed integer to `x[rd]`.
+====
 
 .lbu instruction format (I-type)
 [wavedrom,,svg]
@@ -143,31 +161,31 @@ The loaded integer is zero-extended to the size of the destination register (i.e
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
-
-* Unexpected operand type (24)
-- `x[rs1]` is not a capability.
-* Invalid capability (25)
-- `x[rs1].valid` is `0` (invalid).
-* Unexpected capability type (26)
-- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-* Insufficient capability permissions (27)
-- `4 \<=p x[rs1].perms` does not hold.
-* Capability out of bound (28)
-- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
-where `size` is the size (in bytes) of the integer being loaded.
-* Load address misaligned (4)
-- `x[rs1].cursor + imm` is not aligned to the size of the integer being loaded.
-
 *If no exception is raised:*
-The content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` is loaded
-as an unsigned integer to `x[rd]`, where `size` is the size of the integer being loaded
-(i.e., `XLENBYTES/8`, `XLENBYTES/4`, and `XLENBYTES/2` bytes for `lbu`, `lhu`, and `lwu` respectively).
+
+====
+* Load the content at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`
+as an unsigned integer to `x[rd]`.
+====
 
 ==== Store Instructions
 
-`sb`, `sh`, `sw`, `sd` instructions are modified to store an integer in the size of byte, halfword, word, and doubleword
-(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes), using capabilities respectively.
+.*Note: `size` of store instructions*
+[%collapsible]
+====
+****
+The `size` used in this sections is the size (in bytes) of the integer being stored.
+
+[%header,%autowidth.stretch]
+|===
+|Mnemonic | `size`
+|`sb` | `1`
+|`sh` | `2`
+|`sw` | `4`
+|`sd` | `8`
+|===
+****
+====
 
 .sb instruction format (S-type)
 [wavedrom,,svg]
@@ -223,61 +241,72 @@ as an unsigned integer to `x[rd]`, where `size` is the size of the integer being
 
 *An exception is raised when any of the following conditions are met:*
 
-* Unexpected operand type (24)
+****
+* `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
 - `x[rs2]` is not an integer.
-* Invalid capability (25)
+* `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
-* Unexpected capability type (26)
-- `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
-* Illegal operand value (29)
+* `Unexpected capability type (26)`
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
+* `Insufficient capability permissions (27)`
+// FIXME
+- `x[rs1].type` is `0` or `1`, and `2 \<=p x[rs1].perms` does not hold.
+* `Capability out of bound (28)`
+- `x[rs1].type` is `0`, `1`, or `3`, and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base, x[rs1].end - size]`.
+- `x[rs1].type` is `5` or `6`, and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - size]`.
+* `Illegal operand value (29)`
 - `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
-* Insufficient capability permissions (27)
-- `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
-* Capability out of bound (28)
-- `x[rs1].cursor + imm` is not in the range `[x[rs1].base, x[rs1].end - size]`,
-where `size` is the size (in bytes) of the integer being stored.
-* Store/AMO address misaligned (6)
-- `x[rs1].cursor + imm` is not aligned to the size of the integer being stored.
-
+* `Store/AMO address misaligned (6)`
+- `x[rs1].cursor + imm` is not aligned to `size` bytes.
+****
 
 *If no exception is raised:*
 
-. The content of `x[rs2]` is stored as an integer to the memory location
-`[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, where `size` is the size of the integer being stored
-(i.e., `XLENBYTES/8`, `XLENBYTES/4`, `XLENBYTES/2`, and `XLENBYTES` bytes for `sb`, `sh`, `sw`, and `sd` respectively).
-. If `x[rs1].type` is `3` (uninitialised), `x[rs1].cursor` is set to `x[rs1].cursor + size`.
-. The content in the `CLEN`-bit aligned memory location `[cbase, cend)`, which alias with memory location
-`[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set to integer type,
+====
+. Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` as an integer.
+. If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + size`.
+. The content in the `CLEN`-bit aligned memory location `[cbase, cend)`, which aliases with
+the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set to integer type,
 where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+====
 
 === _{isa_var_hybrid}_
 
-In _{isa_var_hybrid}_, {base_isa_name} memory access instructions behave the same as in _{isa_var_pure}_
-if `cwrld` is `1` (secure world). However, if `cwrld` is `0` (normal world), these instructions behave
-differently in different _encoding modes_.
+In _{isa_var_hybrid}_ secure world (i.e., `cwrld` is `1`),
+{base_isa_name} memory access instructions behave the same as in _{isa_var_pure}_.
 
+However, in _{isa_var_hybrid}_ normal world (i.e., `cwrld` is `0`),
+these instructions behave differently in different _encoding modes_.
+
+****
 * When `cwrld` is `0` (normal world) and `emode` is `1` (capability encoding mode), these instructions
 behave the same as in _{isa_var_pure}_.
 * When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
 behave the same as in {base_isa_name} except that the following adjustments are made to these instructions:
-- An "`Unexpected operand type (24)`" exception is raised
-if any of `x[rs1]`, `x[rs2]` and `x[rd]` contains a capability.
-- An "`Capability out of bound (28)`" exception is raised
-if the address to be accessed (i.e., `x[rs1] + imm`) is within
-the range `(SBASE - size, SEND)`, where `size` is the size (in bytes) of the integer to be loaded/stored.
+- An `Unexpected operand type (24)` exception is raised if any of the operands
+(i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) contains a capability.
+- An `Load access fault (5)` (for load) or `Store/AMO access fault(7)` (for store) exception is raised
+if the address to be accessed (i.e., `x[rs1] + imm`) is within the range `(SBASE - size, SEND)`.
 - For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLEN`-bit aligned memory location
-`[cbase, cend)`, which alias with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
+`[cbase, cend)`, which aliases with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
 is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
-
-.Note
 ****
-In {isa_name}, when using these instructions to access the memory location that does not contain an integer-type value,
-the result of the following operations is undefined:
+
+.*Note: undefined behaviour*
+[%collapsible]
+====
+****
+In {proj_name}, when using these instructions to access the memory location that does not contain an integer-type value,
+the results of the following operations are _undefined_:
 
 * Load an integer from the memory location.
 * Store an integer to the memory location and then load an integer from the rest of the `CLEN`-bit aligned memory location.
 ****
+====
 
 == Control Flow Instructions
 

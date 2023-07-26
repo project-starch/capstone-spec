@@ -72,15 +72,21 @@ protect the confidentiality of the secure world execution.
 For _{isa_var_pure}_ and the secure world in _{isa_var_hybrid}_, the exception-related
 data is stored in the `tval` CSR, similar to {base_isa_name}. The exception handler
 can use the value to decide how to handle the exception.
-However, such data is available *only* for in-domain exception handling, where the
+However, such data is available _only_ for in-domain exception handling, where the
 exception handling process does not involve a domain switch.
 
+.*Note: `tval` is only available in in-domain exception handling*
+[%collapsible]
+====
+****
 For exception handling that crosses domain (i.e., when `ceh` is a valid sealed capability)
 or world boundaries (i.e., when the normal world ends up handling the exception),
 the exception data (i.e., the data in `tval`) is not available.
 This is to protect the confidentiality of domain execution.
 Note that this design does not stop the excepted domain from selectively
 trusting a different domain with such data.
+****
+====
 
 For exceptions defined in {base_isa_name}, the same data as in it is written to `tval`.
 For the added exceptions, the following data is written to `tval`:
@@ -279,6 +285,8 @@ or otherwise prevent the excepted code from accessing it.
 === Panic
 
 When a CPU core is unable to handle an exception, it enters a state called _panic_.
+
+****
 The actual behaviour of the CPU core in this state is implementation-defined, but must
 be one of the following:
 
@@ -287,6 +295,7 @@ be one of the following:
 * Scrub all general-purpose registers, and then load a capability that is not otherwise
 available into `pc`, and a set of capabilities that are not otherwise available into
 general-purpose registers.
+****
 
 The aim of the constraints above is to uphold the invariants of the capability model and
 in turn the security guarantees of the system.

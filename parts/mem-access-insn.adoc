@@ -85,7 +85,7 @@ The STC instruction stores a capability to the memory.
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is `2` (revocation) or `4` (sealed).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised), `5` (sealed-return), or `6` (exit).
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
 // FIXME
