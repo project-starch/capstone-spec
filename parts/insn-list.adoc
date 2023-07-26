@@ -67,9 +67,9 @@ include::s-type-format.adoc[]
 | |I |- |`011` | - | C | - | C | S | S | T
 | |I |- |`011` | - | C | - | C | S | - | P
 |link:#load-store-cap[STC] |S |`0` |`100` | - | I | C | - | S | N | T
-| |I |`1` |`100` | - | C | C | - | S | N | T
-| |I |- |`100` | - | C | C | - | S | S | T
-| |I |- |`100` | - | C | C | - | S | - | P
+| |S |`1` |`100` | - | C | C | - | S | N | T
+| |S |- |`100` | - | C | C | - | S | S | T
+| |S |- |`100` | - | C | C | - | S | - | P
 |===
 
 .Control flow instructions

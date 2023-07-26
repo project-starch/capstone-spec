@@ -21,6 +21,7 @@ mitigations to security vulnerabilities. This goal requires a high level
 of flexibility and extensibility of the {proj_name} architecture.
 More specifically, we aim to support the following in a unified manner.
 
+____
 Exclusive access:: Software should be guaranteed exclusive access to
     certain memory regions if needed. This is in spite of the existence
     of software traditionally entitled to higher privileges such as the
@@ -41,6 +42,7 @@ Dynamically extensible hierarchy:: The hierarchy of authority should
 Safe context switching:: A mechanism of context switching without trusting
 any other software component should be provided. This allows for
 a minimal TCB if necessary in case of a highly security-critical application.
+____
 
 == Major Design Elements
 
@@ -50,6 +52,7 @@ memory accesses and control flow transfers.
 {proj_name} extends the traditional capability model with new capability
 types including the following.
 
+____
 Linear capabilities:: Linear capabilities are guaranteed not to
     alias with other capabilities. Operations on linear capabilities
     maintain this property. For example, linear capabilities cannot
@@ -71,12 +74,13 @@ Uninitialised capabilities::
     overwritten with fresh data. Uninitialised capabilities enable
     safe initialisation of memory regions and prevent secret leakage without
     incurring extra performance overhead.
+____
 
 == {isa_name} ISA Overview
 
 While {proj_name} does not assume any specific modern ISA, we choose to propose
 a {proj_name} extension to RISC-V due to its open nature and the availability
-of toolchains and simulators. 
+of toolchains and simulators.
 
 The {isa_name} ISA is an {base_isa_name} extension that makes the following
 types of changes to the base architecture:
@@ -86,7 +90,7 @@ types of changes to the base architecture:
 * New instructions for memory accesses using capabilities are added.
 * New instructions for control flow transfers using capabilities are added.
 * New instructions for machine state control are added.
-* Semantics of a small number of existing instructions are changed to support capabilities.
+* Semantics of some existing instructions are changed to support capabilities.
 * Semantics of interrupts and exceptions are changed to support capabilities.
 
 == {proj_name} Variants
@@ -100,26 +104,20 @@ from existing architectures to {proj_name}.
 
 The following types of changes are made to _{isa_var_pure}_ to obtain _{isa_var_hybrid}_:
 
-* The physical memory is partitioned into link:#mem-extension[two disjoint regions],
+****
+* The physical memory is partitioned into two disjoint regions,
 one exclusively for accesses through capabilities and the other exclusively for accesses
 through the virtual memory.
-* Software components are allowed to run in either of the 2 _worlds_, i.e., the _normal world_
+* Software components are allowed to run in either of the two _worlds_, i.e., the _normal world_
 and the _secure world_.
-** The _normal world_ follows the traditional privilege levels, allows both capability-based accesses
+- The _normal world_ follows the traditional privilege levels, allows both capability-based accesses
 and virtual memory accesses, and is therefore compatible with existing softwares.
-** The _secure world_ follows the _{isa_var_pure}_ design, limits memory accesses to capability-based accesses
+- The _secure world_ follows the _{isa_var_pure}_ design, limits memory accesses to capability-based accesses
 and provides the security guarantees of {proj_name}.
-* A link:#world-switch[world switching mechanism] is added to support the secure switching between the 2 _worlds_.
-* Semantics of a small number of _{isa_var_pure}_ instructions are changed to support the _normal world_ and the _secure world_.
-* Semantics of interrupts and exceptions are extended to support the _normal world_ and the _secure world_.
-
-.Memory Accesses in _{isa_var_hybrid}_
-[%header%autowidth.stretch]
-|===
-| World | MMU | Capabilities
-| _Normal World_ | Yes | Yes
-| _Secure World_ | - | Yes
-|===
+* A world switching mechanism is added to support the secure switching between the two worlds.
+* Semantics of some _{isa_var_pure}_ instructions are changed to support the two worlds separately.
+* Semantics of interrupts and exceptions are extended to support the two worlds separately.
+****
 
 == Assembly Mnemonics
 
