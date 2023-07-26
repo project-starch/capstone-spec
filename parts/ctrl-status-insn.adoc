@@ -1,0 +1,41 @@
+:reproducible:
+
+[#ctrl-status]
+= Control and Status Instructions
+
+The CCSRRW instruction is used to read and write specified
+_link:#add-reg-list[capability control and status registers]_ (CCSRs).
+
+.CCSRRW instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b111' },
+    {bits: 5, name: 'rs1 (C)' },
+    {bits: 12, name: 'imm[11:0] (Z)' }
+]}
+....
+
+*An exception is raised when any of the following conditions are met:*
+
+****
+- `Unexpected operand type (24)`
+* `x[rs1]` is not a capability.
+- `Illegal operand value (29)`
+* `imm` does not correspond to the encoding of a valid CCSR.
+****
+
+*If no exception is raised:*
+
+====
+. If the link:#ccsr-man-constr[read constraint] is satisfied
+- The content of the CCSR specified by `imm` is written to `x[rd]`.
+- If `x[rd].type` is not `1` (non-linear), write `cnull` to the CCSR specified by `imm`.
+. Otherwise, write `cnull` to `x[rd]`.
+. If the link:#ccsr-man-constr[write constraint] is satisfied
+- Write `x[rs1]` to the CCSR specified by `imm`.
+- If `x[rs1].type` is not `1` (non-linear), write `cnull` to `x[rs1]`.
+. Otherwise, preserve the current content of the CCSR specified by `imm`.
+====
