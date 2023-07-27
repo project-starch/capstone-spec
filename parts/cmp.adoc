@@ -30,7 +30,7 @@ in the following table.
 .Correspondence between {isa_name}, {cheri_isa_name}, and {cheriot_isa_name} instructions
 [%header,%autowidth.stretch]
 |===
-|{cheri_isa_name} instruction(s) |{isa_name} instruction(s) | {cheriot_isa_name} instruction(s)
+|{isa_name} instruction(s) |{cheri_isa_name} instruction(s) | {cheriot_isa_name} instruction(s)
 |DROP | CClearTag | CClearTag
 |CJALR | CJALR | CJALR
 |CALL | CInvoke | -
@@ -42,12 +42,10 @@ in the following table.
 |TIGHTEN | CAndPerm | CAndPerm
 |SHRINK | CSetBounds, CSetBoundsExact | CSetBounds, CSetBoundsExact
 |MOVC | CMove | CMove
-|LDC  | LC.CAP, CLC | CLC
-|STC  | SC.CAP, CSC | CSC
-|LD[BHWD] | L[BHWD][U].CAP | L[BHWD][U]
-|ST[BHWD] | S[BHWD][U].CAP | S[BHWD][U]
-|LDCR | LC.DDC, CLC | -
-|STCR | SC.DDC, CSC | -
+|LDC  | LC.CAP, LC.DDC, CLC | CLC
+|STC  | SC.CAP, LC.DDC, CSC | CSC
+|L[BHWD] | L[BHWD][U].CAP | L[BHWD][U]
+|S[BHWD] | S[BHWD][U].CAP | S[BHWD][U]
 |CCSRRW | CSpecialRW | CSpecialRW
 |===
 
@@ -75,7 +73,7 @@ execution contexts, and hence lacks the relevant instructions.
 
 While {isa_name} and {cheri_isa_name} both have
 hybrid mode support, they adopt different models,
-with {isa_name} (more specifically, {isa_var_hybrid})
+with {isa_name} (more specifically, _{isa_var_hybrid}_)
 using a two-world model that aligns with its high-level
 goal of isolating pure capability code from privileged
 legacy code.
