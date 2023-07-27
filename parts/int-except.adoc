@@ -207,7 +207,7 @@ disabled globally.
 ====
 . Swap `pc` with the content at the memory location `[cih.base, cih.base + CLENBYTES)`.
 . Swap `ceh` with the content at the memory location `[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at memory location
+. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at memory location
 `[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
 . Set `cih.type` to `5` (sealed-return), `cih.cursor` to `cih.base`, `cih.reg` to `0`, and `cih.async` to `2` (upon interrupt).
 . Write `cih` to the register `cra`, and `cnull` to the register `cih`.
@@ -251,7 +251,7 @@ linear (`type != 0`), or non-linear capability (`type != 1`).
 
 ====
 . Swap `pc` with the content at the memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the memory location
+. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
 `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
 . Set `ceh.type` to `5` (sealed-return), `ceh.cursor` to `ceh.base`, `ceh.reg` to `0`, and `ceh.async` to `1` (upon exception).
 . Write `ceh` to the register `cra`, and `cnull` to the register `ceh`.
@@ -410,7 +410,7 @@ and exits to the normal world with a proper error code.
 
 ====
 . Swap `pc` with the content at memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the
+. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the
 memory location `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
 . Set the `ceh.type` to `5` (sealed-return), `ceh.cursor` to `ceh.base`, and `ceh.async` to `1` (upon exception).
 . Write `ceh` to the register `cra`, and `cnull` to the register `ceh`.

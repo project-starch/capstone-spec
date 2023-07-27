@@ -394,8 +394,8 @@ after its associated memory region has been fully initialised (written with new 
 *If no exception is raised:* 
 
 ====
-. Set `x[rs1].type` to `0` (linear), and `x[rs1].cursor` to `x[rs2]`.
 . `MOVC rd, rs1`.
+. Set `x[rd].type` to `0` (linear), and `x[rd].cursor` to `x[rs2]`.
 ====
 
 [#seal]
@@ -435,8 +435,8 @@ The SEAL instruction seals a linear capability.
 *If no exception is raised:* 
 
 ====
-. Set `x[rs1].type` to `2` (sealed), and `x[rs1].async` to `0` (synchronous).
 . `MOVC rd, rs1`.
+. Set `x[rd].type` to `2` (sealed), and `x[rd].async` to `0` (synchronous).
 ====
 
 [#drop]
@@ -543,7 +543,7 @@ The REVOKE instruction revokes a capability.
 *If no exception is raised:*
 
 ====
-. For any capability `c` in the system (in either a register or
+. For each capability `c` in the system (in either a register or
 memory location), `c.valid` is set to `0` (invalid)
 if any of the following conditions are met:
 
@@ -552,7 +552,7 @@ and `c` <<alias-definition,aliases>> with `x[rs1]`.
 * `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <<smaller-t-definition,<t>> c`.
 
 . `x[rs1].type` is set to `0` (linear)
-if, for any invalidated capability `c`, at least one of the following
+if, for every invalidated capability `c`, at least one of the following
 conditions are met:
 
 * The type of `c` is non-linear (i.e., `c.type` is `1`).

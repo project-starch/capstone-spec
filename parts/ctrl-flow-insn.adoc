@@ -213,7 +213,7 @@ the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 . Store `ceh` to the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
 . Set `x[rs1].type` to `4` (sealed), `x[rs1].async` to `0` (synchronous).
 . Write the resulting `x[rs1]` to `ceh`, and `cnull` to `x[rs1]`.
-. For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the memory location
+. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
 `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
 ====
 
@@ -226,7 +226,7 @@ the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
 . Set `x[rs1].type` to `4` (sealed), `x[rs1].async` to `0` (synchronous).
 . Write the resulting `x[rs1]` to `cih`, and `cnull` to `x[rs1]`.
-. For `i = 1, 2, ..., 31`, Swap `x[i]` with the content at the memory location
+. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
 `[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
 ====
 
