@@ -216,11 +216,11 @@ The following changes are made to the program counter (`pc`):
 * _{isa_var_hybrid}_: similar to the general-purpose registers,
 the program counter (`pc`) is extended to contain a capability or an integer.
 
-.*Note: what is `cwld`*
+.*Note: what is `cwrld`*
 [%collapsible]
 ====
 ****
-`cwld` is a special register added in _{isa_var_hybrid}_ that indicates the currently executed world.
+`cwrld` is a special register added in _{isa_var_hybrid}_ that indicates the currently executed world.
 Please see <<additional-regs,Added Registers>> for details.
 ****
 ====
@@ -250,12 +250,12 @@ _{isa_var_hybrid}_
 *If no exception is raised:*
 
 ====
-_{isa_var_pure}_ or _{isa_var_hybrid}_ secure world (i.e., `cwld = 1`)
+_{isa_var_pure}_ or _{isa_var_hybrid}_ secure world (i.e., `cwrld = 1`)
 
 . The instruction pointed to by `pc.cursor` is fetched and executed.
 . Set `pc.cursor` to `pc.cursor + 4` at the end of the instruction.
 
-_{isa_var_hybrid}_ normal world (i.e., `cwld = 0`)
+_{isa_var_hybrid}_ normal world (i.e., `cwrld = 0`)
 
 . The instruction pointed to by `pc` is fetched and executed.
 . Set `pc` to `pc + 4` at the end of the instruction.

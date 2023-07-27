@@ -73,14 +73,14 @@ capability by a give amount (offset).
 - `x[rs1]` is not a capability.
 - `x[rs2]` is not an integer.
 * `Unexpected capability type (26)`
-- `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+- `x[rs1]` has `type = 3` (uninitialised) or `type = 4` (sealed).
 ****
 
 *If no exception is raised:*
 
 ====
-. Set `x[rs1].cursor` to `x[rs1].cursor + x[rs2]`.
 . `MOVC rd, rs1`
+. Set `x[rd].cursor` to `x[rd].cursor + x[rs2]`.
 ====
 
 ==== CINCOFFSETIMM
@@ -103,14 +103,14 @@ capability by a give amount (offset).
 * `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
 * `Unexpected capability type (26)`
-- `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+- `x[rs1]` has `type = 3` (uninitialised) or `type = 4` (sealed).
 ****
 
 *If no exception is raised:*
 
 ====
-. Set `x[rs1].cursor` to `x[rs1].cursor + imm`.
 . `MOVC rd, rs1`
+. Set `x[rd].cursor` to `x[rd].cursor + imm`.
 ====
 
 [#cursor-set]
@@ -138,14 +138,14 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 - `x[rs1]` is not a capability.
 - `x[rs2]` is not an integer.
 * `Unexpected capability type (26)`
-- `x[rs1]` does not have `type = 0` (linear) or `type = 1` (non-linear).
+- `x[rs1]` has `type = 3` (uninitialised) or `type = 4` (sealed).
 ****
 
 *If no exception is raised:*
 
 ====
-. Set `x[rs1].cursor` to `x[rs2]`.
 . `MOVC rd, rs1`
+. Set `x[rd].cursor` to `x[rs2]`.
 ====
 
 [#field-query]
@@ -316,9 +316,9 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 *If no exception is raised:*
 
 ====
-. If `imm > 7`, set `x[rs1].perms` to `0`.
-Otherwise, set `x[rs1].perms` to `imm`.
 . `MOVC rd, rs1`.
+. If `imm > 7`, set `x[rd].perms` to `0`.
+Otherwise, set `x[rd].perms` to `imm`.
 ====
 
 == Type Manipulation
