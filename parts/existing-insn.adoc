@@ -459,8 +459,8 @@ These instructions are:
 * All instructions defined in the privileged ISA of {base_isa_name}.
 * All instructions defined in the {base_isa_csr_ext} extension, namely
 instructions that directly access CSRs, when the CSR specified is not
-link:#additional-regs[one defined in {isa_name}],
-or when the link:#csr-man-constr[read/write constraints] are not satisfied.
+<<additional-regs,one defined in {isa_name}>>,
+or when the <<csr-man-constr,read/write constraints>> are not satisfied.
 * `ecall`.
 * `ebreak`.
 ****

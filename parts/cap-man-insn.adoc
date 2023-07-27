@@ -184,7 +184,7 @@ The LCC instruction is used to read a field from a capability.
 ====
 * If `imm > 7`, write `zero` to `x[rd]`
 * Otherwise, write `field` to `x[rd]`
-according to the link:#lcc-multiplex[LCC multiplexing table].
+according to the <<lcc-multiplex,LCC multiplexing table>>.
 ====
 
 [#lcc-multiplex]
@@ -548,8 +548,8 @@ memory location), `c.valid` is set to `0` (invalid)
 if any of the following conditions are met:
 
 * `c.type` is not `2` (revocation), `c.valid` is `1` (valid),
-and `c` link:#alias-definition[aliases] with `x[rs1]`.
-* `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] link:#smaller-t-definition[<t] c`.
+and `c` <<alias-definition,aliases>> with `x[rs1]`.
+* `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <<smaller-t-definition,<t>> c`.
 
 . `x[rs1].type` is set to `0` (linear)
 if, for any invalidated capability `c`, at least one of the following

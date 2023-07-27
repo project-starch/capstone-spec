@@ -79,8 +79,8 @@ the order of their creations is well-defined.
 [%collapsible]
 ====
 ****
-The `valid` field is involved in link:#revocation[revocation],
-where it might be changed due to a link:#rev-operation[revocation operation]
+The `valid` field is involved in <<revocation,revocation>>,
+where it might be changed due to a <<rev-operation,revocation operation>>
 on a different capability.
 A performant implementation, therefore, may prefer not to maintain
 the `valid` field inline with the other fields.
@@ -221,7 +221,7 @@ the program counter (`pc`) is extended to contain a capability or an integer.
 ====
 ****
 `cwld` is a special register added in _{isa_var_hybrid}_ that indicates the currently executed world.
-Please see link:#additional-regs[Added Registers] for details.
+Please see <<additional-regs,Added Registers>> for details.
 ****
 ====
 
@@ -305,7 +305,7 @@ The {isa_name} ISA adds the following registers.
 Some of the registers only allow capability values and have special semantics
 related to the system-wide machine state. They are referred to as
 _capability control and status registers_ (CCSRs). Under their respective constraints,
-CCSRs can be manipulated using _link:#ctrl-status[control and status instructions]_.
+CCSRs can be manipulated using _<<ctrl-status,control and status instructions>>_.
 
 The manipulation constraints for each CCSR are indicated below.
 
@@ -355,8 +355,8 @@ To prevent any domain from setting `cih`, we require the original content of
 ====
 ****
 `cinit` is a CCSR that is used to
-bootstrap capabilities after a link:#reset[system reset].
-link:#ctrl-status[control and status instructions] can be used to read the initial
+bootstrap capabilities after a <<reset,system reset>>.
+<<ctrl-status,control and status instructions>> can be used to read the initial
 capability in `cinit` and write it to a general-purpose register.
 This operation can only be performed once after each reset.
 Any attempt to write `cinit` will be silently ignored,

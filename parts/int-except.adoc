@@ -269,7 +269,7 @@ If `ceh.type != 1`, write `cnull` to `ceh`.
 . Write extra exception data to `tval`.
 ====
 
-*Otherwise, the CPU core enters the state of _link:#panic[panic]_.*
+*Otherwise, the CPU core enters the state of _<<panic,panic>>_.*
 
 .*Note: sealing mechanism of in-domain exception handling*
 [%collapsible]
@@ -290,7 +290,7 @@ When a CPU core is unable to handle an exception, it enters a state called _pani
 The actual behaviour of the CPU core in this state is implementation-defined, but must
 be one of the following:
 
-* link:#reset[Reset].
+* <<reset,Reset>>.
 * Enter an infinite loop.
 * Scrub all general-purpose registers, and then load a capability that is not otherwise
 available into `pc`, and a set of capabilities that are not otherwise available into
@@ -339,7 +339,7 @@ normal world will not be involved. The end result is that the whole
 exception or its handling is not even visible to the normal world.
 
 If the secure world fails to handle an exception (i.e., when
-it would end up link:#panic[panicking] in the case of _{isa_var_pure}_, such as when
+it would end up <<panic,panicking>> in the case of _{isa_var_pure}_, such as when
 `ceh` is not a valid sealed capability), however,
 the normal world will take over.
 
@@ -470,7 +470,7 @@ to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base 
 [%collapsible]
 ====
 ****
-Compare this with link:#world-switch[CAPEXIT]. We require that CAPEXIT be provided
+Compare this with <<world-switch,CAPEXIT>>. We require that CAPEXIT be provided
 with a valid sealed-return capability rather than use the latent capability in
 `switch_cap`. This allows us to enforce containment of domains in the secure world, so
 that a domain is prevented from escaping
