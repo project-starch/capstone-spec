@@ -261,6 +261,7 @@ _{isa_var_hybrid}_ normal world (i.e., `cwld = 0`)
 . Set `pc` to `pc + 4` at the end of the instruction.
 ====
 
+[#additional-regs]
 == Added Registers
 
 The {isa_name} ISA adds the following registers.

@@ -470,7 +470,7 @@ to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base 
 [%collapsible]
 ====
 ****
-Compare this with <<world-switch,CAPEXIT>>. We require that CAPEXIT be provided
+Compare this with <<world-exit,CAPEXIT>>. We require that CAPEXIT be provided
 with a valid sealed-return capability rather than use the latent capability in
 `switch_cap`. This allows us to enforce containment of domains in the secure world, so
 that a domain is prevented from escaping

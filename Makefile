@@ -20,11 +20,11 @@ endif
 
 $(OUTPUT_PDF): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
-	$(CONTAINER_IMG) -r asciidoctor-pdf -r asciidoctor-diagram -b pdf -o $@ $<
+	$(CONTAINER_IMG) -v -a attribute-missing=warn --failure-level=WARN -r asciidoctor-pdf -r asciidoctor-diagram -b pdf -o $@ $<
 
 $(OUTPUT_HTML): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG)
 	mkdir -p $(OUTPUT_DIR)
-	$(CONTAINER_IMG) -r asciidoctor-diagram -b html5 -o $@ $<
+	$(CONTAINER_IMG) -v -a attribute-missing=warn --failure-level=WARN -r asciidoctor-diagram -b html5 -o $@ $<
 
 clean:
 	rm -rf $(OUTPUT_DIR)
