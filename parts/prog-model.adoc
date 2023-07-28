@@ -278,10 +278,10 @@ The {isa_name} ISA adds the following registers.
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
 ! `cih`  ! `0x001` ! - ! The sealed capability for the interrupt handler
 ! `cinit` ! `0x002` ! - ! The initial capability covering the entire address space of the memory
+! `epc` ! `0x003` ! - ! The exception program counter register
 ! `cis` ! - ! `0x800` ! The interrupt status register
 ! `tval` ! - ! `0x801` ! The exception data (trap value) register
 ! `cause` ! - ! `0x802` ! The exception cause register
-! `epc` ! - ! `0x803` ! The exception program counter register
 !===
 
 |_{isa_var_hybrid}_|
@@ -290,15 +290,15 @@ The {isa_name} ISA adds the following registers.
 ! Mnemonic ! CCSR encoding ! CSR encoding ! Description
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
 ! `cinit` ! `0x002` ! - ! The initial capability covering the entire address space of the secure memory
+! `epc` ! `0x003` ! - ! The exception program counter register
 ! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
 ! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
 ! `normal_sp`!-!-!The stack pointer for the normal world before the secure world is entered
 ! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
-! `switch_cap`! `0x003` !-! The capability used to store contexts when switching worlds asynchronously
+! `switch_cap`! `0x004` !-! The capability used to store contexts when switching worlds asynchronously
 ! `exit_reg`!-!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
 ! `tval` ! - ! `0x801` ! The exception data (trap value) register
 ! `cause` ! - ! `0x802` ! The exception cause register
-! `epc` ! - ! `0x803` ! The exception program counter register
 ! `emode` ! - ! `0x804` ! The encoding mode of the machine. `0` = integer encoding mode, `1` = capability encoding mode
 !===
 |===
