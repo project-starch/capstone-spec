@@ -280,8 +280,8 @@ one with bounds `[x[rs1].base, x[rs2])` and the other with bounds `[x[rs2], x[rs
 
 ====
 . Write `x[rs1]` to `x[rd]`.
-. Set `x[rs1].end` to `x[rs2]`.
-. Set `x[rd].base` to `x[rs2]`.
+. Set `x[rs1].end` to `x[rs2]`, `x[rs1].cursor` to `x[rs1].base`.
+. Set `x[rd].base` to `x[rs2]`, `x[rd].cursor` to `x[rs2]`.
 ====
 
 [#tighten]
@@ -462,8 +462,6 @@ The DROP instruction invalidates a capability.
 ****
 * `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
-* `Invalid capability (25)`
-- `x[rs1].valid` is `0` (invalid).
 ****
 
 *If no exception is raised:*

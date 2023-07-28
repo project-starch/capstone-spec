@@ -277,10 +277,9 @@ And it is only available in the normal world.
 // Ideally, we should check whether the memory content is a linear capability before zeroing it.
 // However, the cost of doing so is too high.
 // Instead, we zero the memory content unconditionally.
-. Write `cnull` to `pc`, `csp` and `ceh`.
-. Swap the program counter (`pc`) with the content at the memory location `[cra.base, cra.base + CLENBYTES)`.
-. Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
-. Swap `csp` with the content at the memory location `[cra.base + 2 * CLENBYTES, cra.base + 3 * CLENBYTES)`.
+. Load the program counter (`pc`) from the memory location `[cra.base, cra.base + CLENBYTES)`.
+. Load `ceh` from the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
+. Load `csp` from the memory location `[cra.base + 2 * CLENBYTES, cra.base + 3 * CLENBYTES)`.
 . Set `cra.type` to `6` (exit), `cra.cursor` to `cra.base`.
 . Write `rs1` to `switch_reg`, `rd` to `exit_reg`.
 . Set `cwrld` to `1` (secure world).
@@ -291,11 +290,10 @@ And it is only available in the normal world.
 ====
 . Write `x[rs1]` to `switch_cap`, and `cnull` to `x[rs1]`.
 . Write `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Write `cnull` to `pc` and `ceh`.
-. Swap the program counter (`pc`) with the content at the memory location `[cra.base, cra.base + CLENBYTES)`.
-. Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
+. Load the program counter (`pc`) from the memory location `[cra.base, cra.base + CLENBYTES)`.
+. Load `ceh` from the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, write `zero` to `x[i]`, and then
-swap `x[i]` with the content at the memory location
+load `x[i]` from the memory location
 `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 // Keep the type of switch_cap unchanged (i.e., sealed) for compatibility.
 . Set `switch_cap.async` to `0` (synchronous).
@@ -354,7 +352,6 @@ to the memory location `[cap.base, cap.base + CLENBYTES)`,
 `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)`, and
 `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)` respectively.
 . Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
-. Write `cnull` to `ceh`.
 . Set `cap.type` to `4` (sealed), `cap.async`
 to `0` (synchronous), and write the resulting `cap` to `x[switch_reg]`.
 . Set `x[exit_reg]` to `0` (normal exit).

@@ -126,6 +126,8 @@ from/to the normal memory using raw addresses.
 
 When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
 the LDC instruction loads a capability from the normal memory using raw addresses.
+The raw addresses are interpreted as physical addresses or virtual addresses
+depending on the whether virtual memory is enabled.
 
 .LDC instruction format
 [wavedrom,,svg]
