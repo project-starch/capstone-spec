@@ -111,7 +111,7 @@ through the virtual memory.
 * Software components are allowed to run in either of the two _worlds_, i.e., the _normal world_
 and the _secure world_.
 - The _normal world_ follows the traditional privilege levels, allows both capability-based accesses
-and virtual memory accesses, and is therefore compatible with existing softwares.
+and virtual memory accesses, and is therefore compatible with existing software.
 - The _secure world_ follows the _{isa_var_pure}_ design, limits memory accesses to capability-based accesses
 and provides the security guarantees of {proj_name}.
 * A world switching mechanism is added to support the secure switching between the two worlds.

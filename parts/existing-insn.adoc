@@ -300,11 +300,10 @@ is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `c
 [%collapsible]
 ====
 ****
-In {proj_name}, when using these instructions to access the memory location that does not contain an integer-type value,
-the results of the following operations are _undefined_:
+The following load results are _undefined_:
 
-* Load an integer from the memory location.
-* Store an integer to the memory location and then load an integer from the rest of the `CLENBYTES`-byte aligned memory location.
+* Load an integer from a memory location when the last capability store to its `CLENBYTES`-byte aligned memory location is
+more recent than the last integer store to the memory location itself.
 ****
 ====
 
