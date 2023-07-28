@@ -65,7 +65,7 @@ The `size` used in this sections is the size (in bytes) of the integer being loa
 - `x[rs1].type` is `0` (linear) or `1` (non-linear), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - size]`.
 - `x[rs1].type` is `5` (sealed-return) or `6` (exit), and `x[rs1].cursor + imm` is
-not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - size]`.
+not in the range `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - size]`.
 * `Load address misaligned (4)`
 - `x[rs1].cursor + imm` is not aligned to `size` bytes.
 ****
@@ -257,7 +257,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 - `x[rs1].type` is `0`, `1`, or `3`, and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - size]`.
 - `x[rs1].type` is `5` or `6`, and `x[rs1].cursor + imm` is
-not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - size]`.
+not in the range `[x[rs1].base + 2 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - size]`.
 * `Illegal operand value (29)`
 - `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
 * `Store/AMO address misaligned (6)`

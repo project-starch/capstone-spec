@@ -43,7 +43,7 @@ _{isa_var_hybrid}_
 
 ====
 . Set `pc.cursor` to `pc.cursor + 4`, and `x[rs1].cursor` to `x[rs1].cursor + imm`.
-. Write `x[rs1]` to `pc`, and `pc` to `x[rd]`.
+. Write `pc` to `x[rd]`, and `x[rs1]` to `pc`.
 . If `rs1 != rd` and `x[rs1].type != 1`, write `cnull` to `x[rs1]`.
 ====
 
@@ -86,8 +86,8 @@ _{isa_var_hybrid}_
 ====
 * If `x[rs1]` is `0`, the instruction is a no-op.
 * Otherwise
-. Set `x[rd].cursor` to `x[rd].cursor + imm`.
 . Write `x[rd]` to `pc`.
+. Set `pc.cursor` to `pc.cursor + imm`.
 . If `x[rd].type != 1`, write `cnull` to `x[rd]`.
 ====
 
@@ -186,7 +186,7 @@ _{isa_var_pure}_ or _{isa_var_hybrid}_
 
 ====
 . Set `pc.cursor` to `x[rs2]`.
-. Write `epc` to `pc`, and `pc` to `ceh`.
+. Write `pc` to `ceh`, and `epc` to `pc`.
 . If `epc.type != 1`, write `cnull` to `epc`.
 ====
 
