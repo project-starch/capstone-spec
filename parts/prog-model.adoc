@@ -139,8 +139,8 @@ where `size` is the size of the memory access in bytes.
 [%header%autowidth.stretch]
 |===
 | Capability type | `async` | Read | Write | Execute
-| Sealed-return | `0` | `cursor in [base + 2 * CLENBYTES, base + 33 * CLENBYTES - size]` | `cursor in [base + 2 * CLENBYTES, base + 33 * CLENBYTES - size]` | No
-| Exit | - | `cursor in [base + 2 * CLENBYTES, base + 33 * CLENBYTES - size]` | `cursor in [base + 2 * CLENBYTES, base + 33 * CLENBYTES - size]` | No
+| Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | No
+| Exit | - | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | No
 |===
 
 In other scenarios and for other capability types without the `perms` field, no read/write/execute
