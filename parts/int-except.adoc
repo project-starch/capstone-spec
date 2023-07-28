@@ -373,7 +373,7 @@ to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base 
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
 // in case that switch_reg is sp
-. Set `switch_cap.aync` to `2` (upon interrupt).
+. Set `switch_cap.async` to `2` (upon interrupt).
 . Write `switch_cap` to the register `x[switch_reg]`, and `cnull` to `switch_cap`.
 . Scrub the other general-purpose registers
 (i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).
