@@ -318,6 +318,7 @@ The manipulation constraints for each CCSR are indicated below.
 |`ceh` | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
 |`cih` | - | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world; the original content must not be a capability
 |`cinit` | _{isa_var_pure}_ or _{isa_var_hybrid}_ normal world; one-time only | -
+|`epc` | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
 |`switch_cap` | _{isa_var_hybrid}_ normal world | _{isa_var_hybrid}_ normal world
 |===
 
