@@ -292,7 +292,7 @@ And it is only available in the normal world.
 . Write `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
 . Load the program counter (`pc`) from the memory location `[cra.base, cra.base + CLENBYTES)`.
 . Load `ceh` from the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, write `zero` to `x[i]`, and then
+. For `i = 1, 2, ..., 31`, and then
 load `x[i]` from the memory location
 `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 // Keep the type of switch_cap unchanged (i.e., sealed) for compatibility.

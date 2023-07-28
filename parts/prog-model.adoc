@@ -440,7 +440,7 @@ specifications.
 _{isa_var_pure}_
 
 ****
-* Each general-purpose register either contains an integer, or a capability with `valid = 0`.
+* Each general-purpose register either contains an integer, or a capability with `valid = 0` (invalid).
 * No addressable memory location can contain a capability.
 * `ceh`, `cih`, and `epc` contain either integers or
 capabilities with `valid = 0` (invalid).
@@ -452,7 +452,7 @@ and `pc = { valid = 1, type = 0, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE,
 _{isa_var_hybrid}_
 
 ****
-* Each general-purpose register either contains an integer, or a capability with `valid = 0`.
+* Each general-purpose register either contains an integer, or a capability with `valid = 0` (invalid).
 * No addressable memory location can contain a capability.
 * `ceh`, `epc` and `switch_cap` contain either an integer or
 a capability with `valid = 0` (invalid).
