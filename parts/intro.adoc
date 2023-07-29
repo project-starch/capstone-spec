@@ -2,10 +2,13 @@
 
 = Introduction
 
-The {proj_name} project is an effort to explore the design of
-a new CPU instruction set architecture that achieves multiple
-security goals including memory safety and isolation with
-one unified hardware abstraction.
+
+{proj_name} is a novel CPU instruction set architecture (ISA) that creates
+a single unified architectural abstraction for achieving multiple security
+goals, thus liberating software developers from the burden of working with
+the distinct fundamental primitives exposed by numerous security extensions
+that often do not interoperate easily.
+
 
 ifdef::backend-html5[]
 *Other formats:* This document is also available in the following formats:
@@ -13,13 +16,11 @@ ifdef::backend-html5[]
 * link:main.pdf[PDF]
 endif::backend-html5[]
 
-== Goals
+== Properties to Support
 
-The ultimate goal of {proj_name} is to unify the numerous hardware abstracts
-that have been added as extensions to existing architectures as afterthought
-mitigations to security vulnerabilities. This goal requires a high level
-of flexibility and extensibility of the {proj_name} architecture.
-More specifically, we aim to support the following in a unified manner.
+The ultimate goal of {proj_name} is to provide a unified architectural
+abstraction for multiple security goals.
+This goal requires {proj_name} to support the following properties.
 
 ____
 Exclusive access:: Software should be guaranteed exclusive access to
@@ -54,18 +55,22 @@ types including the following.
 
 ____
 Linear capabilities:: Linear capabilities are guaranteed not to
-    alias with other capabilities. Operations on linear capabilities
-    maintain this property. For example, linear capabilities cannot
-    be duplicated. Instead, they can only be moved around across different
-    registers or between registers and memory.
+    alias with other capabilities that both grant memory access and are
+    in architecturally visible locations (i.e., their actual contents
+    might affect the execution of the whole system).
+    Operations on linear capabilities
+    maintain this property. For example, instructions
+    can only move, but not copy, linear capabilities
+    between geneeral-purpose registers.
     They can hence enable safe
     exclusive access to memory regions. Capabilities that do
     not have this property are called _non-linear_ capabilities.
 Revocation capabilities:: 
     Revocation capabilities cannot be used to perform memory accesses
-    or control flow transfers. Instead, they convey the authority to revoke other capabilities. Each revocation capability is derived from a linear
-    capability and can later be used to revoke (i.e., invalidate) capability
-    derived from the same linear capability. This mechanism enables
+    or control flow transfers. Instead, they convey the authority to revoke other capabilities. 
+    Each revocation capability is derived from a linear
+    capability and can later be used to revoke (i.e., invalidate) capabilities
+    derived from it. This mechanism enables
     revocable and arbitrarily extensible chains of delegation of authority.
 Uninitialised capabilities::
     Uninitialised capabilities convey write-only authority to memory.
