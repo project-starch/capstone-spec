@@ -10,12 +10,6 @@ the distinct fundamental primitives exposed by numerous security extensions
 that often do not interoperate easily.
 
 
-ifdef::backend-html5[]
-*Other formats:* This document is also available in the following formats:
-
-* link:main.pdf[PDF]
-endif::backend-html5[]
-
 == Properties to Support
 
 The ultimate goal of {proj_name} is to provide a unified architectural
@@ -34,22 +28,25 @@ Revocable delegation:: Software components should be able to delegate
     memory region, the caller should be able to revoke this access.
 
 Dynamically extensible hierarchy:: The hierarchy of authority should
-    be dynamically extensible, unlike traditional platforms which
-    follow a static hierarchy of hypervisor-kernel-user. This makes it
+    be dynamically extensible, rather than predefined by the architecture
+    such as hypervisor-kernel-user found in traditional platforms.
+    This makes it
     possible to use the same set of abstractions for memory isolation
     and memory sharing regardless of where a software component lies in
     the hierarchy.
 
-Safe context switching:: A mechanism of context switching without trusting
-any other software component should be provided. This allows for
-a minimal TCB if necessary in case of a highly security-critical application.
+Safe context switching:: A mechanism that protects the confidentiality
+and integrity of the execution context of software
+during control flow transfers across security domain boundaries, including
+asynchronous ones such as those for interrupt and exception handling,
+should be provided.
 ____
 
 == Major Design Elements
 
 The {proj_name} architecture design is based on the idea of capabilities,
 which are unforgeable tokens that represent authority to perform
-memory accesses and control flow transfers.
+memory accesses and control flow transfers, among other operations.
 {proj_name} extends the traditional capability model with new capability
 types including the following.
 
@@ -75,7 +72,7 @@ Revocation capabilities::
 Uninitialised capabilities::
     Uninitialised capabilities convey write-only authority to memory.
     They can be turned into linear capabilities after the memory region has
-    been "`initialised`", that is, when the whole memory region has been
+    been "`initialised`", i.e., when the whole memory region has been
     overwritten with fresh data. Uninitialised capabilities enable
     safe initialisation of memory regions and prevent secret leakage without
     incurring extra performance overhead.
@@ -156,7 +153,7 @@ Z:: Zero-extended immediate.
 
 == Bibliography
 
-The initial design of {proj_name} has been discussed in the following paper:
+The initial motivation, design, evaluation, and analysis of {proj_name} have been discussed in the following paper:
 
 * https://www.usenix.org/conference/usenixsecurity23/presentation/yu-jason[Capstone: A Capability-based Foundation for Trustless Secure Memory Access]
   by Jason Zhijingcheng Yu, Conrad Watt, Aditya Badole, Trevor E. Carlson, Prateek Saxena.
