@@ -91,19 +91,28 @@ trusting a different domain with such data.
 For exceptions defined in {base_isa_name}, the same data as in it is written to `tval`.
 For the added exceptions, the following data is written to `tval`:
 
-// FIXME
 .Exception data for {isa_var_pure} and {isa_var_hybrid} secure world
 [%header%autowidth.stretch]
 |===
 | Exception |  Data 
-| `Unexpected operand type (24)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
-| `Invalid capability (25)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
-| `Unexpected capability type (26)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
-| `Insufficient capability permissions (27)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
-| `Capability out of bound (28)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
-| `Illegal operand value (29)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Unexpected operand type (24)` | 0
+| `Invalid capability (25)` | 0
+| `Unexpected capability type (26)` | 0
+| `Insufficient capability permissions (27)` | 0
+| `Capability out of bound (28)` | 0
+| `Illegal operand value (29)` | 0
 | `Unhandleable exception (63)` | N/A
 |===
+
+.*Note: content in `tval`*
+[%collapsible]
+====
+****
+Currently, the exception data for different exception types hasn't been defined yet.
+We use the same value `0` for all exception types.
+A future version of this specification will define the exception data for each exception type.
+****
+====
 
 == _{isa_var_pure}_
 
@@ -200,6 +209,7 @@ disabled globally.
 * `cih` is not a capability.
 * `cih.valid = 0` (invalid).
 * `cih.type != 4` (sealed capability).
+* `cih.async != 0` (synchronous).
 ****
 
 *Otherwise:*
@@ -243,6 +253,8 @@ bottom-up, while exception handling should be delegated top-down.
 * The capability in `ceh` is invalid (`valid = 0`).
 * The capability in `ceh` is not a sealed (`type != 4`),
 linear (`type != 0`), or non-linear capability (`type != 1`).
+* The capability in `ceh` is a sealed capability (`type = 4`) and
+the `ceh.async` field is not `0` (synchronous).
 ****
 
 *Otherwise:*
@@ -361,7 +373,16 @@ saves the full context, scrubs it, and exits to the normal world. It then
 generates a corresponding interrupt in the normal world, and follows
 the normal-world interrupt handling process thereafter.
 
-*If the content in `switch_cap` is a valid sealed capability:*
+*If the content in `switch_cap` satisfies the following conditions:*
+
+****
+* `switch_cap` is a capability.
+* `switch_cap.valid` is 1 (valid).
+* `switch_cap.type` is 0 (linear) or 3 (uninitialised).
+* `switch_cap.base` is aligned to `CLENBYTES`.
+* `6 \<=p switch_cap.perms` holds.
+* `switch_cap.end - switch_cap.base >= CLENBYTES * 33` holds.
+****
 
 ====
 . Store `pc` to the memory location
@@ -372,8 +393,8 @@ the normal-world interrupt handling process thereafter.
 to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
+. Set `switch_cap.type` to `4` (sealed), `switch_cap.async` to `2` (upon interrupt).
 // in case that switch_reg is sp
-. Set `switch_cap.async` to `2` (upon interrupt).
 . Write `switch_cap` to the register `x[switch_reg]`, and `cnull` to `switch_cap`.
 . Scrub the other general-purpose registers
 (i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).
@@ -406,7 +427,14 @@ exception in the secure world, in the similar way as in _{isa_var_pure}_.
 If this fails, the processor core saves the full context if it can
 and exits to the normal world with a proper error code.
 
-*If the content in `ceh` is a valid sealed capability:*
+*If the content in `ceh` satisfies the following conditions:*
+
+****
+* `ceh` is a capability.
+* `ceh.type` is `4` (sealed).
+* `ceh.valid` is `1` (valid).
+* `ceh.async` is `0` (synchronous)
+****
 
 ====
 . Swap `pc` with the content at memory location `[ceh.base, ceh.base + CLENBYTES)`.
@@ -432,7 +460,16 @@ If `ceh.type != 1`, write `cnull` to `ceh`.
 
 *Otherwise:*
 
-*If the content in `switch_cap` is a valid sealed capability:*
+*If the content in `switch_cap` satisfies the following conditions:*
+
+****
+* `switch_cap` is a capability.
+* `switch_cap.valid` is 1 (valid).
+* `switch_cap.type` is 0 (linear) or 3 (uninitialised).
+* `switch_cap.base` is aligned to `CLENBYTES`.
+* `6 \<=p switch_cap.perms` holds.
+* `switch_cap.end - switch_cap.base >= CLENBYTES * 33` holds.
+****
 
 ====
 . Store the current value of the program counter (`pc`) to the memory location
@@ -443,7 +480,7 @@ and write `cnull` to `ceh`.
 to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Set `switch_cap.async` to `1` (upon exception).
+. Set `switch_cap.type` to `4` (sealed), `switch_cap.async` to `1` (upon exception).
 . Write the content of `switch_cap` to `x[switch_reg]`, and `cnull` to `switch_cap`.
 // Scrub is needed for linearity
 . Scrub the other general-purpose registers
