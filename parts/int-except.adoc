@@ -426,7 +426,7 @@ Note that this is exactly the same as the handling of exceptions in _{isa_var_pu
 . Write `pc` to `epc`.
 . Write `ceh` to `pc`.
 If `ceh.type != 1`, write `cnull` to `ceh`.
-. Write the exception code to `cause`
+. Write the exception code to `cause`.
 . Write extra exception data to `tval`.
 ====
 

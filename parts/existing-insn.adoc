@@ -251,7 +251,6 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 - `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised), `5` (sealed-return), or `6` (exit).
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
-// FIXME
 - `x[rs1].type` is `0` or `1`, and `2 \<=p x[rs1].perms` does not hold.
 * `Capability out of bound (28)`
 - `x[rs1].type` is `0`, `1`, or `3`, and `x[rs1].cursor + imm` is

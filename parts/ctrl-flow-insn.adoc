@@ -131,7 +131,6 @@ _{isa_var_pure}_ or _{isa_var_hybrid}_
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
 - `x[rs1].type` is not `4` (sealed).
-//FIXME
 - `x[rs1].async` is not `0` (synchronous).
 ****
 
@@ -290,8 +289,8 @@ And it is only available in the normal world.
 ====
 . Write `x[rs1]` to `switch_cap`, and `cnull` to `x[rs1]`.
 . Write `pc` and `sp` to `normal_pc` and `normal_sp` respectively.
-. Load the program counter (`pc`) from the memory location `[cra.base, cra.base + CLENBYTES)`.
-. Load `ceh` from the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
+. Load the program counter (`pc`) from the memory location `[switch_cap.base, switch_cap.base + CLENBYTES)`.
+. Load `ceh` from the memory location `[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)`.
 . For `i = 1, 2, ..., 31`, and then
 load `x[i]` from the memory location
 `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
