@@ -1,5 +1,6 @@
 PARTS_DIR?=parts
 ADOC_PARTS_SRC=$(wildcard parts/*.adoc)
+IMAGE_SRC=$(wildcard images/*.svg)
 ADOC_TOP_SRC=main.adoc
 ADOC_EXTRA_DEPS=attributes.adoc
 OUTPUT_DIR?=output
@@ -18,13 +19,14 @@ else
 CONTAINER_IMG=$(EXTERNAL_CONTAINER_IMG)
 endif
 
-$(OUTPUT_PDF): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG)
+$(OUTPUT_PDF): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG) $(IMAGE_SRC)
 	mkdir -p $(OUTPUT_DIR)
 	$(CONTAINER_IMG) -v -a attribute-missing=warn --failure-level=WARN -r asciidoctor-pdf -r asciidoctor-diagram -b pdf -o $@ $<
 
-$(OUTPUT_HTML): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG)
+$(OUTPUT_HTML): $(ADOC_TOP_SRC) $(ADOC_PARTS_SRC) $(ADOC_EXTRA_DEPS) $(CONTAINER_IMG) $(IMAGE_SRC)
 	mkdir -p $(OUTPUT_DIR)
 	$(CONTAINER_IMG) -v -a attribute-missing=warn --failure-level=WARN -r asciidoctor-diagram -b html5 -o $@ $<
+	cp -r $(IMAGE_SRC) $(OUTPUT_DIR)/images
 
 clean:
 	rm -rf $(OUTPUT_DIR)
