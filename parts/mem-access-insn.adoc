@@ -68,7 +68,7 @@ The STC instruction stores a capability to the memory.
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'imm[4:0] (S)' },
-    {bits: 3, name: '0b110' },
+    {bits: 3, name: '0b100' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: 'rs2 (C)' },
     {bits: 7, name: 'imm[11:5] (S)' }
@@ -164,13 +164,13 @@ write `cnull` to the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)`.
 When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
 the STC instruction stores a capability to the normal memory using raw addresses.
 
-.STC instruction format
+.STC instruction format in integer encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'imm[4:0] (S)' },
-    {bits: 3, name: '0b110' },
+    {bits: 3, name: '0b100' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (C)' },
     {bits: 7, name: 'imm[11:5] (S)' }
