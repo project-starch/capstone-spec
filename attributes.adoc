@@ -6,3 +6,4 @@
 :base_isa_csr_ext: Zicsr
 :cheri_isa_name: CHERI-RISC-V
 :cheriot_isa_name: CHERIoT
+:imagesdir: images
