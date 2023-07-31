@@ -7,7 +7,7 @@
 
 == _{isa_var_pure}_
 
-In _{isa_var_pure}_, two instructions (i.e., LDC and LTC) are used to load and store capabilities.
+In _{isa_var_pure}_, two instructions (i.e., LDC and STC) are used to load and store capabilities.
 
 === Load Capabilities
 

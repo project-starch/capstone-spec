@@ -236,7 +236,7 @@ the program counter (`pc`) is extended to contain a capability or an integer.
 [%collapsible]
 ====
 ****
-`cwrld` is a special register added in _{isa_var_hybrid}_ that indicates the currently executed world.
+`cwrld` is a special register added in _{isa_var_hybrid}_ that indicates the world currently in execution.
 Please see <<additional-regs,Added Registers>> for details.
 ****
 ====
@@ -307,7 +307,7 @@ The {isa_name} ISA adds the following registers.
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
 ! `cinit` ! `0x002` ! - ! The initial capability covering the entire address space of the secure memory
 ! `epc` ! `0x003` ! - ! The exception program counter register
-! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
+! `cwrld`! - ! - ! The world currently in execution. `0` = normal world, `1` = secure world
 ! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
 ! `normal_sp`!-!-!The stack pointer for the normal world before the secure world is entered
 ! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
