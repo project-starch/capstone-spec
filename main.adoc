@@ -41,7 +41,7 @@ include::parts/ctrl-flow-insn.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/ctrl-state-insn.adoc[leveloffset=+1]
+include::parts/ctrl-status-insn.adoc[leveloffset=+1]
 
 <<<
 
@@ -54,10 +54,6 @@ include::parts/int-except.adoc[leveloffset=+1]
 <<<
 
 include::parts/mem-consistency.adoc[leveloffset=+1]
-
-<<<
-
-include::parts/debug-insn.adoc[leveloffset=+1]
 
 <<<
 

@@ -2,25 +2,21 @@
 
 = Introduction
 
-The {proj_name} project is an effort to explore the design of
-a new CPU instruction set architecture that achieves multiple
-security goals including memory safety and isolation with
-one unified hardware abstraction.
 
-ifdef::backend-html5[]
-*Other formats:* This document is also available in the following formats:
+{proj_name} is a novel CPU instruction set architecture (ISA) that creates
+a single unified architectural abstraction for achieving multiple security
+goals, thus liberating software developers from the burden of working with
+the distinct fundamental primitives exposed by numerous security extensions
+that often do not interoperate easily.
 
-* link:main.pdf[PDF]
-endif::backend-html5[]
 
-== Goals
+== Properties to Support
 
-The ultimate goal of {proj_name} is to unify the numerous hardware abstracts
-that have been added as extensions to existing architectures as afterthought
-mitigations to security vulnerabilities. This goal requires a high level
-of flexibility and extensibility of the {proj_name} architecture.
-More specifically, we aim to support the following in a unified manner.
+The ultimate goal of {proj_name} is to provide a unified architectural
+abstraction for multiple security goals.
+This goal requires {proj_name} to support the following properties.
 
+____
 Exclusive access:: Software should be guaranteed exclusive access to
     certain memory regions if needed. This is in spite of the existence
     of software traditionally entitled to higher privileges such as the
@@ -32,67 +28,78 @@ Revocable delegation:: Software components should be able to delegate
     memory region, the caller should be able to revoke this access.
 
 Dynamically extensible hierarchy:: The hierarchy of authority should
-    be dynamically extensible, unlike traditional platforms which
-    follow a static hierarchy of hypervisor-kernel-user. This makes it
+    be dynamically extensible, rather than predefined by the architecture
+    such as hypervisor-kernel-user found in traditional platforms.
+    This makes it
     possible to use the same set of abstractions for memory isolation
     and memory sharing regardless of where a software component lies in
     the hierarchy.
 
-Safe context switching:: A mechanism of context switching without trusting
-any other software component should be provided. This allows for
-a minimal TCB if necessary in case of a highly security-critical application.
+Safe context switching:: A mechanism that protects the confidentiality
+and integrity of the execution context of software
+during control flow transfers across security domain boundaries, including
+asynchronous ones such as those for interrupt and exception handling,
+should be provided.
+____
 
 == Major Design Elements
 
 The {proj_name} architecture design is based on the idea of capabilities,
 which are unforgeable tokens that represent authority to perform
-memory accesses and control flow transfers.
+memory accesses and control flow transfers, among other operations.
 {proj_name} extends the traditional capability model with new capability
 types including the following.
 
+____
 Linear capabilities:: Linear capabilities are guaranteed not to
-    alias with other capabilities. Operations on linear capabilities
-    maintain this property. For example, linear capabilities cannot
-    be duplicated. Instead, they can only be moved around across different
-    registers or between registers and memory.
+    alias with other capabilities that both grant memory access and are
+    in architecturally visible locations (i.e., their actual contents
+    might affect the execution of the whole system).
+    Operations on linear capabilities
+    maintain this property. For example, instructions
+    can only move, but not copy, linear capabilities
+    between geneeral-purpose registers.
     They can hence enable safe
     exclusive access to memory regions. Capabilities that do
     not have this property are called _non-linear_ capabilities.
 Revocation capabilities:: 
     Revocation capabilities cannot be used to perform memory accesses
-    or control flow transfers. Instead, they convey the authority to revoke other capabilities. Each revocation capability is derived from a linear
-    capability and can later be used to revoke (i.e., invalidate) capability
-    derived from the same linear capability. This mechanism enables
+    or control flow transfers. Instead, they convey the authority to revoke other capabilities. 
+    Each revocation capability is derived from a linear
+    capability and can later be used to revoke (i.e., invalidate) capabilities
+    derived from it. This mechanism enables
     revocable and arbitrarily extensible chains of delegation of authority.
 Uninitialised capabilities::
     Uninitialised capabilities convey write-only authority to memory.
     They can be turned into linear capabilities after the memory region has
-    been "`initialised`", that is, when the whole memory region has been
+    been "`initialised`", i.e., when the whole memory region has been
     overwritten with fresh data. Uninitialised capabilities enable
     safe initialisation of memory regions and prevent secret leakage without
     incurring extra performance overhead.
+____
 
 == {isa_name} ISA Overview
 
 While {proj_name} does not assume any specific modern ISA, we choose to propose
 a {proj_name} extension to RISC-V due to its open nature and the availability
-of toolchains and simulators. 
+of toolchains and simulators.
 
 The {isa_name} ISA is an {base_isa_name} extension that makes the following
 types of changes to the base architecture:
 
 * Each general-purpose register is extended to 129 bits to accommodate 128-bit capabilities.
+* Part of the machine state is extended and new instructions are added to support it.
 * New instructions for manipulating capabilities are added.
 * New instructions for memory accesses using capabilities are added.
 * New instructions for control flow transfers using capabilities are added.
-* New instructions for machine state control are added.
-* Semantics of a small number of existing instructions are changed to support capabilities.
-* Semantics of interrupts and exceptions are changed to support capabilities.
+* Semantics of some existing instructions are adjusted to support capabilities.
+* Semantics of interrupts and exceptions are adjusted to support capabilities.
 
 == {proj_name} Variants
 
 In addition to {proj_name}, which is referred to as _{isa_var_pure}_ in the {isa_name} ISA,
 we propose a variant of {proj_name}, called _{isa_var_hybrid}_.
+
 While memory accesses and control flow transfers are only possible using capabilities
 in _{isa_var_pure}_, _{isa_var_hybrid}_ fuses capabilities with privilege levels and
 virtual memory found in traditional architectures, which allows for a smooth transition
@@ -100,25 +107,25 @@ from existing architectures to {proj_name}.
 
 The following types of changes are made to _{isa_var_pure}_ to obtain _{isa_var_hybrid}_:
 
-* The physical memory is partitioned into link:#mem-extension[two disjoint regions],
+* The physical memory is partitioned into two disjoint regions,
 one exclusively for accesses through capabilities and the other exclusively for accesses
 through the virtual memory.
-* Software components are allowed to run in either of the 2 _worlds_, i.e., the _normal world_
+* Software components are allowed to run in either of the two _worlds_, i.e., the _normal world_
 and the _secure world_.
-** The _normal world_ follows the traditional privilege levels, allows both capability-based accesses
-and virtual memory accesses, and is therefore compatible with existing softwares.
-** The _secure world_ follows the _{isa_var_pure}_ design, limits memory accesses to capability-based accesses
+- The _normal world_ follows the traditional privilege levels, allows both capability-based accesses
+and virtual memory accesses, and is therefore compatible with existing software.
+- The _secure world_ follows the _{isa_var_pure}_ design, limits memory accesses to capability-based accesses
 and provides the security guarantees of {proj_name}.
-* A link:#world-switch[world switching mechanism] is added to support the secure switching between the 2 _worlds_.
-* Semantics of a small number of _{isa_var_pure}_ instructions are changed to support the _normal world_ and the _secure world_.
-* Semantics of interrupts and exceptions are extended to support the _normal world_ and the _secure world_.
+* A world switching mechanism is added to support the secure switching between the two worlds.
+* Semantics of some _{isa_var_pure}_ instructions are changed to support the two worlds separately.
+* Semantics of interrupts and exceptions are extended to support the two worlds separately.
 
 .Memory Accesses in _{isa_var_hybrid}_
 [%header%autowidth.stretch]
 |===
-| World | MMU | Capabilities
-| _Normal World_ | Yes | Yes
-| _Secure World_ | - | Yes
+| World | Memory Management Unit (MMU) | Capabilities
+| Normal world | Yes | Yes
+| Secure world | No | Yes
 |===
 
 == Assembly Mnemonics
@@ -146,7 +153,7 @@ Z:: Zero-extended immediate.
 
 == Bibliography
 
-The initial design of {proj_name} has been discussed in the following paper:
+The initial motivation, design, evaluation, and analysis of {proj_name} have been discussed in the following paper:
 
 * https://www.usenix.org/conference/usenixsecurity23/presentation/yu-jason[Capstone: A Capability-based Foundation for Trustless Secure Memory Access]
   by Jason Zhijingcheng Yu, Conrad Watt, Aditya Badole, Trevor E. Carlson, Prateek Saxena.
