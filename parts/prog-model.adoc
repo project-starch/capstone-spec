@@ -146,6 +146,22 @@ where `size` is the size of the memory access in bytes.
 In other scenarios and for other capability types without the `perms` field, no read/write/execute
 memory accesses are granted by the capability.
 
+****
+The following figure shows the overview of different types of capabilities in _{isa_var_pure}_,
+and the operations that change the type of a capability.
+
+.Overview of different types of capabilities in _{isa_var_pure}_
+image::pure-types.svg[pure-types]
+****
+
+****
+The following figure shows the overview of different types of capabilities in _{isa_var_hybrid}_,
+and the operations that change the type of a capability.
+
+.Overview of different types of capabilities in _{isa_var_hybrid}_
+image::trans-types.svg[trans-types]
+****
+
 == Extension to General-Purpose Registers
 
 The {isa_name} ISA extends each of the 32 general-purpose

@@ -133,6 +133,15 @@ This process resembles that of a CALL-RETURN
 pair, except that it is asynchronous, rather than synchronous,
 to the execution of the original domain.
 
+****
+The figure below shows the overview of domain switch in _{isa_var_pure}_,
+including synchronous link:#domain-cross[domain crossing] and asynchronous
+interrupt/exception handling.
+
+.Overview of domain switch in _{isa_var_pure}_
+image::pure-domain.svg[pure-domain]
+****
+
 // TODO: specify what happens if any of the involved memory accesses fails
 
 === Interrupt Status
@@ -340,6 +349,13 @@ OS.
 ****
 ====
 
+****
+The figure below shows the overview of interrupt handling in _{isa_var_hybrid}_.
+
+.Overview of interrupt handling in _{isa_var_hybrid}_
+image::trans-int.svg[trans-interrupt]
+****
+
 .*Note: overview of exception handling in the secure world*
 [%collapsible]
 ====
@@ -362,6 +378,13 @@ The user process can then decide what to do based on the exit code (e.g.,
 terminate the domain in the secure world).
 ****
 ====
+
+****
+The figure below shows the overview of exception handling in _{isa_var_hybrid}_.
+
+.Overview of exception handling in _{isa_var_hybrid}_
+image::trans-exc.svg[trans-exception]
+****
 
 Below we discuss the details of the handling of interrupts and exceptions
 generated in the secure world.

@@ -234,6 +234,13 @@ the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 In _{isa_var_hybrid}_, a pair of extra instructions, i.e., CAPENTER and CAPEXIT,
 is added to support switching between the _secure world_ and the _normal world_.
 
+****
+The figure below shows the world switching in _{isa_var_hybrid}_.
+
+.Overview of world switching in _{isa_var_hybrid}_
+image::trans-sync.svg[trans-sync]
+****
+
 [#world-enter]
 === CAPENTER
 
