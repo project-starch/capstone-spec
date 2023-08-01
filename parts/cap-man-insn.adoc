@@ -239,6 +239,7 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 ====
 . Set `x[rd].base` to `x[rs1]` and `x[rd].end` to `x[rs2]`.
 . If `x[rd].cursor < x[rs1]`, set `x[rd].cursor` to `x[rs1]`.
+. If `x[rd].cursor > x[rs2]`, set `x[rd].cursor` to `x[rs2]`.
 ====
 
 [#split]
