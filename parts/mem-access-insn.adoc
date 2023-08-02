@@ -127,7 +127,7 @@ the LDC instruction loads a capability from the normal memory using raw addresse
 The raw addresses are interpreted as physical addresses or virtual addresses
 depending on the whether virtual memory is enabled.
 
-.LDC instruction format
+.LDC instruction format in integer encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
