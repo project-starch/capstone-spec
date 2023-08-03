@@ -53,9 +53,10 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 *If no exception is raised:*
 
 ====
-. Load the capability at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` into `x[rd]`.
+. Set `cap` to `x[rs1]`.
+. Load the capability at the memory location `cap.cursor + imm, cap.cursor + imm + CLENBYTES)` into `x[rd]`.
 . If `x[rd].type` is not `1` (non-linear),
-write `cnull` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)`.
+write `cnull` to the memory location `[cap.cursor + imm, cap.cursor + imm + CLENBYTES)`.
 ====
 
 === Store Capabilities
@@ -102,9 +103,9 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 *If no exception is raised:*
 
 ====
+. If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + CLENBYTES`.
 . Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)`.
 . If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
-. If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + CLENBYTES`.
 ====
 
 == _{isa_var_hybrid}_
@@ -154,9 +155,10 @@ depending on the whether virtual memory is enabled.
 *If no exception is raised:*
 
 ====
-. Load the capability at the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)` into `x[rd]`.
+. Set `int` to `x[rs1]`.
+. Load the capability at the memory location `[int + imm, int + imm + CLENBYTES)` into `x[rd]`.
 . If `x[rd].type` is not `1` (non-linear),
-write `cnull` to the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)`.
+write `cnull` to the memory location `[int + imm, int + imm + CLENBYTES)`.
 ====
 
 === Store Capabilities in _integer encoding mode_
