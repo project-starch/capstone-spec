@@ -14,8 +14,8 @@ include::i-type-format.adoc[]
 .Instruction format: S-type
 include::s-type-format.adoc[]
 
-.Instruction format: CI-type
-include::ci-type-format.adoc[]
+.Instruction format: RI-type
+include::ri-type-format.adoc[]
 
 .Capability manipulation instructions
 [%header%autowidth.stretch]
@@ -23,9 +23,9 @@ include::ci-type-format.adoc[]
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0] | World | Variant
 |<<rev-operation,REVOKE>>      |R |`001`    |`0000000` | C | - | - | - | - | * | *
 |<<shrink,SHRINK>>      |R |`001`    |`0000001` | I | I | C | - | - | * | *
-|<<tighten,TIGHTEN>>     |CI |`001`    |`0000010` | C | - | C | Z | - | * | *
+|<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | - | * | *
 |<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | - | * | *
-|<<field-query,LCC>>         |CI |`001`    |`0000100` | C | - | I | Z | - | * | *
+|<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | - | * | *
 |<<cursor-set,SCC>>         |R |`001`    |`0000101` | I | - | C | - | - | * | *
 |<<split,SPLIT>>       |R |`001`    |`0000110` | C | I | C | - | - | * | *
 |<<seal,SEAL>>        |R |`001`    |`0000111` | C | - | C | - | - | * | *

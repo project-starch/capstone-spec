@@ -439,13 +439,13 @@ include::s-type-format.adoc[]
 R-type instructions receive up to three register operands, and I-type/S-type instructions
 receive up to two register operands and a 12-bit-wide immediate operand.
 
-{isa_name} also adds a new instruction format, the CI-type format, which is used for
+{isa_name} also adds a new instruction format, the RI-type format, which is used for
 compressed immediate instructions.
 
-.CI-type instruction format
-include::ci-type-format.adoc[]
+.RI-type instruction format
+include::ri-type-format.adoc[]
 
-CI-type instructions receive up to two register operands and a 5-bit-wide immediate operand.
+RI-type instructions receive up to two register operands and a 5-bit-wide immediate operand.
 
 [#reset]
 == System Reset
