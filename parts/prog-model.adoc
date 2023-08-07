@@ -345,7 +345,7 @@ The manipulation constraints for each additional CSR are indicated below.
 [%header%autowidth.stretch]
 |===
 |Mnemonic | Read | Write
-|`cis`| _{isa_var_pure}_; `cih` must not be a capability | _{isa_var_pure}_; `cih` must not be a capability
+|`cis`| _{isa_var_pure}_ | _{isa_var_pure}_
 |`tval`| _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
 |`cause`| _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
 |`emode`| _{isa_var_hybrid}_ normal world | _{isa_var_hybrid}_ normal world
