@@ -95,24 +95,14 @@ For the added exceptions, the following data is written to `tval`:
 [%header%autowidth.stretch]
 |===
 | Exception |  Data 
-| `Unexpected operand type (24)` | 0
-| `Invalid capability (25)` | 0
-| `Unexpected capability type (26)` | 0
-| `Insufficient capability permissions (27)` | 0
-| `Capability out of bound (28)` | 0
-| `Illegal operand value (29)` | 0
+| `Unexpected operand type (24)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Invalid capability (25)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Unexpected capability type (26)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Insufficient capability permissions (27)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Capability out of bound (28)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Illegal operand value (29)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
 | `Unhandleable exception (63)` | N/A
 |===
-
-.*Note: content in `tval`*
-[%collapsible]
-====
-****
-Currently, the exception data for different exception types hasn't been defined yet.
-We use the same value `0` for all exception types.
-A future version of this specification will define the exception data for each exception type.
-****
-====
 
 == _{isa_var_pure}_
 
