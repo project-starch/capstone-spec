@@ -397,7 +397,7 @@ after its associated memory region has been fully initialised (written with new 
 *If no exception is raised:* 
 
 ====
-. Set `x[rs1].type` to `0` (linear), and `x[rs1].cursor` to `x[rs2]`.
+. Set `x[rs1].type` to `0` (linear), and `x[rs1].cursor` to `x[rs1].base + x[rs2]`.
 . `MOVC rd, rs1`.
 ====
 
