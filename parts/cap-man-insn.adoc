@@ -397,8 +397,8 @@ after its associated memory region has been fully initialised (written with new 
 *If no exception is raised:* 
 
 ====
+. Set `x[rs1].type` to `0` (linear), and `x[rs1].cursor` to `x[rs2]`.
 . `MOVC rd, rs1`.
-. Set `x[rd].type` to `0` (linear), and `x[rd].cursor` to `x[rs2]`.
 ====
 
 [#seal]
