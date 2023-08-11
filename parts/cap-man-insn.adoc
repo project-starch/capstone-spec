@@ -279,9 +279,12 @@ one with bounds `[x[rs1].base, x[rs2])` and the other with bounds `[x[rs2], x[rs
 *If no exception is raised:*
 
 ====
+. If `rs1 = rd`, the instruction is a no-op.
+// in case rs2 = rd
+. Set `val` to `x[rs2]`.
 . Write `x[rs1]` to `x[rd]`.
-. Set `x[rs1].end` to `x[rs2]`, `x[rs1].cursor` to `x[rs1].base`.
-. Set `x[rd].base` to `x[rs2]`, `x[rd].cursor` to `x[rs2]`.
+. Set `x[rs1].end` to `val`, `x[rs1].cursor` to `x[rs1].base`.
+. Set `x[rd].base` to `val`, `x[rd].cursor` to `val`.
 ====
 
 [#tighten]
