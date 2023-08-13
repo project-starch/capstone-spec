@@ -319,9 +319,9 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 *If no exception is raised:*
 
 ====
+. If `imm > 7`, set `x[rs1].perms` to `0`.
+Otherwise, set `x[rs1].perms` to `imm`.
 . `MOVC rd, rs1`.
-. If `imm > 7`, set `x[rd].perms` to `0`.
-Otherwise, set `x[rd].perms` to `imm`.
 ====
 
 == Type Manipulation
@@ -437,8 +437,8 @@ The SEAL instruction seals a linear capability.
 *If no exception is raised:* 
 
 ====
+. Set `x[rs1].type` to `2` (sealed), and `x[rs1].async` to `0` (synchronous).
 . `MOVC rd, rs1`.
-. Set `x[rd].type` to `2` (sealed), and `x[rd].async` to `0` (synchronous).
 ====
 
 [#drop]
