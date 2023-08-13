@@ -79,8 +79,8 @@ capability by a given amount (offset).
 *If no exception is raised:*
 
 ====
-. `MOVC rd, rs1`
-. Set `x[rd].cursor` to `x[rd].cursor + x[rs2]`.
+. Set `x[rs1].cursor` to `x[rs1].cursor + x[rs2]`.
+. `MOVC rd, rs1`.
 ====
 
 ==== CINCOFFSETIMM
@@ -109,8 +109,8 @@ capability by a given amount (offset).
 *If no exception is raised:*
 
 ====
-. `MOVC rd, rs1`
-. Set `x[rd].cursor` to `x[rd].cursor + imm`.
+. Set `x[rs1].cursor` to `x[rs1].cursor + imm`.
+. `MOVC rd, rs1`.
 ====
 
 [#cursor-set]
@@ -144,8 +144,8 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 *If no exception is raised:*
 
 ====
+. Set `x[rs1].cursor` to `x[rs2]`.
 . `MOVC rd, rs1`
-. Set `x[rd].cursor` to `x[rs2]`.
 ====
 
 [#field-query]
