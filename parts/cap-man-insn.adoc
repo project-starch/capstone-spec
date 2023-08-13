@@ -553,11 +553,10 @@ and `c` <<alias-definition,aliases>> with `x[rs1]`.
 * `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <<smaller-t-definition,<t>> c`.
 
 . `x[rs1].type` is set to `0` (linear)
-if, for every invalidated capability `c`, at least one of the following
-conditions are met:
+if at least one of the following conditions are met:
 
-* The type of `c` is non-linear (i.e., `c.type` is `1`).
-* `2 \<=p c.perms` does not hold.
+* For every invalidated capability `c`, the type of `c` is non-linear (i.e., `c.type` is `1`).
+* `2 \<=p x[rs1].perms` does not hold.
 
 . Otherwise, set `x[rs1].type` to `3` (uninitialised),
 and `x[rs1].cursor` to `x[rs1].base`.
