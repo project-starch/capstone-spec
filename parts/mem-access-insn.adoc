@@ -30,6 +30,8 @@ The LDC instruction loads a capability from the memory.
 ****
 * `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
+* `Load access fault (5)`
+- The data contained in the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` is not a capability.
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
@@ -46,8 +48,6 @@ not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
 not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
 * `Load address misaligned (4)`
 - `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
-* `Load access fault (5)`
-- The data contained in the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` is not a capability.
 ****
 
 *If no exception is raised:*
