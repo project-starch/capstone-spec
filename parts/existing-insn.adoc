@@ -267,10 +267,10 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 
 ====
 . Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` as an integer.
-. If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + size`.
 . The content in the `CLENBYTES`-byte aligned memory location `[cbase, cend)`, which aliases with
 the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set to integer type,
 where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+. If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + size`.
 ====
 
 === _{isa_var_hybrid}_
