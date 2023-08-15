@@ -474,6 +474,7 @@ _{isa_var_hybrid}_
 * `ceh`, `epc` and `switch_cap` contain either an integer or
 a capability with `valid = 0` (invalid).
 * `cwrld = 0` (normal world).
+* `emode = 0` (integer encoding mode).
 * `cinit = { valid = 1, type = 0, cursor = SBASE, base = SBASE, end = SEND, perms = 7 }`.
 * Specifications for {base_isa_name}.
 ****
