@@ -2,16 +2,16 @@
 
 = Adjustments to Existing Instructions
 
-For most existing instructions in {base_isa_name}, the adjustments are straightforward.
-Their behaviour is unchanged, and an `unexpected operand type (24)` exception is raised if any of the operands
-(i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) is a capability.
+For most of the existing instructions in {base_isa_name}, their behaviour is unmodified.
+The `cursor` field (if `type != 4`) or `base` field (if `type = 4`) of the capability is used
+if a register containing a capability is used as an operand.
 
-Apart from this operand constraint, the following instructions in {base_isa_name} are adjusted in {proj_name}:
+The following instructions in {base_isa_name} are adjusted in {proj_name}:
 
 ****
 * For memory access instructions, they are extended to use capabilities as addresses for memory access.
-* For control flow instructions, they are slightly adjusted to support capability-aware control flow.
-* Certain instructions, especially those belonging to the privileged ISA, are illegal under certain circumstances.
+* For control flow instructions, they are slightly adjusted for the case where the program counter is a capability.
+* Some instructions in {base_isa_name} become illegal instructions in _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world.
 ****
 
 [#load-store]
@@ -286,8 +286,6 @@ these instructions behave differently in different _encoding modes_.
 behave the same as in _{isa_var_pure}_.
 * When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
 behave the same as in {base_isa_name} except that the following adjustments are made to these instructions:
-- An `Unexpected operand type (24)` exception is raised if any of the operands
-(i.e., `x[rs1]`, `x[rs2]` or `x[rd]`) contains a capability.
 - An `Load access fault (5)` (for load) or `Store/AMO access fault(7)` (for store) exception is raised
 if the address to be accessed (i.e., `x[rs1] + imm`) is within the range `(SBASE - size, SEND)`.
 - For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLENBYTES`-byte aligned memory location
@@ -397,13 +395,11 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 ****
 _{isa_var_pure}_
 
-. An `Unexpected operand type (24)` exception is raised if `x[rs1]` or `x[rs2]` is a capability.
-. `pc.cursor`, instead of `pc`, is changed by the instruction.
+* `pc.cursor`, instead of `pc`, is changed by the instruction.
 
 _{isa_var_hybrid}_
 
-. An `Unexpected operand type (24)` exception is raised if `x[rs1]` or `x[rs2]` is a capability.
-. When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 ****
 
 === Jump Instructions
@@ -435,15 +431,13 @@ _{isa_var_hybrid}_
 ****
 _{isa_var_pure}_
 
-. An `Unexpected operand type (24)` exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
-. `pc.cursor + 4` is written to `x[rd]`.
-. `pc.cursor`, instead of `pc`, is changed by the instruction.
+* `pc.cursor + 4`, instead of `pc + 4`, is written to `x[rd]`.
+* `pc.cursor`, instead of `pc`, is changed by the instruction.
 
 _{isa_var_hybrid}_
 
-. An `Unexpected operand type (24)` exception is raised if `x[rs1]` (if existed) or `x[rd]` is a capability.
-. When `cwrld` is `1` (secure world), `pc.cursor + 4` is written to `x[rd]`.
-. When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
+* When `cwrld` is `1` (secure world), `pc.cursor + 4`, instead of `pc + 4`, is written to `x[rd]`.
+* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 ****
 
 == Illegal Instructions
