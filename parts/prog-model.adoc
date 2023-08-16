@@ -338,6 +338,12 @@ The manipulation constraints for each CCSR are indicated below.
 |`switch_cap` | _{isa_var_hybrid}_ normal world | _{isa_var_hybrid}_ normal world
 |===
 
+Some of the registers are added as _control and status registers_ (CSRs).
+These registers are manipulated by the same instructions
+that manipulate CSRs as in {base_isa_name}.
+When the manipulation constraints of these additional CSRs are not satisfied,
+the behaviour of these instructions follows the {base_isa_name} convention for other CSRs.
+
 The manipulation constraints for each additional CSR are indicated below.
 
 .Manipulation Constraints for Additional CSRs

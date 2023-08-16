@@ -454,9 +454,9 @@ when executed in _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world, under all 
 These instructions are:
 
 ****
-* All instructions defined in the privileged ISA of {base_isa_name}.
-* All instructions defined in the {base_isa_csr_ext} extension, namely
-instructions that directly access CSRs, when the CSR specified is not
+* All instructions defined in the https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf[privileged ISA] of {base_isa_name}.
+* All instructions defined in the https://riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf[{base_isa_csr_ext} extension],
+namely instructions that directly access CSRs, when the CSR specified is not
 <<additional-regs,one defined in {isa_name}>>,
 or when the <<csr-man-constr,read/write constraints>> are not satisfied.
 * `ecall`.
