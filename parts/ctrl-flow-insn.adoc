@@ -42,8 +42,9 @@ _{isa_var_hybrid}_
 *If no exception is raised:*
 
 ====
-. Set `pc.cursor` to `pc.cursor + 4`, and `x[rs1].cursor` to `x[rs1].cursor + imm`.
-. Write `pc` to `x[rd]`, and `x[rs1]` to `pc`.
+. Set `cap` to `x[rs1]`.
+. Set `pc.cursor` to `pc.cursor + 4`, write `pc` to `x[rd]`.
+. Set `cap.cursor` to `cap.cursor + imm`, write `cap` to `pc`.
 . If `rs1 != rd` and `x[rs1].type != 1`, write `cnull` to `x[rs1]`.
 ====
 
