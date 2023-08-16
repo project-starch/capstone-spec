@@ -68,11 +68,11 @@ protect the confidentiality of the secure world execution.
 ****
 ====
 
-.*Note: Implementation specified exception code*
+.*Note: Implementation specified exception*
 [%collapsible]
 ====
 ****
-For some of the exception code, where the exception is raised is not
+For some of the exception code, where the corresponding exception is raised is not
 specified as part of the ISA specification.
 Instead, it is up to the implementation to decide where to raise the exception.
 These exceptions include:
