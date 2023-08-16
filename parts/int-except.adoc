@@ -53,6 +53,7 @@ implementation and interoperability.
 | Insufficient capability permissions | 27 | 1
 | Capability out of bound | 28 | 1
 | Illegal operand value | 29 | 1
+| Insufficient system resources | 30 | 1
 | Unhandleable exception | 63 | N/A in _{isa_var_hybrid}_
 |===
 
@@ -64,6 +65,19 @@ For interrupts, the same encodings as in {base_isa_name} are used.
 ****
 Currently, we use the same exit code `1` for all exception types to
 protect the confidentiality of the secure world execution.
+****
+====
+
+.*Note: Implementation specified exception code*
+[%collapsible]
+====
+****
+For some of the exception code, where the exception is raised is not
+specified as part of the ISA specification.
+Instead, it is up to the implementation to decide where to raise the exception.
+These exceptions include:
+
+* `Insufficient system resources (30)`
 ****
 ====
 
