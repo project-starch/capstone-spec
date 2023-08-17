@@ -353,7 +353,7 @@ It is only available in the secure world and can only be used with an exit capab
 to the memory location `[cap.base, cap.base + CLENBYTES)`,
 `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)`, and
 `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)` respectively.
-. Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
 . Set `cap.type` to `4` (sealed), `cap.async`
 to `0` (synchronous), and write the resulting `cap` to `x[switch_reg]`.
 . Set `x[exit_reg]` to `0` (normal exit).

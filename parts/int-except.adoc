@@ -507,6 +507,7 @@ and write `cnull` to `ceh`.
 to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
 . Set `switch_cap.type` to `4` (sealed), `switch_cap.async` to `1` (upon exception).
 . Write the content of `switch_cap` to `x[switch_reg]`, and `cnull` to `switch_cap`.
 // Scrub is needed for linearity
@@ -521,8 +522,7 @@ to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base 
 *Otherwise:*
 
 ====
-. Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
-`normal_sp` respectively.
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
 . Write `cnull` to `x[switch_reg]`.
 . Scrub the other general-purpose registers
 (i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).
