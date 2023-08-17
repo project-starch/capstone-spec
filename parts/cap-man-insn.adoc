@@ -79,8 +79,9 @@ capability by a given amount (offset).
 *If no exception is raised:*
 
 ====
-. Set `x[rs1].cursor` to `x[rs1].cursor + x[rs2]`.
+. Set `val` to `x[rs2]`.
 . `MOVC rd, rs1`.
+. Set `x[rd].cursor` to `x[rd].cursor + val`.
 ====
 
 ==== CINCOFFSETIMM
@@ -109,8 +110,8 @@ capability by a given amount (offset).
 *If no exception is raised:*
 
 ====
-. Set `x[rs1].cursor` to `x[rs1].cursor + imm`.
 . `MOVC rd, rs1`.
+. Set `x[rd].cursor` to `x[rd].cursor + imm`.
 ====
 
 [#cursor-set]
@@ -144,8 +145,9 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 *If no exception is raised:*
 
 ====
-. Set `x[rs1].cursor` to `x[rs2]`.
-. `MOVC rd, rs1`
+. Set `val` to `x[rs2]`.
+. `MOVC rd, rs1`.
+. Set `x[rd].cursor` to `val`.
 ====
 
 [#field-query]
@@ -319,9 +321,9 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 *If no exception is raised:*
 
 ====
+. `MOVC rd, rs1`.
 . If `imm > 7`, set `x[rs1].perms` to `0`.
 Otherwise, set `x[rs1].perms` to `imm`.
-. `MOVC rd, rs1`.
 ====
 
 == Type Manipulation
@@ -397,8 +399,9 @@ after its associated memory region has been fully initialised (written with new 
 *If no exception is raised:* 
 
 ====
-. Set `x[rs1].type` to `0` (linear), and `x[rs1].cursor` to `x[rs1].base + x[rs2]`.
+. Set `val` to `x[rs2]`.
 . `MOVC rd, rs1`.
+. Set `x[rd].type` to `0` (linear), and `x[rd].cursor` to `x[rd].base + val`.
 ====
 
 [#seal]
@@ -437,8 +440,8 @@ The SEAL instruction seals a linear capability.
 *If no exception is raised:* 
 
 ====
-. Set `x[rs1].type` to `2` (sealed), and `x[rs1].async` to `0` (synchronous).
 . `MOVC rd, rs1`.
+. Set `x[rd].type` to `2` (sealed), and `x[rd].async` to `0` (synchronous).
 ====
 
 [#drop]
