@@ -146,21 +146,11 @@ where `size` is the size of the memory access in bytes.
 In other scenarios and for other capability types without the `perms` field, no read/write/execute
 memory accesses are granted by the capability.
 
-****
-The following figure shows the overview of different types of capabilities in _{isa_var_pure}_,
+The following figure shows the overview of different types of capabilities in {isa_name},
 and the operations that change the type of a capability.
 
-.Overview of different types of capabilities in _{isa_var_pure}_
-image::pure-types.svg[pure-types]
-****
-
-****
-The following figure shows the overview of different types of capabilities in _{isa_var_hybrid}_,
-and the operations that change the type of a capability.
-
-.Overview of different types of capabilities in _{isa_var_hybrid}_
+.Overview of different types of capabilities in {isa_name}
 image::trans-types.svg[trans-types]
-****
 
 == Extension to General-Purpose Registers
 
@@ -226,17 +216,14 @@ register with index `i`.
 
 === Program Counter
 
-The following changes are made to the program counter (`pc`):
-
-* _{isa_var_pure}_: the program counter (`pc`) is changed to contain a capability only.
-* _{isa_var_hybrid}_: similar to the general-purpose registers,
+Similar to the general-purpose registers,
 the program counter (`pc`) is extended to contain a capability or an integer.
 
 .*Note: what is `cwrld`*
 [%collapsible]
 ====
 ****
-`cwrld` is a special register added in _{isa_var_hybrid}_ that indicates the world currently in execution.
+`cwrld` is a special register added in {isa_name} that indicates the world currently in execution.
 Please see <<additional-regs,Added Registers>> for details.
 ****
 ====
@@ -244,9 +231,16 @@ Please see <<additional-regs,Added Registers>> for details.
 *During the instruction fetch stage, an exception is raised when any of the following conditions is met:*
 
 ****
-_{isa_var_pure}_
+Normal world (i.e., `cwrld = 0`)
+
+* `cwrld` is `0` (normal world) and any of the conditions for {base_isa_name} is met.
+* `Instruction access fault (1)`
+- `pc` does not contain an integer.
+
+Secure world (i.e., `cwrld = 1`)
 
 * `Instruction access fault (1)`
+- `pc` does not contain a capability.
 - `pc.valid` is `0` (invalid).
 - `pc.type` is neither `0` (linear) nor `1` (non-linear).
 - `pc.perms` is not executable (i.e., `1 \<=p pc.perms` does not hold).
@@ -254,25 +248,20 @@ _{isa_var_pure}_
 * `Instruction address misaligned (0)`
 - `pc.cursor` is not aligned to `4`.
 
-_{isa_var_hybrid}_
-
-* `cwrld` is `1` (secure world) and any of the conditions for _{isa_var_pure}_ is met.
-* `cwrld` is `0` (normal world) and any of the conditions for {base_isa_name} is met.
-* `Instruction access fault (1)`
-- `cwrld` is `1` (secure world) and `pc` does not contain a capability.
-- `cwrld` is `0` (normal world) and `pc` does not contain an integer.
 ****
 
 *If no exception is raised:*
 
-====
-_{isa_var_pure}_ or _{isa_var_hybrid}_ secure world (i.e., `cwrld = 1`)
+Secure world (i.e., `cwrld = 1`):
 
+====
 . The instruction pointed to by `pc.cursor` is fetched and executed.
 . Set `pc.cursor` to `pc.cursor + 4` at the end of the instruction.
+====
 
-_{isa_var_hybrid}_ normal world (i.e., `cwrld = 0`)
+Normal world (i.e., `cwrld = 0`):
 
+====
 . The instruction pointed to by `pc` is fetched and executed.
 . Set `pc` to `pc + 4` at the end of the instruction.
 ====
@@ -283,40 +272,22 @@ _{isa_var_hybrid}_ normal world (i.e., `cwrld = 0`)
 The {isa_name} ISA adds the following registers.
 
 .Additional Registers in {isa_name} ISA
-[#additional-regs]
-[#add-reg-list, cols="1,3a", options="header"]
+[#add-reg-list]
+[%header%autowidth.stretch]
 |===
-|{proj_name} Variant   | Additional Registers
-|_{isa_var_pure}_|
-[cols="1,1,1,4", options="header"]
-!===
-! Mnemonic ! CCSR encoding ! CSR encoding ! Description
-! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
-! `cih`  ! `0x001` ! - ! The sealed capability for the interrupt handler
-! `cinit` ! `0x002` ! - ! The initial capability covering the entire address space of the memory
-! `epc` ! `0x003` ! - ! The exception program counter register
-! `cis` ! - ! `0x800` ! The interrupt status register
-! `tval` ! - ! `0x801` ! The exception data (trap value) register
-! `cause` ! - ! `0x802` ! The exception cause register
-!===
-
-|_{isa_var_hybrid}_|
-[cols="1,1,1,4", options="header"]
-!===
-! Mnemonic ! CCSR encoding ! CSR encoding ! Description
-! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
-! `cinit` ! `0x002` ! - ! The initial capability covering the entire address space of the secure memory
-! `epc` ! `0x003` ! - ! The exception program counter register
-! `cwrld`! - ! - ! The world currently in execution. `0` = normal world, `1` = secure world
-! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
-! `normal_sp`!-!-!The stack pointer for the normal world before the secure world is entered
-! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
-! `switch_cap`! `0x004` !-! The capability used to store contexts when switching worlds asynchronously
-! `exit_reg`!-!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
-! `tval` ! - ! `0x801` ! The exception data (trap value) register
-! `cause` ! - ! `0x802` ! The exception cause register
-! `emode` ! - ! `0x804` ! The encoding mode of the machine. `0` = integer encoding mode, `1` = capability encoding mode
-!===
+| Mnemonic | CCSR encoding | CSR encoding | Description
+| `ceh`  | `0x000` | - | The sealed capability or PC entry for the exception handler
+| `cinit` | `0x002` | - | The initial capability covering the entire address space of the secure memory
+| `epc` | `0x003` | - | The exception program counter register
+| `cwrld`| - | - | The world currently in execution. `0` = normal world, `1` = secure world
+| `normal_pc`| - | - |The program counter for the normal world before the secure world is entered
+| `normal_sp`| - | - |The stack pointer for the normal world before the secure world is entered
+| `switch_reg`| - | - | The index of the general-purpose register used when switching worlds
+| `switch_cap`| `0x004` | - | The capability used to store contexts when switching worlds asynchronously
+| `exit_reg`| - | - | The index of the general-purpose register for receiving the exit code when exiting the secure world 
+| `tval` | - | `0x801` | The exception data (trap value) register
+| `cause` | - | `0x802` | The exception cause register
+| `emode` | - | `0x804` | The encoding mode of the machine. `0` = integer encoding mode, `1` = capability encoding mode
 |===
 
 Some of the registers only allow capability values and have special semantics
@@ -331,11 +302,10 @@ The manipulation constraints for each CCSR are indicated below.
 [%header%autowidth.stretch]
 |===
 |Mnemonic | Read | Write
-|`ceh` | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
-|`cih` | - | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world; the original content must not be a capability
-|`cinit` | _{isa_var_pure}_ or _{isa_var_hybrid}_ normal world; one-time only | -
-|`epc` | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
-|`switch_cap` | _{isa_var_hybrid}_ normal world | _{isa_var_hybrid}_ normal world
+|`ceh` | Secure world | Secure world
+|`cinit` | Normal world; one-time only | -
+|`epc` | Secure world | Secure world
+|`switch_cap` | Normal world | Normal world
 |===
 
 Some of the registers are added as _control and status registers_ (CSRs).
@@ -351,26 +321,18 @@ The manipulation constraints for each additional CSR are indicated below.
 [%header%autowidth.stretch]
 |===
 |Mnemonic | Read | Write
-|`cis`| _{isa_var_pure}_ | _{isa_var_pure}_
-|`tval`| _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
-|`cause`| _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
-|`emode`| _{isa_var_hybrid}_ normal world | _{isa_var_hybrid}_ normal world
+|`tval`|  Secure world |  Secure world
+|`cause`|  Secure world |  Secure world
+|`emode`|  Normal world |  Normal world
 |===
 
-.*Note: `ceh` and `cih`*
+.*Note: `ceh`*
 [%collapsible]
 ====
 ****
-`ceh` and `cih` should be handled differently.
-
 `ceh` is about the functionality of a domain only.
 A domain should be allowed to set `ceh` for itself.
 That also means it needs to be switched when switching domains.
-
-`cih` is about the functionality of the system,
-which should normally only be set once.
-To prevent any domain from setting `cih`, we require the original content of
-`cih` to be invalid for an attempt to change it to succeed.
 ****
 ====
 
@@ -398,18 +360,18 @@ also store a capability.
 The type of data contained in a memory location is maintained and
 confusion of the type is not allowed.
 
-In _{isa_var_pure}_, the memory can _only_ be accessed through capabilities.
-
-[%header%autowidth.stretch]
-|===
-| Address Space | Access Method
-| `[0, 2^XLEN)` | Capabilities
-|===
-
-In _{isa_var_hybrid}_, the physical memory is divided into two disjoint regions:
+The physical memory is divided into two disjoint regions:
 the _normal memory_ and the _secure memory_.
 While the normal memory is only accessible through _Memory Management Unit_ (MMU),
 the secure memory can only be accessed through capabilities.
+
+.Memory Accesses in _{isa_var_hybrid}_
+[%header%autowidth.stretch]
+|===
+| World | Memory Management Unit (MMU) | Capabilities
+| Normal world | Yes | Yes
+| Secure world | No | Yes
+|===
 
 The bounds of the secure memory `[SBASE, SEND)` are implementation-defined.
 But both `SBASE` and `SEND` are required to be `CLENBYTES`-byte aligned.
@@ -457,22 +419,7 @@ They receive up to two register operands and a 5-bit-wide immediate operand.
 [#reset]
 == System Reset
 
-Upon reset, the system state must conform to the following
-specifications.
-
-_{isa_var_pure}_
-
-****
-* Each general-purpose register either contains an integer, or a capability with `valid = 0` (invalid).
-* No addressable memory location can contain a capability.
-* `ceh`, `cih`, and `epc` contain either integers or
-capabilities with `valid = 0` (invalid).
-* `cis = 0`.
-* `cinit = { valid = 1, type = 0, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`,
-and `pc = { valid = 1, type = 0, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`, where `INIT_DATA_BASE`, `INIT_DATA_END`, `INIT_CODE_BASE`, and `INIT_CODE_END` are implementation-defined, and `[INIT_CODE_BASE, INIT_CODE_END)` does not overlap with `[INIT_DATA_BASE, INIT_DATA_END)`.
-****
-
-_{isa_var_hybrid}_
+Upon reset, the system state must conform to the following specifications.
 
 ****
 * Each general-purpose register either contains an integer, or a capability with `valid = 0` (invalid).
