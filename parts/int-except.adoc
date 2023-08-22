@@ -65,7 +65,7 @@ protect the confidentiality of the secure world execution.
 ****
 ====
 
-.*Note: Implementation specified exception*
+.*Note: implementation specified exception*
 [%collapsible]
 ====
 ****
