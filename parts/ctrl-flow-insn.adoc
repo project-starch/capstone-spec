@@ -26,13 +26,6 @@ in a unconditional or conditional manner.
 *An exception is raised when any of the following conditions is met:*
 
 ****
-_{isa_var_pure}_
-
-* `Unexpected operand type (24)`
-- `x[rs1]` is not a capability.
-
-_{isa_var_hybrid}_
-
 * `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
 * `Unexpected operand type (24)`
@@ -66,21 +59,12 @@ _{isa_var_hybrid}_
 *An exception is raised when any of the following conditions is met:*
 
 ****
-_{isa_var_pure}_
-
-* `Unexpected operand type (24)`
-- `x[rd]` is not a capability.
-- `x[rs1]` is not an integer.
-
-_{isa_var_hybrid}_
-
 * `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
 * `Unexpected operand type (24)`
 - `x[rd]` is not a capability.
 - `x[rs1]` is not an integer.
 ****
-
 
 *If no exception is raised:*
 
@@ -119,13 +103,8 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 *An exception is raised when any of the following conditions is met:*
 
 ****
-_{isa_var_hybrid}_
-
 * `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
-
-_{isa_var_pure}_ or _{isa_var_hybrid}_
-
 * `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
 * `Invalid capability (25)`
@@ -164,13 +143,8 @@ and `cra.async` to `0` (synchronous).
 *An exception is raised when any of the following conditions is met:*
 
 ****
-_{isa_var_hybrid}_
-
 * `Illegal instruction (2)`
 - `cwrld` is `0` (normal world).
-
-_{isa_var_pure}_ or _{isa_var_hybrid}_
-
 * `Unexpected operand type (24)`
 - `rs1 != 0` and `x[rs1]` is not a capability.
 - `x[rs2]` is not an integer.
@@ -178,6 +152,7 @@ _{isa_var_pure}_ or _{isa_var_hybrid}_
 - `rs1 != 0` and `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
 - `rs1 != 0` and `x[rs1].type` is not `5` (sealed-return).
+- `rs1 != 0` and `x[rs1].async` is neither `0` (synchronous) nor `1` (upon exception).
 ****
 
 *If no exception is raised:*
@@ -217,30 +192,12 @@ the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
 `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
 ====
 
-*When `x[rs1].async = 2` (upon interrupt):*
+== World Switching
 
-====
-. Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
-the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
-. Swap `ceh` with the content at the memory location
-`[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
-. Set `x[rs1].type` to `4` (sealed), `x[rs1].async` to `0` (synchronous).
-. Write the resulting `x[rs1]` to `cih`, and `cnull` to `x[rs1]`.
-. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
-`[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
-====
+The world switching mechanism of {isa_name} is provided by the CAPENTER and CAPEXIT instructions.
 
-== A World Switching Extension for _{isa_var_hybrid}_
-
-In _{isa_var_hybrid}_, a pair of extra instructions, i.e., CAPENTER and CAPEXIT,
-is added to support switching between the _secure world_ and the _normal world_.
-
-****
-The figure below shows the world switching in _{isa_var_hybrid}_.
-
-.Overview of world switching in _{isa_var_hybrid}_
+.Overview of world switching in {isa_name}
 image::trans-sync.svg[trans-sync]
-****
 
 [#world-enter]
 === CAPENTER
