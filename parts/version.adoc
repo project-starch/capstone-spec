@@ -1,6 +1,15 @@
 :reproducible:
 
-*Version Information:* Draft version. Refer to the commit hash.
+*Version Information:* Version 1
+
+*Academic Version:*
+
+Capstone-RISC-V also has an academic version,
+which provides better security than the standard version,
+but is not compatible with RISC-V's standard instruction set.
+Please refer to the
+https://capstone.kisp-lab.org/specs-academic/[academic version ISA]
+for more information.
 
 ifdef::backend-html5[]
 *Other formats:* This document is also available in the following formats:

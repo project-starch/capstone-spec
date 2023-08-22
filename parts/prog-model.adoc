@@ -365,7 +365,7 @@ the _normal memory_ and the _secure memory_.
 While the normal memory is only accessible through _Memory Management Unit_ (MMU),
 the secure memory can only be accessed through capabilities.
 
-.Memory Accesses in _{isa_var_hybrid}_
+.Memory Accesses in the normal world and secure world
 [%header%autowidth.stretch]
 |===
 | World | Memory Management Unit (MMU) | Capabilities
