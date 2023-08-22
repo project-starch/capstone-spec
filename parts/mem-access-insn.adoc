@@ -3,7 +3,7 @@
 [#load-store-cap]
 = Memory Access Instructions
 
-{proj_name} provides instructions to load and store capabilities from/to memory regions.
+{isa_name} provides instructions to load and store capabilities from/to memory regions.
 
 == Load Capabilities
 
