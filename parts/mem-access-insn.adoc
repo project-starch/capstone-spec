@@ -1,10 +1,10 @@
 :reproducible:
 
-[#load-store-cap]
 = Memory Access Instructions
 
 {isa_name} provides instructions to load and store capabilities from/to memory regions.
 
+[#load-cap]
 == Load Capabilities
 
 The LDC instruction loads a capability from the memory.
@@ -102,6 +102,7 @@ depending on the whether virtual memory is enabled.
 write `cnull` to the memory location `[int + imm, int + imm + CLENBYTES)`.
 ====
 
+[#store-cap]
 == Store Capabilities
 
 The STC instruction stores a capability to the memory.

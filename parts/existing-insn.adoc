@@ -14,7 +14,7 @@ The following instructions in {base_isa_name} are adjusted in {isa_name}:
 * Some instructions in {base_isa_name} become illegal instructions in the secure world.
 ****
 
-[#load-store]
+
 == Memory Access Instructions
 
 In {base_isa_name}, memory access instructions include load instructions
@@ -22,6 +22,7 @@ In {base_isa_name}, memory access instructions include load instructions
 These instructions take an integer as a raw address, and load or store a value from/to this address.
 In {isa_name}, these instructions are extended to take a capability as an address.
 
+[#load]
 === Load Instructions
 
 .*Note: `size` of load instructions*
@@ -180,6 +181,7 @@ as a signed integer to `x[rd]`.
 as an unsigned integer to `x[rd]`.
 ====
 
+[#store]
 === Store Instructions
 
 .*Note: `size` of store instructions*
