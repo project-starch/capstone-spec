@@ -236,7 +236,7 @@ the program counter (`pc`) is extended to contain a capability or an integer.
 [%collapsible]
 ====
 ****
-`cwrld` is a special register added in _{isa_var_hybrid}_ that indicates the currently executed world.
+`cwrld` is a special register added in _{isa_var_hybrid}_ that indicates the world currently in execution.
 Please see <<additional-regs,Added Registers>> for details.
 ****
 ====
@@ -307,7 +307,7 @@ The {isa_name} ISA adds the following registers.
 ! `ceh`  ! `0x000` ! - ! The sealed capability or PC entry for the exception handler
 ! `cinit` ! `0x002` ! - ! The initial capability covering the entire address space of the secure memory
 ! `epc` ! `0x003` ! - ! The exception program counter register
-! `cwrld`! - ! - ! The currently executed world. `0` = normal world, `1` = secure world
+! `cwrld`! - ! - ! The world currently in execution. `0` = normal world, `1` = secure world
 ! `normal_pc`!-!- !The program counter for the normal world before the secure world is entered
 ! `normal_sp`!-!-!The stack pointer for the normal world before the secure world is entered
 ! `switch_reg`!-!-! The index of the general-purpose register used when switching worlds
@@ -338,6 +338,12 @@ The manipulation constraints for each CCSR are indicated below.
 |`switch_cap` | _{isa_var_hybrid}_ normal world | _{isa_var_hybrid}_ normal world
 |===
 
+Some of the registers are added as _control and status registers_ (CSRs).
+These registers are manipulated by the same instructions
+that manipulate CSRs as in {base_isa_name}.
+When the manipulation constraints of these additional CSRs are not satisfied,
+the behaviour of these instructions follows the {base_isa_name} convention for other CSRs.
+
 The manipulation constraints for each additional CSR are indicated below.
 
 .Manipulation Constraints for Additional CSRs
@@ -345,7 +351,7 @@ The manipulation constraints for each additional CSR are indicated below.
 [%header%autowidth.stretch]
 |===
 |Mnemonic | Read | Write
-|`cis`| _{isa_var_pure}_; `cih` must not be a capability | _{isa_var_pure}_; `cih` must not be a capability
+|`cis`| _{isa_var_pure}_ | _{isa_var_pure}_
 |`tval`| _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
 |`cause`| _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world | _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world
 |`emode`| _{isa_var_hybrid}_ normal world | _{isa_var_hybrid}_ normal world
@@ -439,13 +445,14 @@ include::s-type-format.adoc[]
 R-type instructions receive up to three register operands, and I-type/S-type instructions
 receive up to two register operands and a 12-bit-wide immediate operand.
 
-{isa_name} also adds a new instruction format, the CI-type format, which is used for
-compressed immediate instructions.
+{isa_name} also uses a register operand of R-type as an immediate operand in some instructions,
+which is called _register-immediate_ (RI) type for convenience in this document.
 
-.CI-type instruction format
-include::ci-type-format.adoc[]
+.RI-type instruction format
+include::ri-type-format.adoc[]
 
-CI-type instructions receive up to two register operands and a 5-bit-wide immediate operand.
+The so-called RI-type instructions are actually _derivatives_ of R-type instructions.
+They receive up to two register operands and a 5-bit-wide immediate operand.
 
 [#reset]
 == System Reset
@@ -473,6 +480,7 @@ _{isa_var_hybrid}_
 * `ceh`, `epc` and `switch_cap` contain either an integer or
 a capability with `valid = 0` (invalid).
 * `cwrld = 0` (normal world).
+* `emode = 0` (integer encoding mode).
 * `cinit = { valid = 1, type = 0, cursor = SBASE, base = SBASE, end = SEND, perms = 7 }`.
 * Specifications for {base_isa_name}.
 ****

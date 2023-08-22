@@ -58,7 +58,7 @@ Linear capabilities:: Linear capabilities are guaranteed not to
     Operations on linear capabilities
     maintain this property. For example, instructions
     can only move, but not copy, linear capabilities
-    between geneeral-purpose registers.
+    between general-purpose registers.
     They can hence enable safe
     exclusive access to memory regions. Capabilities that do
     not have this property are called _non-linear_ capabilities.

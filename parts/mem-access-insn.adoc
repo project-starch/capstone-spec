@@ -7,7 +7,7 @@
 
 == _{isa_var_pure}_
 
-In _{isa_var_pure}_, two instructions (i.e., LDC and LTC) are used to load and store capabilities.
+In _{isa_var_pure}_, two instructions (i.e., LDC and STC) are used to load and store capabilities.
 
 === Load Capabilities
 
@@ -37,8 +37,6 @@ The LDC instruction loads a capability from the memory.
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
 - `x[rs1].type` is `0` (linear) or `1` (non-linear) and `4 \<=p x[rs1].perms` does not hold.
-- The capability being loaded is not a non-linear capability (i.e., `type != 1`),
-`x[rs1].type` is `0` (linear) or `1` (non-linear), and `2 \<=p x[rs1].perms` does not hold.
 * `Capability out of bound (28)`
 - `x[rs1].type` is `0` (linear) or `1` (non-linear), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
@@ -48,14 +46,18 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 - `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
 * `Load access fault (5)`
 - The data contained in the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` is not a capability.
+* `Insufficient capability permissions (27)`
+- The capability being loaded is not a non-linear capability (i.e., `type != 1`),
+`x[rs1].type` is `0` (linear) or `1` (non-linear), and `2 \<=p x[rs1].perms` does not hold.
 ****
 
 *If no exception is raised:*
 
 ====
-. Load the capability at the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` into `x[rd]`.
+. Set `cap` to `x[rs1]`.
+. Load the capability at the memory location `cap.cursor + imm, cap.cursor + imm + CLENBYTES)` into `x[rd]`.
 . If `x[rd].type` is not `1` (non-linear),
-write `cnull` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)`.
+write `cnull` to the memory location `[cap.cursor + imm, cap.cursor + imm + CLENBYTES)`.
 ====
 
 === Store Capabilities
@@ -88,13 +90,13 @@ The STC instruction stores a capability to the memory.
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
 - `x[rs1].type` is `0` or `1`, and `2 \<=p x[rs1].perms` does not hold.
+* `Illegal operand value (29)`
+- `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
 * `Capability out of bound (28)`
 - `x[rs1].type` is `0`, `1`, or `3`, and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
 - `x[rs1].type` is `5` or `6`, and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
-* `Illegal operand value (29)`
-- `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
 * `Store/AMO address misaligned (6)`
 - `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
 ****
@@ -103,8 +105,8 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 
 ====
 . Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)`.
-. If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
 . If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + CLENBYTES`.
+. If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
 ====
 
 == _{isa_var_hybrid}_
@@ -127,7 +129,7 @@ the LDC instruction loads a capability from the normal memory using raw addresse
 The raw addresses are interpreted as physical addresses or virtual addresses
 depending on the whether virtual memory is enabled.
 
-.LDC instruction format
+.LDC instruction format in integer encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -154,9 +156,10 @@ depending on the whether virtual memory is enabled.
 *If no exception is raised:*
 
 ====
-. Load the capability at the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)` into `x[rd]`.
+. Set `int` to `x[rs1]`.
+. Load the capability at the memory location `[int + imm, int + imm + CLENBYTES)` into `x[rd]`.
 . If `x[rd].type` is not `1` (non-linear),
-write `cnull` to the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)`.
+write `cnull` to the memory location `[int + imm, int + imm + CLENBYTES)`.
 ====
 
 === Store Capabilities in _integer encoding mode_

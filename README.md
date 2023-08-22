@@ -4,11 +4,11 @@ This repository contains the source code for the Capstone-RISC-V ISA Reference.
 The reference is written in [AsciiDoc](https://asciidoc.org/) and can be built
 using [Asciidoctor](https://asciidoctor.org/).
 
-A public version of the built reference can be found at https://jason.kisp.ml/specs/.
+A public version of the built reference can be found at https://capstone.kisp-lab.org/specs/.
 This version is automatically built from the `master` branch.
-Builds for other pushed revisions can be found at https://jason.kisp.ml/specs-revs/,
+Builds for other pushed revisions can be found at https://capstone.kisp-lab.org/specs-revs/,
 which are also listed by branch names and build dates at
-https://jason.kisp.ml/specs-revs/by-branch/ and https://jason.kisp.ml/specs-revs/by-date/
+https://capstone.kisp-lab.org/specs-revs/by-branch/ and https://capstone.kisp-lab.org/specs-revs/by-date/
 respectively.
 
 ### Rendering to PDF and HTML5

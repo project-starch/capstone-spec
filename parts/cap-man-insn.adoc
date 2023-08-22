@@ -49,7 +49,7 @@ write `cnull` to `x[rs1]`.
 === Cursor Increment
 
 The CINCOFFSET and CINCOFFSETIMM instructions increment the `cursor` of a
-capability by a give amount (offset).
+capability by a given amount (offset).
 
 ==== CINCOFFSET
 
@@ -79,8 +79,9 @@ capability by a give amount (offset).
 *If no exception is raised:*
 
 ====
-. `MOVC rd, rs1`
-. Set `x[rd].cursor` to `x[rd].cursor + x[rs2]`.
+. Set `val` to `x[rs2]`.
+. `MOVC rd, rs1`.
+. Set `x[rd].cursor` to `x[rd].cursor + val`.
 ====
 
 ==== CINCOFFSETIMM
@@ -109,7 +110,7 @@ capability by a give amount (offset).
 *If no exception is raised:*
 
 ====
-. `MOVC rd, rs1`
+. `MOVC rd, rs1`.
 . Set `x[rd].cursor` to `x[rd].cursor + imm`.
 ====
 
@@ -144,8 +145,9 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 *If no exception is raised:*
 
 ====
-. `MOVC rd, rs1`
-. Set `x[rd].cursor` to `x[rs2]`.
+. Set `val` to `x[rs2]`.
+. `MOVC rd, rs1`.
+. Set `x[rd].cursor` to `val`.
 ====
 
 [#field-query]
@@ -159,7 +161,7 @@ The LCC instruction is used to read a field from a capability.
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b010' },
+    {bits: 3, name: '0b001' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: 'imm[4:0] (Z)' },
     {bits: 7, name: '0b0000100' }
@@ -238,8 +240,8 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 
 ====
 . Set `x[rd].base` to `x[rs1]` and `x[rd].end` to `x[rs2]`.
-. If `x[rd].type` is `3` (uninitialised) and `x[rd].cursor < x[rs1]`,
-set `x[rd].cursor` to `x[rs1]`.
+. If `x[rd].cursor < x[rs1]`, set `x[rd].cursor` to `x[rs1]`.
+. If `x[rd].cursor > x[rs2]`, set `x[rd].cursor` to `x[rs2]`.
 ====
 
 [#split]
@@ -279,9 +281,12 @@ one with bounds `[x[rs1].base, x[rs2])` and the other with bounds `[x[rs2], x[rs
 *If no exception is raised:*
 
 ====
+. If `rs1 = rd`, the instruction is a no-op.
+// in case rs2 = rd
+. Set `val` to `x[rs2]`.
 . Write `x[rs1]` to `x[rd]`.
-. Set `x[rs1].end` to `x[rs2]`, `x[rs1].cursor` to `x[rs1].base`.
-. Set `x[rd].base` to `x[rs2]`, `x[rd].cursor` to `x[rs2]`.
+. Set `x[rs1].end` to `val`, `x[rs1].cursor` to `x[rs1].base`.
+. Set `x[rd].base` to `val`, `x[rd].cursor` to `val`.
 ====
 
 [#tighten]
@@ -310,15 +315,15 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 * `Unexpected capability type (26)`
 - `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
 * `Illegal operand value (29)`
-- `imm \<= 7` and `imm \<=p x[rs1].perms` does not hold.
+- `imm \<= 7`, and `imm \<=p x[rs1].perms` does not hold.
 ****
 
 *If no exception is raised:*
 
 ====
 . `MOVC rd, rs1`.
-. If `imm > 7`, set `x[rd].perms` to `0`.
-Otherwise, set `x[rd].perms` to `imm`.
+. If `imm > 7`, set `x[rs1].perms` to `0`.
+Otherwise, set `x[rs1].perms` to `imm`.
 ====
 
 == Type Manipulation
@@ -394,8 +399,9 @@ after its associated memory region has been fully initialised (written with new 
 *If no exception is raised:* 
 
 ====
+. Set `val` to `x[rs2]`.
 . `MOVC rd, rs1`.
-. Set `x[rd].type` to `0` (linear), and `x[rd].cursor` to `x[rs2]`.
+. Set `x[rd].type` to `0` (linear), and `x[rd].cursor` to `x[rd].base + val`.
 ====
 
 [#seal]
@@ -550,11 +556,10 @@ and `c` <<alias-definition,aliases>> with `x[rs1]`.
 * `c.type` is `2` (revocation), `c.valid` is `1` (valid), and `x[rs1] <<smaller-t-definition,<t>> c`.
 
 . `x[rs1].type` is set to `0` (linear)
-if, for every invalidated capability `c`, at least one of the following
-conditions are met:
+if at least one of the following conditions are met:
 
-* The type of `c` is non-linear (i.e., `c.type` is `1`).
-* `2 \<=p c.perms` does not hold.
+* For every invalidated capability `c`, the type of `c` is non-linear (i.e., `c.type` is `1`).
+* `2 \<=p x[rs1].perms` does not hold.
 
 . Otherwise, set `x[rs1].type` to `3` (uninitialised),
 and `x[rs1].cursor` to `x[rs1].base`.

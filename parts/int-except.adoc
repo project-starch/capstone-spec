@@ -53,6 +53,7 @@ implementation and interoperability.
 | Insufficient capability permissions | 27 | 1
 | Capability out of bound | 28 | 1
 | Illegal operand value | 29 | 1
+| Insufficient system resources | 30 | 1
 | Unhandleable exception | 63 | N/A in _{isa_var_hybrid}_
 |===
 
@@ -64,6 +65,19 @@ For interrupts, the same encodings as in {base_isa_name} are used.
 ****
 Currently, we use the same exit code `1` for all exception types to
 protect the confidentiality of the secure world execution.
+****
+====
+
+.*Note: Implementation specified exception*
+[%collapsible]
+====
+****
+For some of the exception code, where the corresponding exception is raised is not
+specified as part of the ISA specification.
+Instead, it is up to the implementation to decide where to raise the exception.
+These exceptions include:
+
+* `Insufficient system resources (30)`
 ****
 ====
 
@@ -95,24 +109,14 @@ For the added exceptions, the following data is written to `tval`:
 [%header%autowidth.stretch]
 |===
 | Exception |  Data 
-| `Unexpected operand type (24)` | 0
-| `Invalid capability (25)` | 0
-| `Unexpected capability type (26)` | 0
-| `Insufficient capability permissions (27)` | 0
-| `Capability out of bound (28)` | 0
-| `Illegal operand value (29)` | 0
+| `Unexpected operand type (24)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Invalid capability (25)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Unexpected capability type (26)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Insufficient capability permissions (27)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Capability out of bound (28)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Illegal operand value (29)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
 | `Unhandleable exception (63)` | N/A
 |===
-
-.*Note: content in `tval`*
-[%collapsible]
-====
-****
-Currently, the exception data for different exception types hasn't been defined yet.
-We use the same value `0` for all exception types.
-A future version of this specification will define the exception data for each exception type.
-****
-====
 
 == _{isa_var_pure}_
 
@@ -503,6 +507,7 @@ and write `cnull` to `ceh`.
 to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
 . Set `switch_cap.type` to `4` (sealed), `switch_cap.async` to `1` (upon exception).
 . Write the content of `switch_cap` to `x[switch_reg]`, and `cnull` to `switch_cap`.
 // Scrub is needed for linearity
@@ -517,8 +522,7 @@ to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base 
 *Otherwise:*
 
 ====
-. Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
-`normal_sp` respectively.
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
 . Write `cnull` to `x[switch_reg]`.
 . Scrub the other general-purpose registers
 (i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).

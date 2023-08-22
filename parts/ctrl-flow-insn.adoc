@@ -42,8 +42,9 @@ _{isa_var_hybrid}_
 *If no exception is raised:*
 
 ====
-. Set `pc.cursor` to `pc.cursor + 4`, and `x[rs1].cursor` to `x[rs1].cursor + imm`.
-. Write `pc` to `x[rd]`, and `x[rs1]` to `pc`.
+. Set `cap` to `x[rs1]`.
+. Set `pc.cursor` to `pc.cursor + 4`, write `pc` to `x[rd]`.
+. Set `cap.cursor` to `cap.cursor + imm`, write `cap` to `pc`.
 . If `rs1 != rd` and `x[rs1].type != 1`, write `cnull` to `x[rs1]`.
 ====
 
@@ -352,7 +353,7 @@ It is only available in the secure world and can only be used with an exit capab
 to the memory location `[cap.base, cap.base + CLENBYTES)`,
 `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)`, and
 `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)` respectively.
-. Write the content of `normal_pc` and `normal_sp` to `pc` and `sp` respectively.
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
 . Set `cap.type` to `4` (sealed), `cap.async`
 to `0` (synchronous), and write the resulting `cap` to `x[switch_reg]`.
 . Set `x[exit_reg]` to `0` (normal exit).
