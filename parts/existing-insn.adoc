@@ -11,10 +11,9 @@ The following instructions in {base_isa_name} are adjusted in {proj_name}:
 ****
 * For memory access instructions, they are adjusted to use capabilities as addresses for memory access.
 * For control flow instructions, they are  adjusted for the case where the program counter is a capability.
-* Some instructions in {base_isa_name} become illegal instructions in {isa_name} ISA.
+* Some instructions in {base_isa_name} become illegal instructions in the {isa_name} ISA.
 ****
 
-[#load-store]
 == Memory Access Instructions
 
 In {base_isa_name}, memory access instructions include load instructions
@@ -22,9 +21,10 @@ In {base_isa_name}, memory access instructions include load instructions
 These instructions take an integer as a raw address, and load or store a value from/to this address.
 In {proj_name}, these instructions are extended to take a capability as an address.
 
+[#load]
 === Load Instructions
 
-In {isa_name} ISA, {base_isa_name} load instructions are modified to load integers of different
+In the {isa_name} ISA, {base_isa_name} load instructions are modified to load integers of different
 sizes using capabilities.
 
 .*Note: `size` of load instructions*
@@ -166,6 +166,7 @@ as a signed integer to `x[rd]`.
 as an unsigned integer to `x[rd]`.
 ====
 
+[#store]
 === Store Instructions
 
 .*Note: `size` of store instructions*
@@ -408,7 +409,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 == Illegal Instructions
 
 Some instructions in {base_isa_name} now raise `illegal instruction (2)` exceptions
-when executed in {isa_name} ISA, under all or some circumstances.
+when executed in the {isa_name} ISA, under all or some circumstances.
 
 These instructions are:
 
@@ -416,7 +417,7 @@ These instructions are:
 * All instructions defined in the https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf[privileged ISA] of {base_isa_name}.
 * All instructions defined in the https://riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf[{base_isa_csr_ext} extension],
 namely instructions that directly access CSRs, when the CSR specified is not
-<<additional-regs,one defined in {isa_name}>>,
+<<additional-regs,one defined in the {isa_name} ISA>>,
 or when the <<csr-man-constr,read/write constraints>> are not satisfied.
 * `ecall`.
 * `ebreak`.

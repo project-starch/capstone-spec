@@ -1,10 +1,10 @@
 :reproducible:
 
-[#load-store-cap]
 = Memory Access Instructions
 
 {proj_name} provides instructions to load and store capabilities from/to memory regions.
 
+[#load-cap]
 == Load Capabilities
 
 The LDC instruction loads a capability from the memory.
@@ -56,6 +56,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 write `cnull` to the memory location `[cap.cursor + imm, cap.cursor + imm + CLENBYTES)`.
 ====
 
+[#store-cap]
 == Store Capabilities
 
 The STC instruction stores a capability to the memory.

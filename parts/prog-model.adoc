@@ -141,10 +141,10 @@ where `size` is the size of the memory access in bytes.
 In other scenarios and for other capability types without the `perms` field, no read/write/execute
 memory accesses are granted by the capability.
 
-The following figure shows the overview of different types of capabilities in {isa_name},
+The following figure shows the overview of different types of capabilities in the {isa_name} ISA,
 and the operations that change the type of a capability.
 
-.Overview of different types of capabilities in {isa_name}
+.Overview of different types of capabilities in the {isa_name} ISA
 image::pure-types.svg[pure-types]
 
 == Extension to General-Purpose Registers
@@ -237,7 +237,7 @@ The program counter (`pc`) is changed to contain a capability only.
 
 The {isa_name} ISA adds the following registers.
 
-.Additional Registers in {isa_name} ISA
+.Additional Registers in the {isa_name} ISA
 [#add-reg-list]
 [%header%autowidth.stretch]
 |===
@@ -360,7 +360,7 @@ include::s-type-format.adoc[]
 R-type instructions receive up to three register operands, and I-type/S-type instructions
 receive up to two register operands and a 12-bit-wide immediate operand.
 
-{isa_name} also uses a register operand of R-type as an immediate operand in some instructions,
+The {isa_name} ISA also uses a register operand of R-type as an immediate operand in some instructions,
 which is called _register-immediate_ (RI) type for convenience in this document.
 
 .RI-type instruction format

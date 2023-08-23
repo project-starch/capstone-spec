@@ -77,7 +77,7 @@ in a unconditional or conditional manner.
 [#domain-cross]
 == Domain Crossing
 
-_Domains_ in {isa_name} are individual software compartments that
+_Domains_ in the {isa_name} ISA are individual software compartments that
 are protected by a safe context switching mechanism, i.e., _domain crossing_.
 The mechanism is provided by the CALL and RETURN instructions.
 
