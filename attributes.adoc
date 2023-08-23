@@ -1,4 +1,4 @@
-:isa_name: Capstone-RISC-V
+:isa_name: Capstone-RISC-V Academic Version
 :isa_var_pure: Pure Capstone
 :isa_var_hybrid: TransCapstone
 :proj_name: Capstone
