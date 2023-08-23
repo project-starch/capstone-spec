@@ -8,7 +8,7 @@ Capstone-RISC-V has an academic version in addition to the standard version in t
 The academic version works as a standalone ISA similar to the secure world of the standard version ISA,
 and is not compatible with the RISC-V standard instruction set.
 Please refer to the
-https://capstone.kisp-lab.org/specs-academic/[academic version ISA]
+https://capstone.kisp-lab.org/academic/specs/[academic version ISA]
 for more information.
 
 ifdef::backend-html5[]
