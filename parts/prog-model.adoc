@@ -264,8 +264,8 @@ The manipulation constraints for each CCSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`ceh` | No constraint | No constraint
-|`cih` | - | The original content must not be a capability
-|`cinit` | Oone-time only | -
+|`cih` | Not allowed | The original content must not be a capability
+|`cinit` | Oone-time only | Not allowed
 |`epc` | No constraint | No constraint
 |===
 
