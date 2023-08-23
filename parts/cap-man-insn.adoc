@@ -175,8 +175,8 @@ The LCC instruction is used to read a field from a capability.
 - `x[rs1]` is not a capability.
 * `Unexpected capability type (26)`
 - `imm = 2` and `x[rs1]` has `type = 4` (sealed).
-- `imm = 4` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
-- `imm = 5` and `x[rs1]` has `type = 4` (sealed), `type = 5` (sealed-return), or `type = 6` (exit).
+- `imm = 4` and `x[rs1]` has `type = 4` (sealed) or `type = 5` (sealed-return).
+- `imm = 5` and `x[rs1]` has `type = 4` (sealed) or `type = 5` (sealed-return).
 - `imm = 6` and `x[rs1]` does not have `type = 4` (sealed) or `type = 5` (sealed-return).
 - `imm = 7` and `x[rs1]` does not have `type = 5` (sealed-return).
 ****

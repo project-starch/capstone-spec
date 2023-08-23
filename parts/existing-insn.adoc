@@ -9,9 +9,9 @@ if a register containing a capability is used as an operand.
 The following instructions in {base_isa_name} are adjusted in {proj_name}:
 
 ****
-* For memory access instructions, they are extended to use capabilities as addresses for memory access.
-* For control flow instructions, they are slightly adjusted for the case where the program counter is a capability.
-* Some instructions in {base_isa_name} become illegal instructions in _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world.
+* For memory access instructions, they are adjusted to use capabilities as addresses for memory access.
+* For control flow instructions, they are  adjusted for the case where the program counter is a capability.
+* Some instructions in {base_isa_name} become illegal instructions in {isa_name} ISA.
 ****
 
 [#load-store]
@@ -22,11 +22,9 @@ In {base_isa_name}, memory access instructions include load instructions
 These instructions take an integer as a raw address, and load or store a value from/to this address.
 In {proj_name}, these instructions are extended to take a capability as an address.
 
-=== _{isa_var_pure}_
+=== Load Instructions
 
-==== Load Instructions
-
-In _{isa_var_pure}_, {base_isa_name} load instructions are modified to load integers of different
+In {isa_name} ISA, {base_isa_name} load instructions are modified to load integers of different
 sizes using capabilities.
 
 .*Note: `size` of load instructions*
@@ -57,14 +55,14 @@ The `size` used in this sections is the size (in bytes) of the integer being loa
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is not `0` (linear), `1` (non-linear), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear) or `5` (sealed-return).
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
 - `x[rs1].type` is `0` (linear) or 1 (non-linear) and `4 \<=p x[rs1].perms` does not hold.
 * `Capability out of bound (28)`
 - `x[rs1].type` is `0` (linear) or `1` (non-linear), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - size]`.
-- `x[rs1].type` is `5` (sealed-return) or `6` (exit), and `x[rs1].cursor + imm` is
+- `x[rs1].type` is `5` (sealed-return), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - size]`.
 * `Load address misaligned (4)`
 - `x[rs1].cursor + imm` is not aligned to `size` bytes.
@@ -168,7 +166,7 @@ as a signed integer to `x[rd]`.
 as an unsigned integer to `x[rd]`.
 ====
 
-==== Store Instructions
+=== Store Instructions
 
 .*Note: `size` of store instructions*
 [%collapsible]
@@ -248,7 +246,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised) or `5` (sealed-return).
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
 - `x[rs1].type` is `0` or `1`, and `2 \<=p x[rs1].perms` does not hold.
@@ -272,26 +270,6 @@ the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set 
 where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
 . If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + size`.
 ====
-
-=== _{isa_var_hybrid}_
-
-In _{isa_var_hybrid}_ secure world (i.e., `cwrld` is `1`),
-{base_isa_name} memory access instructions behave the same as in _{isa_var_pure}_.
-
-However, in _{isa_var_hybrid}_ normal world (i.e., `cwrld` is `0`),
-these instructions behave differently in different _encoding modes_.
-
-****
-* When `cwrld` is `0` (normal world) and `emode` is `1` (capability encoding mode), these instructions
-behave the same as in _{isa_var_pure}_.
-* When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
-behave the same as in {base_isa_name} except that the following adjustments are made to these instructions:
-- An `Load access fault (5)` (for load) or `Store/AMO access fault(7)` (for store) exception is raised
-if the address to be accessed (i.e., `x[rs1] + imm`) is within the range `(SBASE - size, SEND)`.
-- For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLENBYTES`-byte aligned memory location
-`[cbase, cend)`, which aliases with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
-is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
-****
 
 .*Note: undefined behaviour*
 [%collapsible]
@@ -393,13 +371,7 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 *The following adjustments are made to these instructions:*
 
 ****
-_{isa_var_pure}_
-
 * `pc.cursor`, instead of `pc`, is changed by the instruction.
-
-_{isa_var_hybrid}_
-
-* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 ****
 
 === Jump Instructions
@@ -429,21 +401,14 @@ _{isa_var_hybrid}_
 *The following adjustments are made to these instructions:*
 
 ****
-_{isa_var_pure}_
-
 * `pc.cursor + 4`, instead of `pc + 4`, is written to `x[rd]`.
 * `pc.cursor`, instead of `pc`, is changed by the instruction.
-
-_{isa_var_hybrid}_
-
-* When `cwrld` is `1` (secure world), `pc.cursor + 4`, instead of `pc + 4`, is written to `x[rd]`.
-* When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 ****
 
 == Illegal Instructions
 
 Some instructions in {base_isa_name} now raise `illegal instruction (2)` exceptions
-when executed in _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world, under all or some circumstances.
+when executed in {isa_name} ISA, under all or some circumstances.
 
 These instructions are:
 

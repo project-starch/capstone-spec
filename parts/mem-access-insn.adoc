@@ -5,11 +5,7 @@
 
 {proj_name} provides instructions to load and store capabilities from/to memory regions.
 
-== _{isa_var_pure}_
-
-In _{isa_var_pure}_, two instructions (i.e., LDC and STC) are used to load and store capabilities.
-
-=== Load Capabilities
+== Load Capabilities
 
 The LDC instruction loads a capability from the memory.
 
@@ -33,14 +29,14 @@ The LDC instruction loads a capability from the memory.
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is not `0` (linear), `1` (non-linear), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear) or `5` (sealed-return).
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
 - `x[rs1].type` is `0` (linear) or `1` (non-linear) and `4 \<=p x[rs1].perms` does not hold.
 * `Capability out of bound (28)`
 - `x[rs1].type` is `0` (linear) or `1` (non-linear), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
-- `x[rs1].type` is `5` (sealed-return) or `6` (exit), and `x[rs1].cursor + imm` is
+- `x[rs1].type` is `5` (sealed-return), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
 * `Load address misaligned (4)`
 - `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
@@ -60,7 +56,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 write `cnull` to the memory location `[cap.cursor + imm, cap.cursor + imm + CLENBYTES)`.
 ====
 
-=== Store Capabilities
+== Store Capabilities
 
 The STC instruction stores a capability to the memory.
 
@@ -86,7 +82,7 @@ The STC instruction stores a capability to the memory.
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised) or `5` (sealed-return).
 - `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
 * `Insufficient capability permissions (27)`
 - `x[rs1].type` is `0` or `1`, and `2 \<=p x[rs1].perms` does not hold.
@@ -106,95 +102,5 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - C
 ====
 . Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)`.
 . If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + CLENBYTES`.
-. If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
-====
-
-== _{isa_var_hybrid}_
-
-In _{isa_var_hybrid}_, the LDC and STC instructions are extended to support loading and storing capabilities
-from/to the normal memory using raw addresses.
-
-****
-* In the secure world (i.e., `cwrld` is `1`), the LDC and STC instructions remain the same as in _{isa_var_pure}_.
-* In the normal world (i.e., `cwrld` is `0`), the LDC and STC instructions behave differently in different _encoding modes_.
-- When `emode` is `1` (capability encoding mode), the LDC and STC instructions behave the same as in _{isa_var_pure}_.
-- When `emode` is `0` (integer encoding mode), the LDC and STC instructions are used to load and store capabilities
-from/to the normal memory using raw addresses.
-****
-
-=== Load Capabilities in _integer encoding mode_
-
-When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
-the LDC instruction loads a capability from the normal memory using raw addresses.
-The raw addresses are interpreted as physical addresses or virtual addresses
-depending on the whether virtual memory is enabled.
-
-.LDC instruction format in integer encoding mode
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (C)' },
-    {bits: 3, name: '0b011' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 12, name: 'imm[11:0] (S)' }
-]}
-....
-
-*An exception is raised when any of the following conditions is met:*
-
-****
-* `Unexpected operand type (24)`
-- `x[rs1]` is not an integer.
-* `Load address misaligned (4)`
-- `x[rs1] + imm` is not aligned to `CLENBYTES` bytes.
-* `Load access fault (5)`
-- `x[rs1] + imm` is in the range `[SBASE, SEND)`.
-- The data contained in the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)` is not a capability.
-****
-
-*If no exception is raised:*
-
-====
-. Set `int` to `x[rs1]`.
-. Load the capability at the memory location `[int + imm, int + imm + CLENBYTES)` into `x[rd]`.
-. If `x[rd].type` is not `1` (non-linear),
-write `cnull` to the memory location `[int + imm, int + imm + CLENBYTES)`.
-====
-
-=== Store Capabilities in _integer encoding mode_
-
-When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
-the STC instruction stores a capability to the normal memory using raw addresses.
-
-.STC instruction format in integer encoding mode
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'imm[4:0] (S)' },
-    {bits: 3, name: '0b100' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: 'rs2 (C)' },
-    {bits: 7, name: 'imm[11:5] (S)' }
-]}
-....
-
-*An exception is raised when any of the following conditions is met:*
-
-****
-* `Unexpected operand type (24)`
-- `x[rs1]` is not an integer.
-- `x[rs2]` is not a capability.
-* `Store/AMO address misaligned (6)`
-- `x[rs1] + imm` is not aligned to `CLENBYTES` bytes.
-* `Store/AMO access fault (7)`
-- `x[rs1] + imm` is in the range `[SBASE, SEND)`.
-****
-
-*If no exception is raised:*
-
-====
-. Store `x[rs2]` to the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)`.
 . If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
 ====
