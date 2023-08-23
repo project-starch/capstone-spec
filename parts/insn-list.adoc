@@ -20,46 +20,46 @@ include::ri-type-format.adoc[]
 .Capability manipulation instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0] | World
-|<<rev-operation,REVOKE>>      |R |`001`    |`0000000` | C | - | - | - | - | *
-|<<shrink,SHRINK>>      |R |`001`    |`0000001` | I | I | C | - | - | *
-|<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | - | *
-|<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | - | *
-|<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | - | *
-|<<cursor-set,SCC>>         |R |`001`    |`0000101` | I | - | C | - | - | *
-|<<split,SPLIT>>       |R |`001`    |`0000110` | C | I | C | - | - | *
-|<<seal,SEAL>>        |R |`001`    |`0000111` | C | - | C | - | - | *
-|<<revcap-creation,MREV>>        |R |`001`    |`0001000` | C | - | C | - | - | *
-|<<init,INIT>>        |R |`001`    |`0001001` | C | I | C | - | - | *
-|<<cap-mov,MOVC>>        |R |`001`    |`0001010` | C | - | C | - | - | *
-|<<drop,DROP>>       |R |`001`    |`0001011` | C | - | - | - | - | *
-|<<cursor-inc,CINCOFFSET>>  |R |`001`    |`0001100` | C | I | C | - | - | *
-|<<cursor-inc,CINCOFFSETIMM>> |I |`010`    | - | C | - | C | - | S | *
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0]
+|<<rev-operation,REVOKE>>      |R |`001`    |`0000000` | C | - | - | - | -
+|<<shrink,SHRINK>>      |R |`001`    |`0000001` | I | I | C | - | -
+|<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | -
+|<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | -
+|<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | -
+|<<cursor-set,SCC>>         |R |`001`    |`0000101` | I | - | C | - | -
+|<<split,SPLIT>>       |R |`001`    |`0000110` | C | I | C | - | -
+|<<seal,SEAL>>        |R |`001`    |`0000111` | C | - | C | - | -
+|<<revcap-creation,MREV>>        |R |`001`    |`0001000` | C | - | C | - | -
+|<<init,INIT>>        |R |`001`    |`0001001` | C | I | C | - | -
+|<<cap-mov,MOVC>>        |R |`001`    |`0001010` | C | - | C | - | -
+|<<drop,DROP>>       |R |`001`    |`0001011` | C | - | - | - | -
+|<<cursor-inc,CINCOFFSET>>  |R |`001`    |`0001100` | C | I | C | - | -
+|<<cursor-inc,CINCOFFSETIMM>> |I |`010`    | - | C | - | C | - | S
 |===
 
 .Memory access instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<load-cap,LDC>>  |I |- |`011` | - | C | - | C | S | -
-|<<store-cap,STC>>  |S |- |`100` | - | C | C | - | S | -
+|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|<<load-cap,LDC>>  |I |- |`011` | - | C | - | C | S
+|<<store-cap,STC>>  |S |- |`100` | - | C | C | - | S
 |===
 
 .Control flow instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<domain-cross,CALL>>        |R |`001`    |`0100000` | C | - | C | - | -
-|<<domain-cross,RETURN>>      |R |`001`    |`0100001` | C | I | - | - | -
-|<<jmp-cap,CJALR>>         |I |`101`    |- | C | - | C | S | -
-|<<branch-cap,CBNZ>>         |I |`110`    |- | I | - | C | S | -
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|<<domain-cross,CALL>>        |R |`001`    |`0100000` | C | - | C | -
+|<<domain-cross,RETURN>>      |R |`001`    |`0100001` | C | I | - | -
+|<<jmp-cap,CJALR>>         |I |`101`    |- | C | - | C | S
+|<<branch-cap,CBNZ>>         |I |`110`    |- | I | - | C | S
 |===
 
 .Control and status instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<ctrl-status,CCSRRW>> |I |`111`    | - | C | - | C | Z | *
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|<<ctrl-status,CCSRRW>> |I |`111`    | - | C | - | C | Z
 |===
 
 == Adjusted {base_isa_name} Memory Access Instructions
@@ -92,24 +92,24 @@ include::ri-type-format.adoc[]
 .Extended {base_isa_name} load instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<load,`lb`>> |I |- |`000` | - | C | - | I | S | -
-|<<load,`lh`>> |I |- |`001` | - | C | - | I | S | -
-|<<load,`lw`>> |I |- |`010` | - | C | - | I | S | -
-|<<load,`ld`>> |I |- |`011` | - | C | - | I | S | -
-|<<load,`lbu`>> |I |- |`100` | - | C | - | I | S | -
-|<<load,`lhu`>> |I |- |`101` | - | C | - | I | S | -
-|<<load,`lwu`>> |I |- |`110` | - | C | - | I | S | -
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|<<load,`lb`>> |I |`000` | - | C | - | I | S
+|<<load,`lh`>> |I |`001` | - | C | - | I | S
+|<<load,`lw`>> |I |`010` | - | C | - | I | S
+|<<load,`ld`>> |I |`011` | - | C | - | I | S
+|<<load,`lbu`>> |I |`100` | - | C | - | I | S
+|<<load,`lhu`>> |I |`101` | - | C | - | I | S
+|<<load,`lwu`>> |I |`110` | - | C | - | I | S
 |===
 
 .Extended {base_isa_name} store instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<store,`sb`>> |S |- |`000` | - | C | I | - | S | -
-|<<store,`sh`>> |S |- |`001` | - | C | I | - | S | -
-|<<store,`sw`>> |S |- |`010` | - | C | I | - | S | -
-|<<store,`sd`>> |S |- |`011` | - | C | I | - | S | -
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
+|<<store,`sb`>> |S |`000` | - | C | I | - | S
+|<<store,`sh`>> |S |`001` | - | C | I | - | S
+|<<store,`sw`>> |S |`010` | - | C | I | - | S
+|<<store,`sd`>> |S |`011` | - | C | I | - | S
 |===
 
 .*Note: the meaning of abbreviations in the table*
@@ -127,11 +127,5 @@ C:: Capability register
 S:: Sign-extended
 Z:: Zero-extended
 -:: Not used
-
-*For worlds:*
-
-N:: Normal world
-S:: Secure world
-*:: Either world
 ****
 ====
