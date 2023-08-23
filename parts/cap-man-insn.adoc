@@ -2,7 +2,7 @@
 
 = Capability Manipulation Instructions
 
-{proj_name} provides instructions for creating, modifying, and destroying capabilities.
+{isa_name} provides instructions for creating, modifying, and destroying capabilities.
 Note that due to the guarantee of provenance of capabilities, those instructions are
 the _only_ way to manipulate capabilities. In particular, it is not possible to manipulate
 capabilities by manipulating the content of a memory location or register using

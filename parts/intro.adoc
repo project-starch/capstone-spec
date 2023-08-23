@@ -87,46 +87,35 @@ of toolchains and simulators.
 The {isa_name} ISA is an {base_isa_name} extension that makes the following
 types of changes to the base architecture:
 
+Registers::
 * Each general-purpose register is extended to 129 bits to accommodate 128-bit capabilities.
-* Part of the machine state is extended and new instructions are added to support it.
-* New instructions for manipulating capabilities are added.
-* New instructions for memory accesses using capabilities are added.
-* New instructions for control flow transfers using capabilities are added.
-* Semantics of some existing instructions are adjusted to support capabilities.
-* Semantics of interrupts and exceptions are adjusted to support capabilities.
-
-== {proj_name} Variants
-
-In addition to {proj_name}, which is referred to as _{isa_var_pure}_ in the {isa_name} ISA,
-we propose a variant of {proj_name}, called _{isa_var_hybrid}_.
-
-While memory accesses and control flow transfers are only possible using capabilities
-in _{isa_var_pure}_, _{isa_var_hybrid}_ fuses capabilities with privilege levels and
-virtual memory found in traditional architectures, which allows for a smooth transition
-from existing architectures to {proj_name}.
-
-The following types of changes are made to _{isa_var_pure}_ to obtain _{isa_var_hybrid}_:
-
-* The physical memory is partitioned into two disjoint regions,
-one exclusively for accesses through capabilities and the other exclusively for accesses
-through the virtual memory.
+* New control and status registers (CSRs) are added.
+* Capability control and status registers (_capability CSRs_ or _CCSRs_) are added.
+* New instructions for manipulating capabilities in general-purpose registers or CCSRs are added.
+Memory::
+* The physical memory is partitioned into two disjoint regions, i.e., the _normal memory_
+and the _secure memory_.
+- The normal memory is exclusively for accesses through capabilities.
+- The secure memory is exclusively for accesses through the virtual memory.
+* Each memory location can either contains an integer or a capability, and the confusion between
+the two is not allowed.
+* New instructions for accessing capabilities in the memory or accessing memory using capabilities are added.
+World::
 * Software components are allowed to run in either of the two _worlds_, i.e., the _normal world_
 and the _secure world_.
-- The _normal world_ follows the traditional privilege levels, allows both capability-based accesses
+- The normal world follows the traditional privilege levels, allows both capability-based accesses
 and virtual memory accesses, and is therefore compatible with existing software.
-- The _secure world_ follows the _{isa_var_pure}_ design, limits memory accesses to capability-based accesses
+- The secure world follows the {proj_name} design, limits memory accesses to capability-based accesses
 and provides the security guarantees of {proj_name}.
-* A world switching mechanism is added to support the secure switching between the two worlds.
-* Semantics of some _{isa_var_pure}_ instructions are changed to support the two worlds separately.
-* Semantics of interrupts and exceptions are extended to support the two worlds separately.
-
-.Memory Accesses in _{isa_var_hybrid}_
-[%header%autowidth.stretch]
-|===
-| World | Memory Management Unit (MMU) | Capabilities
-| Normal world | Yes | Yes
-| Secure world | No | Yes
-|===
+Control flow instructions::
+* New instructions for control flow transfers using capabilities are added.
+* New instructions for safe context switching in the secure world are added.
+* New instructions for world switching are added.
+Interrupts and exceptions::
+* New exception types are added.
+* A new mechanism for handling interrupts and exceptions in the secure world is added.
+Existing instructions::
+* Some existing instructions are adjusted, extended or disabled.
 
 == Assembly Mnemonics
 

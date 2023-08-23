@@ -6,28 +6,24 @@ For most of the existing instructions in {base_isa_name}, their behaviour is unm
 The `cursor` field (if `type != 4`) or `base` field (if `type = 4`) of the capability is used
 if a register containing a capability is used as an operand.
 
-The following instructions in {base_isa_name} are adjusted in {proj_name}:
+The following instructions in {base_isa_name} are adjusted in {isa_name}:
 
 ****
 * For memory access instructions, they are extended to use capabilities as addresses for memory access.
 * For control flow instructions, they are slightly adjusted for the case where the program counter is a capability.
-* Some instructions in {base_isa_name} become illegal instructions in _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world.
+* Some instructions in {base_isa_name} become illegal instructions in the secure world.
 ****
 
-[#load-store]
+
 == Memory Access Instructions
 
 In {base_isa_name}, memory access instructions include load instructions
 (i.e., `lb`, `lh`, `ld`, `lw`, `lbu`, `lhu`, `lwu`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`).
 These instructions take an integer as a raw address, and load or store a value from/to this address.
-In {proj_name}, these instructions are extended to take a capability as an address.
+In {isa_name}, these instructions are extended to take a capability as an address.
 
-=== _{isa_var_pure}_
-
-==== Load Instructions
-
-In _{isa_var_pure}_, {base_isa_name} load instructions are modified to load integers of different
-sizes using capabilities.
+[#load]
+=== Load Instructions
 
 .*Note: `size` of load instructions*
 [%collapsible]
@@ -48,6 +44,23 @@ The `size` used in this sections is the size (in bytes) of the integer being loa
 |===
 ****
 ====
+
+==== Normal world integer encoding mode
+
+When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
+{base_isa_name} load instructions behave the same as in {base_isa_name},
+except that the following adjustments are made to these instructions:
+
+****
+- A `Load access fault (5)` exception is raised
+if the address to be accessed (i.e., `x[rs1] + imm`) is within the range `(SBASE - size, SEND)`.
+****
+
+==== Secure world or normal world capability encoding mode
+
+{base_isa_name} load instructions are modified to load integers of different
+sizes using capabilities, when `cwrld` is `1` (secure world),
+or when `cwrld` is `0` (normal world) and `emode` is `1` (capability encoding mode).
 
 *An exception is raised when any of the following conditions is met:*
 
@@ -70,7 +83,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 - `x[rs1].cursor + imm` is not aligned to `size` bytes.
 ****
 
-.lb instruction format
+.lb instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -82,7 +95,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 ]}
 ....
 
-.lh instruction format
+.lh instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -94,7 +107,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 ]}
 ....
 
-.lw instruction format
+.lw instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -106,7 +119,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 ]}
 ....
 
-.ld instruction format
+.ld instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -125,7 +138,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 as a signed integer to `x[rd]`.
 ====
 
-.lbu instruction format
+.lbu instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -137,7 +150,7 @@ as a signed integer to `x[rd]`.
 ]}
 ....
 
-.lhu instruction format
+.lhu instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -149,7 +162,7 @@ as a signed integer to `x[rd]`.
 ]}
 ....
 
-.lwu instruction format
+.lwu instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -168,7 +181,8 @@ as a signed integer to `x[rd]`.
 as an unsigned integer to `x[rd]`.
 ====
 
-==== Store Instructions
+[#store]
+=== Store Instructions
 
 .*Note: `size` of store instructions*
 [%collapsible]
@@ -187,7 +201,27 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ****
 ====
 
-.sb instruction format
+==== Normal world integer encoding mode
+
+When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
+{base_isa_name} store instructions behave the same as in {base_isa_name},
+except that the following adjustments are made to these instructions:
+
+****
+- A `Store/AMO access fault(7)` exception is raised
+if the address to be accessed (i.e., `x[rs1] + imm`) is within the range `(SBASE - size, SEND)`.
+- The content in the `CLENBYTES`-byte aligned memory location `[cbase, cend)`,
+which aliases with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
+is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+****
+
+==== Secure world or normal world capability encoding mode
+
+{base_isa_name} store instructions are modified to store integers of different
+sizes using capabilities, when `cwrld` is `1` (secure world),
+or when `cwrld` is `0` (normal world) and `emode` is `1` (capability encoding mode).
+
+.sb instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -200,7 +234,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-.sh instruction format
+.sh instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -213,7 +247,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-.sw instruction format
+.sw instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -226,7 +260,7 @@ The `size` used in this sections is the size (in bytes) of the integer being sto
 ]}
 ....
 
-.sd instruction format
+.sd instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
@@ -273,26 +307,6 @@ where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLE
 . If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + size`.
 ====
 
-=== _{isa_var_hybrid}_
-
-In _{isa_var_hybrid}_ secure world (i.e., `cwrld` is `1`),
-{base_isa_name} memory access instructions behave the same as in _{isa_var_pure}_.
-
-However, in _{isa_var_hybrid}_ normal world (i.e., `cwrld` is `0`),
-these instructions behave differently in different _encoding modes_.
-
-****
-* When `cwrld` is `0` (normal world) and `emode` is `1` (capability encoding mode), these instructions
-behave the same as in _{isa_var_pure}_.
-* When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode), these instructions
-behave the same as in {base_isa_name} except that the following adjustments are made to these instructions:
-- An `Load access fault (5)` (for load) or `Store/AMO access fault(7)` (for store) exception is raised
-if the address to be accessed (i.e., `x[rs1] + imm`) is within the range `(SBASE - size, SEND)`.
-- For store instructions (i.e., `sb`, `sh`, `sw`, `sd`), the content in the `CLENBYTES`-byte aligned memory location
-`[cbase, cend)`, which aliases with memory location `[x[rs1] + imm, x[rs1] + imm + size)`,
-is set to integer type, where `cbase = (x[rs1] + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
-****
-
 .*Note: undefined behaviour*
 [%collapsible]
 ====
@@ -308,7 +322,7 @@ more recent than the last integer store to the memory location itself.
 
 In {base_isa_name}, conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
 and unconditional jump instructions (i.e., `jal` and `jalr`) are used to control the flow of execution.
-In {proj_name}, these instructions are adjusted to support the situation where the program counter is a capability.
+In {isa_name}, these instructions are adjusted to support the situation where the program counter is a capability.
 
 === Branch Instructions
 
@@ -393,12 +407,6 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 *The following adjustments are made to these instructions:*
 
 ****
-_{isa_var_pure}_
-
-* `pc.cursor`, instead of `pc`, is changed by the instruction.
-
-_{isa_var_hybrid}_
-
 * When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 ****
 
@@ -429,13 +437,6 @@ _{isa_var_hybrid}_
 *The following adjustments are made to these instructions:*
 
 ****
-_{isa_var_pure}_
-
-* `pc.cursor + 4`, instead of `pc + 4`, is written to `x[rd]`.
-* `pc.cursor`, instead of `pc`, is changed by the instruction.
-
-_{isa_var_hybrid}_
-
 * When `cwrld` is `1` (secure world), `pc.cursor + 4`, instead of `pc + 4`, is written to `x[rd]`.
 * When `cwrld` is `1` (secure world), `pc.cursor`, instead of `pc`, is changed by the instruction.
 ****
@@ -443,7 +444,7 @@ _{isa_var_hybrid}_
 == Illegal Instructions
 
 Some instructions in {base_isa_name} now raise `illegal instruction (2)` exceptions
-when executed in _{isa_var_pure}_ or _{isa_var_hybrid}_ secure world, under all or some circumstances.
+when executed in the secure world, under all or some circumstances.
 
 These instructions are:
 

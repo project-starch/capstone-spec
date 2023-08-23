@@ -73,7 +73,7 @@ execution contexts, and hence lacks the relevant instructions.
 
 While {isa_name} and {cheri_isa_name} both have
 hybrid mode support, they adopt different models,
-with {isa_name} (more specifically, _{isa_var_hybrid}_)
+with {isa_name}
 using a two-world model that aligns with its high-level
 goal of isolating pure capability code from privileged
 legacy code.

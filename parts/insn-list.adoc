@@ -20,58 +20,52 @@ include::ri-type-format.adoc[]
 .Capability manipulation instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0] | World | Variant
-|<<rev-operation,REVOKE>>      |R |`001`    |`0000000` | C | - | - | - | - | * | *
-|<<shrink,SHRINK>>      |R |`001`    |`0000001` | I | I | C | - | - | * | *
-|<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | - | * | *
-|<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | - | * | *
-|<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | - | * | *
-|<<cursor-set,SCC>>         |R |`001`    |`0000101` | I | - | C | - | - | * | *
-|<<split,SPLIT>>       |R |`001`    |`0000110` | C | I | C | - | - | * | *
-|<<seal,SEAL>>        |R |`001`    |`0000111` | C | - | C | - | - | * | *
-|<<revcap-creation,MREV>>        |R |`001`    |`0001000` | C | - | C | - | - | * | *
-|<<init,INIT>>        |R |`001`    |`0001001` | C | I | C | - | - | * | *
-|<<cap-mov,MOVC>>        |R |`001`    |`0001010` | C | - | C | - | - | * | *
-|<<drop,DROP>>       |R |`001`    |`0001011` | C | - | - | - | - | * | *
-|<<cursor-inc,CINCOFFSET>>  |R |`001`    |`0001100` | C | I | C | - | - | * | *
-|<<cursor-inc,CINCOFFSETIMM>> |I |`010`    | - | C | - | C | - | S | * | *
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0] | World
+|<<rev-operation,REVOKE>>      |R |`001`    |`0000000` | C | - | - | - | - | *
+|<<shrink,SHRINK>>      |R |`001`    |`0000001` | I | I | C | - | - | *
+|<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | - | *
+|<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | - | *
+|<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | - | *
+|<<cursor-set,SCC>>         |R |`001`    |`0000101` | I | - | C | - | - | *
+|<<split,SPLIT>>       |R |`001`    |`0000110` | C | I | C | - | - | *
+|<<seal,SEAL>>        |R |`001`    |`0000111` | C | - | C | - | - | *
+|<<revcap-creation,MREV>>        |R |`001`    |`0001000` | C | - | C | - | - | *
+|<<init,INIT>>        |R |`001`    |`0001001` | C | I | C | - | - | *
+|<<cap-mov,MOVC>>        |R |`001`    |`0001010` | C | - | C | - | - | *
+|<<drop,DROP>>       |R |`001`    |`0001011` | C | - | - | - | - | *
+|<<cursor-inc,CINCOFFSET>>  |R |`001`    |`0001100` | C | I | C | - | - | *
+|<<cursor-inc,CINCOFFSETIMM>> |I |`010`    | - | C | - | C | - | S | *
 |===
 
 .Memory access instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
-|<<load-store-cap,LDC>> |I |`0` |`011` | - | I | - | C | S | N | T
-| |I |`1` |`011` | - | C | - | C | S | N | T
-| |I |- |`011` | - | C | - | C | S | S | T
-| |I |- |`011` | - | C | - | C | S | - | P
-|<<load-store-cap,STC>> |S |`0` |`100` | - | I | C | - | S | N | T
-| |S |`1` |`100` | - | C | C | - | S | N | T
-| |S |- |`100` | - | C | C | - | S | S | T
-| |S |- |`100` | - | C | C | - | S | - | P
+|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<load-cap,LDC>> |I |`0` |`011` | - | I | - | C | S | N
+| |I |`1` |`011` | - | C | - | C | S | N
+| |I |- |`011` | - | C | - | C | S | S
+|<<store-cap,STC>> |S |`0` |`100` | - | I | C | - | S | N
+| |S |`1` |`100` | - | C | C | - | S | N
+| |S |- |`100` | - | C | C | - | S | S
 |===
 
 .Control flow instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
-|<<domain-cross,CALL>>        |R |`001`    |`0100000` | C | - | C | - | S | T
-|        |R |`001`    |`0100000` | C | - | C | - | - | P
-|<<domain-cross,RETURN>>      |R |`001`    |`0100001` | C | I | - | - | S | T
-|      |R |`001`    |`0100001` | C | I | - | - | - | P
-|<<jmp-cap,CJALR>>         |I |`101`    |- | C | - | C | S | S | T
-|         |I |`101`    |- | C | - | C | S | - | P
-|<<branch-cap,CBNZ>>         |I |`110`    |- | I | - | C | S | S | T
-|         |I |`110`    |- | I | - | C | S | - | P
-|<<world-enter,CAPENTER>>    |R |`001`    |`0100010` | C | - | I | - | N | T
-|<<world-exit,CAPEXIT>>     |R |`001`    |`0100011` | C | I | - | - | S | T
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<domain-cross,CALL>>        |R |`001`    |`0100000` | C | - | C | - | S
+|<<domain-cross,RETURN>>      |R |`001`    |`0100001` | C | I | - | - | S
+|<<jmp-cap,CJALR>>         |I |`101`    |- | C | - | C | S | S
+|<<branch-cap,CBNZ>>         |I |`110`    |- | I | - | C | S | S
+|<<world-enter,CAPENTER>>    |R |`001`    |`0100010` | C | - | I | - | N
+|<<world-exit,CAPEXIT>>     |R |`001`    |`0100011` | C | I | - | - | S
 |===
 
 .Control and status instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
-|<<ctrl-status,CCSRRW>> |I |`111`    | - | C | - | C | Z | * | *
+|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<ctrl-status,CCSRRW>> |I |`111`    | - | C | - | C | Z | *
 |===
 
 == Extended {base_isa_name} Memory Access Instructions
@@ -104,57 +98,46 @@ include::ri-type-format.adoc[]
 .Extended {base_isa_name} load instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
-|<<load-store,`lb`>> |I |`0` |`000` | - | I | - | I | S | N | T
-| |I |`1` |`000` | - | C | - | I | S | N | T
-| |I |- |`000` | - | C | - | I | S | S | T
-| |I |- |`000` | - | C | - | I | S | - | P
-|<<load-store,`lh`>> |I |`0` |`001` | - | I | - | I | S | N | T
-| |I |`1` |`001` | - | C | - | I | S | N | T
-| |I |- |`001` | - | C | - | I | S | S | T
-| |I |- |`001` | - | C | - | I | S | - | P
-|<<load-store,`lw`>> |I |`0` |`010` | - | I | - | I | S | N | T
-| |I |`1` |`010` | - | C | - | I | S | N | T
-| |I |- |`010` | - | C | - | I | S | S | T
-| |I |- |`010` | - | C | - | I | S | - | P
-|<<load-store,`ld`>> |I |`0` |`011` | - | I | - | I | S | N | T
-| |I |`1` |`011` | - | C | - | I | S | N | T
-| |I |- |`011` | - | C | - | I | S | S | T
-| |I |- |`011` | - | C | - | I | S | - | P
-|<<load-store,`lbu`>> |I |`0` |`100` | - | I | - | I | S | N | T
-| |I |`1` |`100` | - | C | - | I | S | N | T
-| |I |- |`100` | - | C | - | I | S | S | T
-| |I |- |`100` | - | C | - | I | S | - | P
-|<<load-store,`lhu`>> |I |`0` |`101` | - | I | - | I | S | N | T
-| |I |`1` |`101` | - | C | - | I | S | N | T
-| |I |- |`101` | - | C | - | I | S | S | T
-| |I |- |`101` | - | C | - | I | S | - | P
-|<<load-store,`lwu`>> |I |`0` |`110` | - | I | - | I | S | N | T
-| |I |`1` |`110` | - | C | - | I | S | N | T
-| |I |- |`110` | - | C | - | I | S | S | T
-| |I |- |`110` | - | C | - | I | S | - | P
+|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<load,`lb`>> |I |`0` |`000` | - | I | - | I | S | N
+| |I |`1` |`000` | - | C | - | I | S | N
+| |I |- |`000` | - | C | - | I | S | S
+|<<load,`lh`>> |I |`0` |`001` | - | I | - | I | S | N
+| |I |`1` |`001` | - | C | - | I | S | N
+| |I |- |`001` | - | C | - | I | S | S
+|<<load,`lw`>> |I |`0` |`010` | - | I | - | I | S | N
+| |I |`1` |`010` | - | C | - | I | S | N
+| |I |- |`010` | - | C | - | I | S | S
+|<<load,`ld`>> |I |`0` |`011` | - | I | - | I | S | N
+| |I |`1` |`011` | - | C | - | I | S | N
+| |I |- |`011` | - | C | - | I | S | S
+|<<load,`lbu`>> |I |`0` |`100` | - | I | - | I | S | N
+| |I |`1` |`100` | - | C | - | I | S | N
+| |I |- |`100` | - | C | - | I | S | S
+|<<load,`lhu`>> |I |`0` |`101` | - | I | - | I | S | N
+| |I |`1` |`101` | - | C | - | I | S | N
+| |I |- |`101` | - | C | - | I | S | S
+|<<load,`lwu`>> |I |`0` |`110` | - | I | - | I | S | N
+| |I |`1` |`110` | - | C | - | I | S | N
+| |I |- |`110` | - | C | - | I | S | S
 |===
 
 .Extended {base_isa_name} store instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World | Variant
-|<<load-store,`sb`>> |S |`0` |`000` | - | I | I | - | S | N | T
-| |S |`1` |`000` | - | C | I | - | S | N | T
-| |S |- |`000` | - | C | I | - | S | S | T
-| |S |- |`000` | - | C | I | - | S | - | P
-|<<load-store,`sh`>> |S |`0` |`001` | - | I | I | - | S | N | T
-| |S |`1` |`001` | - | C | I | - | S | N | T
-| |S |- |`001` | - | C | I | - | S | S | T
-| |S |- |`001` | - | C | I | - | S | - | P
-|<<load-store,`sw`>> |S |`0` |`010` | - | I | I | - | S | N | T
-| |S |`1` |`010` | - | C | I | - | S | N | T
-| |S |- |`010` | - | C | I | - | S | S | T
-| |S |- |`010` | - | C | I | - | S | - | P
-|<<load-store,`sd`>> |S |`0` |`011` | - | I | I | - | S | N | T
-| |S |`1` |`011` | - | C | I | - | S | N | T
-| |S |- |`011` | - | C | I | - | S | S | T
-| |S |- |`011` | - | C | I | - | S | - | P
+|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<store,`sb`>> |S |`0` |`000` | - | I | I | - | S | N
+| |S |`1` |`000` | - | C | I | - | S | N
+| |S |- |`000` | - | C | I | - | S | S
+|<<store,`sh`>> |S |`0` |`001` | - | I | I | - | S | N
+| |S |`1` |`001` | - | C | I | - | S | N
+| |S |- |`001` | - | C | I | - | S | S
+|<<store,`sw`>> |S |`0` |`010` | - | I | I | - | S | N
+| |S |`1` |`010` | - | C | I | - | S | N
+| |S |- |`010` | - | C | I | - | S | S
+|<<store,`sd`>> |S |`0` |`011` | - | I | I | - | S | N
+| |S |`1` |`011` | - | C | I | - | S | N
+| |S |- |`011` | - | C | I | - | S | S
 |===
 
 .*Note: the meaning of abbreviations in the table*
@@ -178,11 +161,5 @@ Z:: Zero-extended
 N:: Normal world
 S:: Secure world
 *:: Either world
-
-*For variants:*
-
-P:: _{isa_var_pure}_
-T:: _{isa_var_hybrid}_
-*:: Either variant
 ****
 ====

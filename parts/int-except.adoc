@@ -3,17 +3,15 @@
 = Interrupts and Exceptions
 
 // TODO: add support for nesting
+// TODO: specify what happens if any of the involved memory accesses fails
 
 == Exception and Exit Codes
 
-.*Note: where are the _exception codes_ relevant?*
+.*Note: where are the exception codes relevant?*
 [%collapsible]
 ====
 ****
-For _{isa_var_pure}_, there is only one place where exception codes are relevant,
-which is the argument to pass to the _exception handler domain_.
-
-For _{isa_var_hybrid}_, however, there are three places where we need to consider:
+For {isa_name}, there are three places where exception codes are relevant:
 
 . *Handleable Exception:* The argument to pass to the _exception handler domain_.
 . *Unhandleable Exception:* The value returned to the CAPENTER instruction in the user process.
@@ -25,20 +23,20 @@ and the exit code the user process receives will be in the register specified by
 ====
 
 The _exception code_ is what the _exception handler domain_ receives as an argument
-when an exception occurs on _{isa_var_pure}_ or in _{isa_var_hybrid}_ secure world.
+when an exception occurs in the secure world.
 It is an integer value that indicates what the type of the exception is.
 
-_{isa_var_hybrid}_ also has _exit codes_, which are the values returned to the CAPENTER
+{isa_name} also has _exit codes_, which are the values returned to the CAPENTER
 instruction in case the exception cannot be handled in the secure world.
 
 We define the exception code and the exit code for each type of exception below.
 It aligns with the exception codes defined in {base_isa_name}, where applicable, for ease of
 implementation and interoperability.
 
-.Exception codes and exit codes for {isa_var_pure} and {isa_var_hybrid} secure world
+.Exception codes and exit codes
 [%header%autowidth.stretch]
 |===
-| Exception | Exception code | {isa_var_hybrid} exit code
+| Exception | Exception code | Exit code
 | Instruction address misaligned | 0 | 1
 | Instruction access fault | 1 | 1
 | Illegal instruction | 2 | 1
@@ -54,12 +52,11 @@ implementation and interoperability.
 | Capability out of bound | 28 | 1
 | Illegal operand value | 29 | 1
 | Insufficient system resources | 30 | 1
-| Unhandleable exception | 63 | N/A in _{isa_var_hybrid}_
 |===
 
 For interrupts, the same encodings as in {base_isa_name} are used.
 
-.*Note: _{isa_var_hybrid}_ exit code*
+.*Note: exit code*
 [%collapsible]
 ====
 ****
@@ -68,7 +65,7 @@ protect the confidentiality of the secure world execution.
 ****
 ====
 
-.*Note: Implementation specified exception*
+.*Note: implementation specified exception*
 [%collapsible]
 ====
 ****
@@ -83,8 +80,8 @@ These exceptions include:
 
 == Exception Data
 
-For _{isa_var_pure}_ and the secure world in _{isa_var_hybrid}_, the exception-related
-data is stored in the `tval` CSR, similar to {base_isa_name}. The exception handler
+For the secure world, the exception-related data is stored in the `tval` CSR,
+similar to {base_isa_name}. The exception handler
 can use the value to decide how to handle the exception.
 However, such data is available _only_ for in-domain exception handling, where the
 exception handling process does not involve a domain switch.
@@ -105,7 +102,7 @@ trusting a different domain with such data.
 For exceptions defined in {base_isa_name}, the same data as in it is written to `tval`.
 For the added exceptions, the following data is written to `tval`:
 
-.Exception data for {isa_var_pure} and {isa_var_hybrid} secure world
+.Exception data for the added exceptions in the secure world
 [%header%autowidth.stretch]
 |===
 | Exception |  Data 
@@ -115,223 +112,9 @@ For the added exceptions, the following data is written to `tval`:
 | `Insufficient capability permissions (27)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
 | `Capability out of bound (28)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
 | `Illegal operand value (29)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
-| `Unhandleable exception (63)` | N/A
 |===
 
-== _{isa_var_pure}_
-
-For _{isa_var_pure}_, the handling of interrupts and exceptions is relatively
-straightforward. Regardless of whether the event is an interrupt or an
-exception (and what the type of the interrupt or exception is), the processor
-core will always transfer the control flow to the corresponding handler domain
-(specified in the `ceh` register for exceptions and
-the `cih` register for interrupts).
-
-The current context is saved and sealed in a sealed-return capability which
-is then supplied to the exception/interrupt handler domain as an argument.
-
-When exception/interrupt handling is complete,
-the exception/interrupt handler domain can use the RETURN instruction to resume the
-execution of the excepted domain.
-This process resembles that of a CALL-RETURN
-pair, except that it is asynchronous, rather than synchronous,
-to the execution of the original domain.
-
-****
-The figure below shows the overview of domain switch in _{isa_var_pure}_,
-including synchronous link:#domain-cross[domain crossing] and asynchronous
-interrupt/exception handling.
-
-.Overview of domain switch in _{isa_var_pure}_
-image::pure-domain.svg[pure-domain]
-****
-
-// TODO: specify what happens if any of the involved memory accesses fails
-
-=== Interrupt Status
-
-The `cis` CSR encodes the control and status associated with interrupts.
-The diagram below shows its layout.
-
-.`cis` CSR layout
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 1, name: 'EIP'},
-    {bits: 1, name: 'EIE' },
-    {bits: 1, name: 'TIP' },
-    {bits: 1, name: 'TIE' },
-    {bits: 1, name: 'SIP' },
-    {bits: 1, name: 'SIE' },
-    {bits: 10, name: 'reserved (WPRI)'}
-]}
-....
-
-Each pair of `xIP` and `xIE` fields describes the status of
-the interrupt type `x`. 
-The interrupt type `x` is pending if the `xIP` field is set to
-`1`, and enabled if the `xIE` field is set to `1`.
-Currently, three types of interrupts
-are supported: external interrupts (`E`), timer interrupts (`T`),
-and software interrupts (`S`).
-The definitions for those interrupt types match those in {base_isa_name}.
-
-All the fields are read-write, but only when `cih` contains a capability.
-
-.*Note: why not require a valid sealed capability?*
-[%collapsible]
-====
-****
-We can require that the fields in `cis` are read-write only when
-`cih` contain a _valid sealed_ capability,
-but that would be more costly than a simple check of the type of data in `cih`.
-****
-====
-
-=== Interrupt Delivery
-
-The interrupt delivery process starts with a certain event
-typically asynchronous to the execution of the hardware thread.
-The sources of such events include the external interrupt controller,
-the timer, and other CPU cores, which correspond to the external,
-timer, and software interrupt types (i.e., `x = E`, `T`, and `S`).
-When such an event occurs, the `xIP` field in the `cis` register
-is set to `1` to indicate that the interrupt is pending.
-
-At any point during the execution of a hardware thread,
-if any pair of `xIP` and `xIE` fields are both `1` and at the same
-time the `cih` register contains
-a capability, the interrupt is delivered to the interrupt handler
-domain. 
-
-.*Note: global interrupt enable/disable*
-[%collapsible]
-====
-****
-In _{isa_var_pure}_, the `cih` register acts as a global interrupt-enable
-flag. If `cih` register does not contain a capability, all interrupts are
-disabled globally.
-****
-====
-
-=== Handling of Interrupts
-
-*The interrupt is ignored if any of the following conditions is met:*
-
-****
-* `cih` is not a capability.
-* `cih.valid = 0` (invalid).
-* `cih.type != 4` (sealed capability).
-* `cih.async != 0` (synchronous).
-****
-
-*Otherwise:*
-
-====
-. Swap `pc` with the content at the memory location `[cih.base, cih.base + CLENBYTES)`.
-. Swap `ceh` with the content at the memory location `[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at memory location
-`[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
-. Set `cih.type` to `5` (sealed-return), `cih.cursor` to `cih.base`, `cih.reg` to `0`, and `cih.async` to `2` (upon interrupt).
-. Write `cih` to the register `cra`, and `cnull` to the register `cih`.
-. Write the exception code to the register `a0`.
-====
-
-=== Handling of Exceptions
-
-// Having unhandleable exceptions is bad
-
-.*Note: the stack of exception handler domains*
-[%collapsible]
-====
-****
-Allowing anyone to set `ceh` can lead to DoS (when `ceh` is set to invalid
-values). Ideally, there should be a stack of exception handlers. Each
-domain can only choose to push extra exception handlers onto the stack.
-The bottom one will be provided by the kernel which is responsible for the liveness
-of the system.
-
-As this can be costly to implement, we limit the size of the stack to 2 for now,
-with the bottom one provided by the interrupt handler domain `cih`.
-
-Exceptions seem to be the dual of interrupts. Interrupt handling should be delegated
-bottom-up, while exception handling should be delegated top-down.
-****
-====
-
-*Follow the interrupt handling procedure with exception code `unhandleable exception (63)` if any of the following conditions is met:*
-
-****
-* The `ceh` register does not contain a capability.
-* The capability in `ceh` is invalid (`valid = 0`).
-* The capability in `ceh` is not a sealed (`type != 4`),
-linear (`type != 0`), or non-linear capability (`type != 1`).
-* The capability in `ceh` is a sealed capability (`type = 4`) and
-the `ceh.async` field is not `0` (synchronous).
-****
-
-*Otherwise:*
-
-*If the content in `ceh` is a valid sealed capability:*
-
-====
-. Swap `pc` with the content at the memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
-`[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
-. Set `ceh.type` to `5` (sealed-return), `ceh.cursor` to `ceh.base`, `ceh.reg` to `0`, and `ceh.async` to `1` (upon exception).
-. Write `ceh` to the register `cra`, and `cnull` to the register `ceh`.
-. Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
-. Write the exception code to the register `a0`.
-====
-
-*If the content is `ceh` is a valid _executable_ non-linear capability or linear capability:*
-
-====
-. Write `pc` to `epc`.
-. Write `ceh` to `pc`.
-If `ceh.type != 1`, write `cnull` to `ceh`.
-. Write the exception code to `cause`.
-. Write extra exception data to `tval`.
-====
-
-*Otherwise, the CPU core enters the state of _<<panic,panic>>_.*
-
-.*Note: sealing mechanism of in-domain exception handling*
-[%collapsible]
-====
-****
-As the exception handler is in the same domain as the code that caused the exception,
-it is not necessary to seal the content of `csp` (or any other general purpose registers),
-or otherwise prevent the excepted code from accessing it.
-****
-====
-
-[#panic]
-=== Panic
-
-When a CPU core is unable to handle an exception, it enters a state called _panic_.
-
-****
-The actual behaviour of the CPU core in this state is implementation-defined, but must
-be one of the following:
-
-* <<reset,Reset>>.
-* Enter an infinite loop.
-* Scrub all general-purpose registers, and then load a capability that is not otherwise
-available into `pc`, and a set of capabilities that are not otherwise available into
-general-purpose registers.
-****
-
-The aim of the constraints above is to uphold the invariants of the capability model and
-in turn the security guarantees of the system.
-
-== _{isa_var_hybrid}_
-
-_{isa_var_hybrid}_ retains the same interrupt and exception handling mechanism for
-the normal world as in {base_isa_name}.
-For the secure world in _{isa_var_hybrid}_,
-the handling of interrupts and exceptions is more complex,
-and it becomes relevant whether the event is an interrupt or an exception.
+== Handling of Secure-World Interrupts
 
 .*Note: overview of interrupt handling in the secure world*
 [%collapsible]
@@ -353,52 +136,15 @@ OS.
 ****
 ====
 
-****
-The figure below shows the overview of interrupt handling in _{isa_var_hybrid}_.
-
-.Overview of interrupt handling in _{isa_var_hybrid}_
-image::trans-int.svg[trans-interrupt]
-****
-
-.*Note: overview of exception handling in the secure world*
-[%collapsible]
-====
-****
-For exceptions, we want to give the secure world the chance to handle
-them first.
-If the secure world manages to handle the exception, the
-normal world will not be involved. The end result is that the whole
-exception or its handling is not even visible to the normal world.
-
-If the secure world fails to handle an exception (i.e., when
-it would end up <<panic,panicking>> in the case of _{isa_var_pure}_, such as when
-`ceh` is not a valid sealed capability), however,
-the normal world will take over.
-
-The exception will *not* be translated into
-an exception in the normal world, but instead indicated in the _exit code_
-that the CAPENTER instruction in the user process receives.
-The user process can then decide what to do based on the exit code (e.g.,
-terminate the domain in the secure world).
-****
-====
-
-****
-The figure below shows the overview of exception handling in _{isa_var_hybrid}_.
-
-.Overview of exception handling in _{isa_var_hybrid}_
-image::trans-exc.svg[trans-exception]
-****
-
-Below we discuss the details of the handling of interrupts and exceptions
-generated in the secure world.
-
-=== Handling of Secure-World Interrupts
-
 When an interrupt occurs in the secure world, the processor core directly
 saves the full context, scrubs it, and exits to the normal world. It then
 generates a corresponding interrupt in the normal world, and follows
 the normal-world interrupt handling process thereafter.
+
+The figure below shows the overview of interrupt handling in {isa_name}.
+
+.Overview of interrupt handling in {isa_name}
+image::trans-int.svg[trans-interrupt]
 
 *If the content in `switch_cap` satisfies the following conditions:*
 
@@ -447,12 +193,39 @@ when the user process resumes execution after the interrupt has been handled
 by the OS, due to the invalid `switch_cap` value written to the CAPENTER
 operand.
 
-=== Handling of Secure-World Exceptions
+== Handling of Secure-World Exceptions
+
+.*Note: overview of exception handling in the secure world*
+[%collapsible]
+====
+****
+For exceptions, we want to give the secure world the chance to handle
+them first.
+If the secure world manages to handle the exception, the
+normal world will not be involved. The end result is that the whole
+exception or its handling is not even visible to the normal world.
+
+If the secure world fails to handle an exception, such as when
+`ceh` is not a valid sealed capability), however,
+the normal world will take over.
+
+The exception will *not* be translated into
+an exception in the normal world, but instead indicated in the _exit code_
+that the CAPENTER instruction in the user process receives.
+The user process can then decide what to do based on the exit code (e.g.,
+terminate the domain in the secure world).
+****
+====
 
 When an exception occurs, the processor core first attempts to handle the
-exception in the secure world, in the similar way as in _{isa_var_pure}_.
+exception in the secure world.
 If this fails, the processor core saves the full context if it can
 and exits to the normal world with a proper error code.
+
+The figure below shows the overview of exception handling in {isa_name}.
+
+.Overview of exception handling in {isa_name}
+image::trans-exc.svg[trans-exception]
 
 *If the content in `ceh` satisfies the following conditions:*
 
@@ -472,8 +245,6 @@ memory location `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES
 . Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
 . Write the exception code to the register `a0`.
 ====
-
-Note that this is exactly the same as the handling of exceptions in _{isa_var_pure}_.
 
 *If the content is `ceh` is a valid _executable_ non-linear capability or linear capability:*
 

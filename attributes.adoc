@@ -1,6 +1,4 @@
 :isa_name: Capstone-RISC-V
-:isa_var_pure: Pure Capstone
-:isa_var_hybrid: TransCapstone
 :proj_name: Capstone
 :base_isa_name: RV64IZicsr
 :base_isa_csr_ext: Zicsr
