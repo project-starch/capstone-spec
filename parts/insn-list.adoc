@@ -26,7 +26,7 @@ include::ri-type-format.adoc[]
 |<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | - | *
 |<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | - | *
 |<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | - | *
-|<<cursor-set,SCC>>         |R |`001`    |`0000101` | I | - | C | - | - | *
+|<<cursor-set,SCC>>         |R |`001`    |`0000101` | C | I | C | - | - | *
 |<<split,SPLIT>>       |R |`001`    |`0000110` | C | I | C | - | - | *
 |<<seal,SEAL>>        |R |`001`    |`0000111` | C | - | C | - | - | *
 |<<revcap-creation,MREV>>        |R |`001`    |`0001000` | C | - | C | - | - | *
