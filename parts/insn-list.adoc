@@ -20,52 +20,52 @@ include::ri-type-format.adoc[]
 .Capability manipulation instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0] | World
-|<<rev-operation,REVOKE>>      |R |`001`    |`0000000` | C | - | - | - | - | *
-|<<shrink,SHRINK>>      |R |`001`    |`0000001` | I | I | C | - | - | *
-|<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | - | *
-|<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | - | *
-|<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | - | *
-|<<cursor-set,SCC>>         |R |`001`    |`0000101` | I | - | C | - | - | *
-|<<split,SPLIT>>       |R |`001`    |`0000110` | C | I | C | - | - | *
-|<<seal,SEAL>>        |R |`001`    |`0000111` | C | - | C | - | - | *
-|<<revcap-creation,MREV>>        |R |`001`    |`0001000` | C | - | C | - | - | *
-|<<init,INIT>>        |R |`001`    |`0001001` | C | I | C | - | - | *
-|<<cap-mov,MOVC>>        |R |`001`    |`0001010` | C | - | C | - | - | *
-|<<drop,DROP>>       |R |`001`    |`0001011` | C | - | - | - | - | *
-|<<cursor-inc,CINCOFFSET>>  |R |`001`    |`0001100` | C | I | C | - | - | *
-|<<cursor-inc,CINCOFFSETIMM>> |I |`010`    | - | C | - | C | - | S | *
+|Mnemonic |Sail model |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0] | World
+|<<rev-operation,REVOKE>>  |github_ref:REVOKE[link]   |R |`001`    |`0000000` | C | - | - | - | - | *
+|<<shrink,SHRINK>>  |github_ref:SHRINK[link]    |R |`001`    |`0000001` | I | I | C | - | - | *
+|<<tighten,TIGHTEN>>   |github_ref:TIGHTEN[link]  |RI |`001`    |`0000010` | C | - | C | Z | - | *
+|<<delin,DELIN>>    |github_ref:DELIN[link]   |R |`001`    |`0000011` | - | - | C | - | - | *
+|<<field-query,LCC>>    |github_ref:LCC[link]     |RI |`001`    |`0000100` | C | - | I | Z | - | *
+|<<cursor-set,SCC>>  |github_ref:SCC[link]         |R |`001`    |`0000101` | C | I | C | - | - | *
+|<<split,SPLIT>>  |github_ref:SPLIT[link]       |R |`001`    |`0000110` | C | I | C | - | - | *
+|<<seal,SEAL>>  |github_ref:SEAL[link]        |R |`001`    |`0000111` | C | - | C | - | - | *
+|<<revcap-creation,MREV>>  |github_ref:MREV[link]        |R |`001`    |`0001000` | C | - | C | - | - | *
+|<<init,INIT>>  |github_ref:INIT[link]        |R |`001`    |`0001001` | C | I | C | - | - | *
+|<<cap-mov,MOVC>>  |github_ref:MOVC[link]        |R |`001`    |`0001010` | C | - | C | - | - | *
+|<<drop,DROP>>  |github_ref:DROP[link]       |R |`001`    |`0001011` | C | - | - | - | - | *
+|<<cursor-inc,CINCOFFSET>>  |github_ref:CINCOFFSET[link]  |R |`001`    |`0001100` | C | I | C | - | - | *
+|<<cursor-inc,CINCOFFSETIMM>>  |github_ref:CINCOFFSETIMM[link] |I |`010`    | - | C | - | C | - | S | *
 |===
 
 .Memory access instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<load-cap,LDC>> |I |`0` |`011` | - | I | - | C | S | N
-| |I |`1` |`011` | - | C | - | C | S | N
-| |I |- |`011` | - | C | - | C | S | S
-|<<store-cap,STC>> |S |`0` |`100` | - | I | C | - | S | N
-| |S |`1` |`100` | - | C | C | - | S | N
-| |S |- |`100` | - | C | C | - | S | S
+|Mnemonic |Sail model |Format |`emode` |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<load-cap,LDC>>  |github_ref:LDC[link] |I |`0` |`011` | - | I | - | C | S | N
+| | |I |`1` |`011` | - | C | - | C | S | N
+| | |I |- |`011` | - | C | - | C | S | S
+|<<store-cap,STC>>  |github_ref:STC[link] |S |`0` |`100` | - | I | C | - | S | N
+| | |S |`1` |`100` | - | C | C | - | S | N
+| | |S |- |`100` | - | C | C | - | S | S
 |===
 
 .Control flow instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<domain-cross,CALL>>        |R |`001`    |`0100000` | C | - | C | - | S
-|<<domain-cross,RETURN>>      |R |`001`    |`0100001` | C | I | - | - | S
-|<<jmp-cap,CJALR>>         |I |`101`    |- | C | - | C | S | S
-|<<branch-cap,CBNZ>>         |I |`110`    |- | I | - | C | S | S
-|<<world-enter,CAPENTER>>    |R |`001`    |`0100010` | C | - | I | - | N
-|<<world-exit,CAPEXIT>>     |R |`001`    |`0100011` | C | I | - | - | S
+|Mnemonic |Sail model |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<domain-cross,CALL>>  |github_ref:CALL[link]        |R |`001`    |`0100000` | C | - | C | - | S
+|<<domain-cross,RETURN>>  |github_ref:RETURN[link]      |R |`001`    |`0100001` | C | I | - | - | S
+|<<jmp-cap,CJALR>>  |github_ref:CJALR[link]         |I |`101`    |- | C | - | C | S | S
+|<<branch-cap,CBNZ>>  |github_ref:CBNZ[link]         |I |`110`    |- | I | - | C | S | S
+|<<world-enter,CAPENTER>>  |github_ref:CAPENTER[link]    |R |`001`    |`0100010` | C | - | I | - | N
+|<<world-exit,CAPEXIT>>  |github_ref:CAPEXIT[link]     |R |`001`    |`0100011` | C | I | - | - | S
 |===
 
 .Control and status instructions
 [%header%autowidth.stretch]
 |===
-|Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
-|<<ctrl-status,CCSRRW>> |I |`111`    | - | C | - | C | Z | *
+|Mnemonic |Sail model |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0] | World
+|<<ctrl-status,CCSRRW>>  |github_ref:CCSRRW[link] |I |`111`    | - | C | - | C | Z | *
 |===
 
 == Extended {base_isa_name} Memory Access Instructions

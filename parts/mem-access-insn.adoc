@@ -7,6 +7,8 @@
 [#load-cap]
 == Load Capabilities
 
+github_ref:LDC[Sail definition]
+
 The LDC instruction loads a capability from the memory.
 
 === Secure world or normal world capability encoding mode
@@ -104,6 +106,8 @@ write `cnull` to the memory location `[int + imm, int + imm + CLENBYTES)`.
 
 [#store-cap]
 == Store Capabilities
+
+github_ref:STC[Sail definition]
 
 The STC instruction stores a capability to the memory.
 

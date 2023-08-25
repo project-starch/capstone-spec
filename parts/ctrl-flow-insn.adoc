@@ -11,6 +11,8 @@ in a unconditional or conditional manner.
 [#jmp-cap]
 === CJALR
 
+github_ref:CJALR[Sail definition]
+
 .CJALR instruction format
 [wavedrom,,svg]
 ....
@@ -43,6 +45,8 @@ in a unconditional or conditional manner.
 
 [#branch-cap]
 === CBNZ
+
+github_ref:CBNZ[Sail definition]
 
 .CBNZ instruction format
 [wavedrom,,svg]
@@ -85,6 +89,8 @@ The mechanism is provided by the CALL and RETURN instructions.
 
 === CALL
 
+github_ref:CALL[Sail definition]
+
 The CALL instruction is used to call a sealed capability, i.e., to switch to another _domain_.
 
 .CALL instruction format
@@ -126,6 +132,8 @@ and `cra.async` to `0` (synchronous).
 ====
 
 === RETURN
+
+github_ref:RETURN[Sail definition]
 
 .RETURN instruction format
 [wavedrom,,svg]
@@ -202,6 +210,8 @@ image::trans-sync.svg[trans-sync]
 [#world-enter]
 === CAPENTER
 
+github_ref:CAPENTER[Sail definition]
+
 The CAPENTER instruction causes an entry into the secure world from the normal world.
 And it is only available in the normal world.
 
@@ -271,6 +281,8 @@ the CPU core exits from the secure world synchronously or asynchronously.
 
 [#world-exit]
 === CAPEXIT
+
+github_ref:CAPEXIT[Sail definition]
 
 The CAPEXIT instruction causes an exit from the secure world into the normal world.
 It is only available in the secure world and can only be used with an exit capability.

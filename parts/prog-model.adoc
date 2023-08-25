@@ -303,7 +303,7 @@ The manipulation constraints for each CCSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`ceh` | Secure world | Secure world
-|`cinit` | Normal world; one-time only | -
+|`cinit` | Normal world; one-time only | Not allowed
 |`epc` | Secure world | Secure world
 |`switch_cap` | Normal world | Normal world
 |===
