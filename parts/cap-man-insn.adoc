@@ -308,7 +308,7 @@ github_ref:SPLIT[Sail definition]
 
 The TIGHTEN instruction tightens the permissions (`perms` field) of a capability.
 
-github_ref:TIGHTEN[Sail link]
+github_ref:TIGHTEN[Sail definition]
 
 .TIGHTEN instruction format
 [wavedrom,,svg]
@@ -353,7 +353,7 @@ Instead, it is changed as the side effect of certain semantically significant op
 
 The DELIN instruction delinearises a linear capability.
 
-github_ref:DELIN[Sail link]
+github_ref:DELIN[Sail definition]
 
 .DELIN instruction format
 [wavedrom,,svg]
@@ -389,7 +389,7 @@ github_ref:DELIN[Sail link]
 The INIT instruction transforms an uninitialised capability into a linear capability
 after its associated memory region has been fully initialised (written with new data).
 
-github_ref:DELIN[Sail link]
+github_ref:DELIN[Sail definition]
 
 
 .INIT instruction format
@@ -430,7 +430,7 @@ github_ref:DELIN[Sail link]
 
 The SEAL instruction seals a linear capability.
 
-github_ref:SEAL[Sail link]
+github_ref:SEAL[Sail definition]
 
 
 .SEAL instruction format
@@ -473,7 +473,7 @@ github_ref:SEAL[Sail link]
 
 The DROP instruction invalidates a capability.
 
-github_ref:DROP[Sail link]
+github_ref:DROP[Sail definition]
 
 .DROP instruction format
 [wavedrom,,svg]
@@ -510,7 +510,7 @@ github_ref:DROP[Sail link]
 
 The MREV instruction creates a revocation capability.
 
-github_ref:MREV[Sail link]
+github_ref:MREV[Sail definition]
 
 .MREV instruction format
 [wavedrom,,svg]
@@ -548,7 +548,7 @@ github_ref:MREV[Sail link]
 
 The REVOKE instruction revokes a capability.
 
-github_ref:REVOKE[Sail link]
+github_ref:REVOKE[Sail definition]
 
 .REVOKE instruction format
 [wavedrom,,svg]
