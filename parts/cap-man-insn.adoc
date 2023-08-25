@@ -15,6 +15,8 @@ other instructions.
 
 Capabilities can be moved between registers with the MOVC instruction.
 
+github_ref:MOVC[Sail definition]
+
 .MOVC instruction format
 [wavedrom,,svg]
 ....
@@ -53,6 +55,8 @@ capability by a given amount (offset).
 
 ==== CINCOFFSET
 
+github_ref:CINCOFFSET[Sail definition]
+
 .CINCOFFSET instruction format
 [wavedrom,,svg]
 ....
@@ -86,6 +90,8 @@ capability by a given amount (offset).
 
 ==== CINCOFFSETIMM
 
+github_ref:CINCOFFSETIMM[Sail definition]
+
 .CINCOFFSETIMM instruction format
 [wavedrom,,svg]
 ....
@@ -118,6 +124,8 @@ capability by a given amount (offset).
 === Cursor Setter
 
 The `cursor` field of a capability can also be directly set with the SCC instruction.
+
+github_ref:SCC[Sail definition]
 
 .SCC instruction format
 [wavedrom,,svg]
@@ -154,6 +162,8 @@ The `cursor` field of a capability can also be directly set with the SCC instruc
 === Field Query
 
 The LCC instruction is used to read a field from a capability.
+
+github_ref:LCC[Sail definition]
 
 .LCC instruction format
 [wavedrom,,svg]
@@ -209,6 +219,8 @@ according to the <<lcc-multiplex,LCC multiplexing table>>.
 
 The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRINK instruction.
 
+github_ref:SHRINK[Sail definition]
+
 .SHRINK instruction format
 [wavedrom,,svg]
 ....
@@ -250,6 +262,8 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 The SPLIT instruction can split a capability into two by splitting the bounds.
 It attempts to split the capability `x[rs1]` into two capabilities,
 one with bounds `[x[rs1].base, x[rs2])` and the other with bounds `[x[rs2], x[rs1].end)`.
+
+github_ref:SPLIT[Sail definition]
 
 .SPLIT instruction format
 [wavedrom,,svg]
@@ -294,6 +308,8 @@ one with bounds `[x[rs1].base, x[rs2])` and the other with bounds `[x[rs2], x[rs
 
 The TIGHTEN instruction tightens the permissions (`perms` field) of a capability.
 
+github_ref:TIGHTEN[Sail link]
+
 .TIGHTEN instruction format
 [wavedrom,,svg]
 ....
@@ -337,6 +353,8 @@ Instead, it is changed as the side effect of certain semantically significant op
 
 The DELIN instruction delinearises a linear capability.
 
+github_ref:DELIN[Sail link]
+
 .DELIN instruction format
 [wavedrom,,svg]
 ....
@@ -370,6 +388,9 @@ The DELIN instruction delinearises a linear capability.
 
 The INIT instruction transforms an uninitialised capability into a linear capability
 after its associated memory region has been fully initialised (written with new data).
+
+github_ref:DELIN[Sail link]
+
 
 .INIT instruction format
 [wavedrom,,svg]
@@ -408,6 +429,9 @@ after its associated memory region has been fully initialised (written with new 
 === Sealing
 
 The SEAL instruction seals a linear capability.
+
+github_ref:SEAL[Sail link]
+
 
 .SEAL instruction format
 [wavedrom,,svg]
@@ -449,6 +473,8 @@ The SEAL instruction seals a linear capability.
 
 The DROP instruction invalidates a capability.
 
+github_ref:DROP[Sail link]
+
 .DROP instruction format
 [wavedrom,,svg]
 ....
@@ -483,6 +509,8 @@ The DROP instruction invalidates a capability.
 === Revocation Capability Creation
 
 The MREV instruction creates a revocation capability.
+
+github_ref:MREV[Sail link]
 
 .MREV instruction format
 [wavedrom,,svg]
@@ -519,6 +547,8 @@ The MREV instruction creates a revocation capability.
 === Revocation Operation
 
 The REVOKE instruction revokes a capability.
+
+github_ref:REVOKE[Sail link]
 
 .REVOKE instruction format
 [wavedrom,,svg]

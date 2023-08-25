@@ -6,6 +6,8 @@
 The CCSRRW instruction is used to read and write specified
 _<<add-reg-list,capability control and status registers>>_ (CCSRs).
 
+github_ref:CCSRRW[Sail definition]
+
 .CCSRRW instruction format
 [wavedrom,,svg]
 ....
