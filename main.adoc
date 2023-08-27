@@ -43,18 +43,18 @@ include::parts/existing-insn.adoc[leveloffset=+1]
 
 include::parts/int-except.adoc[leveloffset=+1]
 
-<<<
+// <<<
 
-include::parts/mem-consistency.adoc[leveloffset=+1]
+// include::parts/mem-consistency.adoc[leveloffset=+1]
 
 <<<
 
 include::parts/insn-list.adoc[leveloffset=+1]
 
-<<<
+// <<<
 
-include::parts/asm-examples.adoc[leveloffset=+1]
+// include::parts/asm-examples.adoc[leveloffset=+1]
 
-<<<
+// <<<
 
-include::parts/abi.adoc[leveloffset=+1]
+// include::parts/abi.adoc[leveloffset=+1]
