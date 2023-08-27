@@ -360,6 +360,20 @@ also store a capability.
 The type of data contained in a memory location is maintained and
 confusion of the type is not allowed.
 
+.Note
+****
+In this document, when we say the memory location `[addr, addr + CLENBYTES]`,
+we mean that the following content will be loaded from or stored to the memory location:
+
+* Depending on the type of data contained in the memory location,
+the content being loaded from the memory location is either a capability at
+the memory location `[addr, addr + CLENBYTES]`,
+or an integer at the memory location `[addr, addr + XLENBYTES]`.
+* Depending on the type of data being stored to the memory location,
+the data is either stored as a capability at the memory location `[addr, addr + CLENBYTES]`,
+or an integer at the memory location `[addr, addr + XLENBYTES]`.
+****
+
 The physical memory is divided into two disjoint regions:
 the _normal memory_ and the _secure memory_.
 While the normal memory is only accessible through _Memory Management Unit_ (MMU),
