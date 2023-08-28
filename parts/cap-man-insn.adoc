@@ -459,7 +459,7 @@ github_ref:SEAL[Sail definition]
 - The size of the memory region associated with `x[rs1]` is smaller than
 `CLENBYTES * 33` bytes (i.e., `x[rs1].end - x[rs1].base < CLENBYTES * 33`).
 - `x[rs1].base` is not aligned to `CLENBYTES` bytes.
-- The content of the memory region `[x[rs1].base, x[rs1].base + CLENBYTES)`
+- The content of the memory region `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`
 does not contain a capability.
 ****
 
