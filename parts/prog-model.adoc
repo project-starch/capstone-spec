@@ -360,6 +360,22 @@ also store a capability.
 The type of data contained in a memory location is maintained and
 confusion of the type is not allowed.
 
+.*Note: maintaining the type of data*
+[%collapsible]
+====
+****
+For a store operation that accesses the memory location `[addr, addr + size)`,
+the type of data contained in the memory location is maintained as follows:
+
+* If a capability is stored to the memory location `[addr, addr + CLENBYTES)`,
+the type of data contained in the memory location will become a capability,
+where `addr` is `CLENBYTES`-byte aligned.
+* If an integer is stored to the memory location `[addr, addr + size)`,
+it will make the `CLEN`-bit aligned memory location `[cbase, cend)` an integer,
+where `cbase = addr & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+****
+====
+
 .Note
 ****
 In this document, when we say the memory location `[addr, addr + CLENBYTES]`,
@@ -379,6 +395,8 @@ the _normal memory_ and the _secure memory_.
 While the normal memory is only accessible through _Memory Management Unit_ (MMU),
 the secure memory can only be accessed through capabilities.
 
+Hence, we have the following constraints on the memory accesses in different worlds.
+
 .Memory Accesses in the normal world and secure world
 [%header%autowidth.stretch]
 |===
@@ -396,6 +414,17 @@ But both `SBASE` and `SEND` are required to be `CLENBYTES`-byte aligned.
 | Normal memory | `[0, SBASE) U [SEND, 2^XLEN)` | MMU
 | Secure memory | `[SBASE, SEND)` | Capabilities
 |===
+
+.*Note: undefined behaviour*
+[%collapsible]
+====
+****
+The following load results are _undefined_:
+
+* Load an integer from a memory location when the last capability store to its `CLENBYTES`-byte aligned memory location is
+more recent than the last integer store to the memory location itself.
+****
+====
 
 == Instruction Set
 
