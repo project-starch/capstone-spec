@@ -230,7 +230,6 @@ image::trans-exc.svg[trans-exception]
 *If the content in `ceh` satisfies the following conditions:*
 
 ****
-* `ceh` is a capability.
 * `ceh.type` is `4` (sealed).
 * `ceh.valid` is `1` (valid).
 * `ceh.async` is `0` (synchronous)
