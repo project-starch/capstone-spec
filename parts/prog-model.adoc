@@ -28,20 +28,19 @@ Each capability has the following architecturally-visible fields:
 |`type` | `0..6` | The type of the capability:
 `0` = linear, `1` = non-linear, `2` = revocation,
 `3` = uninitialised, `4` = sealed, `5` = sealed-return, `6` = exit
-|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 2` (revocation), `type = 4` (sealed), `type = 5` (sealed-return), or
-`type = 6` (exit).
+|`cursor` | `0..2^XLEN-1` |  Not applicable when `type = 4` (sealed).
 The memory address the capability points to (to be used for the next memory access)
-|`base` | `0..2^XLEN-1` | Not applicable when `type = 6` (exit). The base memory address of the memory region associated with the capability
+|`base` | `0..2^XLEN-1` | The base memory address of the memory region associated with the capability
 |`end` | `0..2^XLEN-1` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
 `type = 6` (exit).
 The end memory address of the memory region associated with the capability
-|`perms` | `0..7` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return) or
+|`perms` | `0..7` | Not applicable when `type = 4` (sealed), `type = 5` (sealed-return), or
 `type = 6` (exit).
 One-hot encoded permissions associated with the capability:
 `0` = no access, `1` = execute-only, `2` = write-only, `3` = write-execute,
 `4` = read-only, `5` = read-execute, `6` = read-write, `7` = read-write-execute
-|`async` | `0..1` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
-Whether the capability is sealed asynchronously: `0` = synchronously, `1` = asynchronously
+|`async` | `0..2` | Only applicable when `type = 4` (sealed) or `type = 5` (sealed-return).
+How the capability is sealed: `0` = synchronously, `1` = upon exception, `2` = upon interrupt
 |`reg` | `0..31` | Only applicable when `type = 5` (sealed-return).
 The index of the general-purpose register to restore the capability to
 |===
@@ -60,9 +59,11 @@ The range of the `perms` field has a partial order `\<=p` defined as follows:
 }
 ....
 
-We say a capability `c` aliases with a capability `d` if and only if the intersection
+[#alias-definition]
+We say a capability `c` _aliases_ with a capability `d` if and only if the intersection
 between `[c.base, c.end)` and `[d.base, d.end)` is non-empty.
 
+[#smaller-t-definition]
 For two revocation capabilities `c` and `d` (i.e., `c.type = d.type = 2`),
 we say `c <t d` if and only if
 
@@ -74,35 +75,44 @@ sufficient metadata to test the `<t` relation.
 It will be clear that for any pair of aliasing revocation capabilities,
 the order of their creations is well-defined.
 
-.Note
+.*Note: the implementation of `valid` field*
+[%collapsible]
+====
 ****
-The `valid` field is involved in link:#revocation[revocation],
-where it might be changed due to a link:#rev-operation[revocation operation]
+The `valid` field is involved in <<revocation,revocation>>,
+where it might be changed due to a <<rev-operation,revocation operation>>
 on a different capability.
 A performant implementation, therefore, may prefer not to maintain
 the `valid` field inline with the other fields.
+****
+====
 
+.*Note: addition/compression to capability fields*
+[%collapsible]
+====
+****
 Implementations are free to maintain additional fields to
-capabilities or compress the representation of the above
+capabilities, or compress the representation of the above
 fields, as long as each capability fits in `CLEN` bits.
+
 It is not required to be able to represent capabilities with
-all combinations of field values, as long as the following
-conditions are satisfied:
+all combinations of field values in a compressed representation,
+as long as the following conditions are satisfied:
 
-* For load and store instructions that move a capability between
+. For load and store instructions that move a capability between
 a register and memory, the value of the capability is preserved.
-* The resulting capability values of any operation are not more
+. The resulting capability values of any operation are not more
 powerful than when the same operation is performed on a {isa_name}
-implementation without compression. More specifically, if an execution
-trace is valid (i.e., without exceptions) on the compressed implementation,
+implementation without compression.
+- More specifically, if an execution trace is valid
+(i.e., without exceptions) on the compressed implementation, 
 then it must also be valid on the uncompressed implementation.
+// FIXME: double-check this claim
 For example, a trivial yet useless compression would be to store
-nothing and always return a capability with `valid = 0` (TODO:
-double-check this claim).
+nothing and always return a capability with `valid = 0`.
 ****
+====
 
-.Note
-****
 For different types of capabilities, a specific subset of the fields is used.
 The table below summarises the fields used for each type of capabilities.
 
@@ -112,13 +122,35 @@ The table below summarises the fields used for each type of capabilities.
 |Type |`type` |`valid` |`cursor` |`base` |`end` |`perms` |`async` |`reg`
 |Linear |`0` |Yes |Yes |Yes |Yes |Yes |- |-
 |Non-linear |`1` |Yes |Yes |Yes |Yes |Yes |- |-
-|Revocation |`2` |Yes |- |Yes |Yes |Yes |- |-
+|Revocation |`2` |Yes |Yes |Yes |Yes |Yes |- |-
 |Uninitialised |`3` |Yes |Yes |Yes |Yes |Yes |- |-
 |Sealed |`4` |Yes |- |Yes |- |- |Yes |-
-|Sealed-return |`5` |Yes |- |Yes |- |- |Yes |Yes
-|Exit |`6` |Yes |- |- |- |- |- |-
+|Sealed-return |`5` |Yes |Yes |Yes |- |- |Yes |Yes
+|Exit |`6` |Yes |Yes |Yes |- |- |- |-
 |===
-****
+
+When the `async` field of a sealed-return capability is `0` (synchronous),
+or when the `type` field of the capability is `6` (exit),
+some memory accesses are granted by this capability.
+The following table shows the memory accesses granted in such scenarios,
+where `size` is the size of the memory access in bytes.
+
+.Memory accesses granted by sealed-return and exit capabilities
+[%header%autowidth.stretch]
+|===
+| Capability type | `async` | Read | Write | Execute
+| Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | No
+| Exit | - | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | No
+|===
+
+In other scenarios and for other capability types without the `perms` field, no read/write/execute
+memory accesses are granted by the capability.
+
+The following figure shows the overview of different types of capabilities in {isa_name},
+and the operations that change the type of a capability.
+
+.Overview of different types of capabilities in {isa_name}
+image::trans-types.svg[trans-types]
 
 == Extension to General-Purpose Registers
 
@@ -184,24 +216,139 @@ register with index `i`.
 
 === Program Counter
 
-* _{isa_var_pure}_: The program counter (`pc`) is extended to contain a capability.
-* _{isa_var_hybrid}_: Similar to the general-purpose registers,
-the program counter (`pc`) is also extended to contain a capability or an integer.
+Similar to the general-purpose registers,
+the program counter (`pc`) is extended to contain a capability or an integer.
 
-When `pc` contains a capability, some of the fields of the capability
-are checked before each instruction fetch.
-An exception is raised when any of the following conditions are met:
+.*Note: what is `cwrld`*
+[%collapsible]
+====
+****
+`cwrld` is a special register added in {isa_name} that indicates the world currently in execution.
+Please see <<additional-regs,Added Registers>> for details.
+****
+====
 
-* `x[pc].valid` is `0` (invalid).
-* `x[pc].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[pc].cursor` is not aligned to `4`.
-* `x[pc].perms` is not executable (i.e., `2 \<=p x[pc].perms` does not hold).
-* `x[pc].cursor` is not in the range
-`[pc.base, pc.end-4]`.
+*During the instruction fetch stage, an exception is raised when any of the following conditions is met:*
 
-If no exception is raised, the instruction pointed to by `pc.cursor`
-is fetched and executed. The `pc.cursor` is then incremented by `4` (i.e.,
-`pc.cursor += 4`).
+****
+Normal world (i.e., `cwrld = 0`)
+
+* `cwrld` is `0` (normal world) and any of the conditions for {base_isa_name} is met.
+* `Instruction access fault (1)`
+- `pc` does not contain an integer.
+
+Secure world (i.e., `cwrld = 1`)
+
+* `Instruction access fault (1)`
+- `pc` does not contain a capability.
+- `pc.valid` is `0` (invalid).
+- `pc.type` is neither `0` (linear) nor `1` (non-linear).
+- `pc.perms` is not executable (i.e., `1 \<=p pc.perms` does not hold).
+- `pc.cursor` is not in the range `[pc.base, pc.end - 4]`.
+* `Instruction address misaligned (0)`
+- `pc.cursor` is not aligned to `4`.
+
+****
+
+*If no exception is raised:*
+
+Secure world (i.e., `cwrld = 1`):
+
+====
+. The instruction pointed to by `pc.cursor` is fetched and executed.
+. Set `pc.cursor` to `pc.cursor + 4` at the end of the instruction.
+====
+
+Normal world (i.e., `cwrld = 0`):
+
+====
+. The instruction pointed to by `pc` is fetched and executed.
+. Set `pc` to `pc + 4` at the end of the instruction.
+====
+
+[#additional-regs]
+== Added Registers
+
+The {isa_name} ISA adds the following registers.
+
+.Additional Registers in {isa_name} ISA
+[#add-reg-list]
+[%header%autowidth.stretch]
+|===
+| Mnemonic | CCSR encoding | CSR encoding | Description
+| `ceh`  | `0x000` | - | The sealed capability or PC entry for the exception handler
+| `cinit` | `0x002` | - | The initial capability covering the entire address space of the secure memory
+| `epc` | `0x003` | - | The exception program counter register
+| `cwrld`| - | - | The world currently in execution. `0` = normal world, `1` = secure world
+| `normal_pc`| - | - |The program counter for the normal world before the secure world is entered
+| `normal_sp`| - | - |The stack pointer for the normal world before the secure world is entered
+| `switch_reg`| - | - | The index of the general-purpose register used when switching worlds
+| `switch_cap`| `0x004` | - | The capability used to store contexts when switching worlds asynchronously
+| `exit_reg`| - | - | The index of the general-purpose register for receiving the exit code when exiting the secure world 
+| `tval` | - | `0x801` | The exception data (trap value) register
+| `cause` | - | `0x802` | The exception cause register
+| `emode` | - | `0x804` | The encoding mode of the machine. `0` = integer encoding mode, `1` = capability encoding mode
+|===
+
+Some of the registers only allow capability values and have special semantics
+related to the system-wide machine state. They are referred to as
+_capability control and status registers_ (CCSRs). Under their respective constraints,
+CCSRs can be manipulated using _<<ctrl-status,control and status instructions>>_.
+
+The manipulation constraints for each CCSR are indicated below.
+
+.Manipulation Constraints for CCSRs
+[#ccsr-man-constr]
+[%header%autowidth.stretch]
+|===
+|Mnemonic | Read | Write
+|`ceh` | Secure world | Secure world
+|`cinit` | Normal world; one-time only | Not allowed
+|`epc` | Secure world | Secure world
+|`switch_cap` | Normal world | Normal world
+|===
+
+Some of the registers are added as _control and status registers_ (CSRs).
+These registers are manipulated by the same instructions
+that manipulate CSRs as in {base_isa_name}.
+When the manipulation constraints of these additional CSRs are not satisfied,
+the behaviour of these instructions follows the {base_isa_name} convention for other CSRs.
+
+The manipulation constraints for each additional CSR are indicated below.
+
+.Manipulation Constraints for Additional CSRs
+[#csr-man-constr]
+[%header%autowidth.stretch]
+|===
+|Mnemonic | Read | Write
+|`tval`|  Secure world |  Secure world
+|`cause`|  Secure world |  Secure world
+|`emode`|  Normal world |  Normal world
+|===
+
+.*Note: `ceh`*
+[%collapsible]
+====
+****
+`ceh` is about the functionality of a domain only.
+A domain should be allowed to set `ceh` for itself.
+That also means it needs to be switched when switching domains.
+****
+====
+
+.*Note: `cinit`*
+[%collapsible]
+====
+****
+`cinit` is a CCSR that is used to
+bootstrap capabilities after a <<reset,system reset>>.
+<<ctrl-status,control and status instructions>> can be used to read the initial
+capability in `cinit` and write it to a general-purpose register.
+This operation can only be performed once after each reset.
+Any attempt to write `cinit` will be silently ignored,
+and any attempt to read it after the first time will return the content of `cnull`.
+****
+====
 
 [#mem-extension]
 == Extension to Memory
@@ -213,121 +360,83 @@ also store a capability.
 The type of data contained in a memory location is maintained and
 confusion of the type is not allowed.
 
-In _{isa_var_pure}_, the memory can only be accessed through capabilities.
+.*Note: maintaining the type of data*
+[%collapsible]
+====
+****
+For a store operation that accesses the memory location `[addr, addr + size)`,
+the type of data contained in the memory location is maintained as follows:
 
-[%header%autowidth.stretch]
-|===
-| Address Space | Access Method | Allowed Instructions
-| `[0, 2^XLEN)` | Capabilities | link:#load-with-cap[LDD/LDW/LDH/LDB],
-link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
-|===
+* If a capability is stored to the memory location `[addr, addr + CLENBYTES)`,
+the type of data contained in the memory location will become a capability,
+where `addr` is `CLENBYTES`-byte aligned.
+* If an integer is stored to the memory location `[addr, addr + size)`,
+it will make the `CLEN`-bit aligned memory location `[cbase, cend)` an integer,
+where `cbase = addr & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
+****
+====
 
-In _{isa_var_hybrid}_, the physical memory is divided into two disjoint regions:
+.Note
+****
+In this document, when we say the memory location `[addr, addr + CLENBYTES]`,
+we mean that the following content will be loaded from or stored to the memory location:
+
+* Depending on the type of data contained in the memory location,
+the content being loaded from the memory location is either a capability at
+the memory location `[addr, addr + CLENBYTES]`,
+or an integer at the memory location `[addr, addr + XLENBYTES]`.
+* Depending on the type of data being stored to the memory location,
+the data is either stored as a capability at the memory location `[addr, addr + CLENBYTES]`,
+or an integer at the memory location `[addr, addr + XLENBYTES]`.
+****
+
+The physical memory is divided into two disjoint regions:
 the _normal memory_ and the _secure memory_.
-While the _normal memory_ is only accessible through MMU (Memory Management Unit),
-the _secure memory_ can only be accessed through capabilities.
+While the normal memory is only accessible through _Memory Management Unit_ (MMU),
+the secure memory can only be accessed through capabilities.
+
+Hence, we have the following constraints on the memory accesses in different worlds.
+
+.Memory Accesses in the normal world and secure world
+[%header%autowidth.stretch]
+|===
+| World | Memory Management Unit (MMU) | Capabilities
+| Normal world | Yes | Yes
+| Secure world | No | Yes
+|===
+
+The bounds of the secure memory `[SBASE, SEND)` are implementation-defined.
+But both `SBASE` and `SEND` are required to be `CLENBYTES`-byte aligned.
 
 [%header%autowidth.stretch]
 |===
-| Memory Region | Address Space | Access Method | Allowed Instructions
-| _Normal Memory_ | `[0, SBASE) U [SEND, 2^XLEN)` | MMU | link:#riscv-load-store[{base_isa_name} load/store instructions],
-link:#load-cap-raw[LDCR] and link:#store-cap-raw[STCR]
-| _Secure Memory_ | `[SBASE, SEND)` | Capabilities | link:#load-with-cap[LDD/LDW/LDH/LDB],
-link:#store-with-cap[STD/STW/STH/STB], link:#load-cap[LDC] and link:#store-cap[STC]
+| Memory Region | Address Space | Access Method
+| Normal memory | `[0, SBASE) U [SEND, 2^XLEN)` | MMU
+| Secure memory | `[SBASE, SEND)` | Capabilities
 |===
 
-== Added Registers
-
-The {isa_name} ISA adds the following registers:
-
-
-.Additional Registers in {isa_name} ISA
-[#ccsrs-list, cols="1,3a", options="header"]
-|===
-|{proj_name} Variant   | Additional Registers
-|_{isa_var_pure}_|
-[cols="1,1,4", options="header"]
-!===
-! Mnemonic ! CCSR encoding ! Description
-! `ceh`  ! `0x000` ! The sealed capability for the exception handler
-! `cih`  ! `0x001` ! The sealed capability for the interrupt handler
-! `cinit` ! `0x010` ! The initial capability covering the entire address space of the memory
-!===
-
-|_{isa_var_hybrid}_|
-[cols="1,1,4", options="header"]
-!===
-! Mnemonic ! CCSR encoding ! Description
-! `ceh`  ! `0x000` ! The sealed capability for the exception handler
-! `cinit` ! `0x010` ! The initial capability covering the entire address space of the secure memory
-! `cwrld`! - ! The currently executed world. `0` = normal world, `1` = secure world
-! `normal_pc`!-! The program counter for the normal world before the secure world is entered
-! `normal_sp`!-!The stack pointer for the normal world before the secure world is entered
-! `switch_reg`!-! The index of the general-purpose register used when switching worlds
-! `switch_cap`!-! The capability used to store contexts when switching worlds
-! `exit_reg`!-! The index of the general-purpose register for receiving the exit code when exiting the secure world 
-!===
-|===
-
-Some of the registers only allow capability values and have special semantics
-related to the system-wide machine state. They are referred to as
-_capability control state registers (CCSRs)_. Under their respective constraints,
-CCSRs can be manipulated using link:#ccsr-man[CCSR manipulation instructions].
-
-The manipulation constraints for each CCSR are indicated below.
-
-.Manipulation Constraints for CCSRs
-[#ccsr-man-constr]
-[%header%autowidth.stretch]
-|===
-|Mnemonic | Read | Write
-|`ceh` | No constraint | No constraint
-|`cih` | - | The original content must be an invalid capability (`valid = 0`)
-|`cinit` | One-time only | -
-|===
-
-.Note
+.*Note: undefined behaviour*
+[%collapsible]
+====
 ****
-`ceh` and `cih` should be handled differently.
-`ceh` is about the functionality of a domain only. A domain should be allowed
-to set `ceh` for itself.
-That also means it needs to be switched when switching domains.
-`cih` is about the functionality of the system, which should normally only
-be set once.
-To prevent any domain from setting `cih`, we require the original content of
-`cih` to be invalid for an attempt to change it to succeed.
-****
+The following load results are _undefined_:
 
-.Note
+* Load an integer from a memory location when the last capability store to its `CLENBYTES`-byte aligned memory location is
+more recent than the last integer store to the memory location itself.
 ****
-`cinit` is a special CCSR that is used to initialize the system.
-In the initialisation phase of the system, the `cinit` CCSR is set to
-an initial capability as shown in the table below.
-
-.Initial Capability of `cinit`
-[%header%autowidth.stretch]
-|===
-| Variant | `type` | `cursor` | `base` | `end` | `perms` | `valid`
-| _{isa_var_pure}_ | `1` (linear) | `0` | `0` | `2^XLEN` | `4` (read-write-execute) | `1` (valid)
-| _{isa_var_hybrid}_ | `1` (linear) | `SBASE` | `SBASE` | `SEND` | `4` (read-write-execute) | `1` (valid)
-|===
-
-link:#ccsr-man[CCSR manipulation instructions] can be used to read this initial
-capability and store it in a general-purpose register. This operation can only
-be performed once. Any attempt to write `cinit` or read it for the second time
-will be silently ignored.
-****
+====
 
 == Instruction Set
 
 The {isa_name} instruction set is based on the {base_isa_name} instruction set.
 The (uncompressed) instructions are fixed 32-bit wide, and laid out in memory
 in little-endian order. In the encoding space of the {base_isa_name} instruction set,
-{isa_name} instructions occupies the "custom-2" subset, i.e., the opcode
+{isa_name} instructions occupies the "`custom-2`" subset, i.e., the opcode
 of all {isa_name} instructions is `0b1011011`.
 
-{isa_name} instruction encodings follow two basic formats: R-type and I-type,
-as described below (more details are also provided in the _RISC-V ISA Manual_).
+{isa_name} instruction encodings follow three basic formats: R-type, I-type and S-type,
+as described below
+(more details are also provided in the https://github.com/riscv/riscv-isa-manual[_RISC-V ISA Manual_]).
 
 .R-type instruction format
 include::r-type-format.adoc[]
@@ -335,5 +444,33 @@ include::r-type-format.adoc[]
 .I-type instruction format
 include::i-type-format.adoc[]
 
-R-type instructions receive up to three register operands, and I-type instructions
+.S-type instruction format
+include::s-type-format.adoc[]
+
+R-type instructions receive up to three register operands, and I-type/S-type instructions
 receive up to two register operands and a 12-bit-wide immediate operand.
+
+{isa_name} also uses a register operand of R-type as an immediate operand in some instructions,
+which is called _register-immediate_ (RI) type for convenience in this document.
+
+.RI-type instruction format
+include::ri-type-format.adoc[]
+
+The so-called RI-type instructions are actually _derivatives_ of R-type instructions.
+They receive up to two register operands and a 5-bit-wide immediate operand.
+
+[#reset]
+== System Reset
+
+Upon reset, the system state must conform to the following specifications.
+
+****
+* Each general-purpose register either contains an integer, or a capability with `valid = 0` (invalid).
+* No addressable memory location can contain a capability.
+* `ceh`, `epc` and `switch_cap` contain either an integer or
+a capability with `valid = 0` (invalid).
+* `cwrld = 0` (normal world).
+* `emode = 0` (integer encoding mode).
+* `cinit = { valid = 1, type = 0, cursor = SBASE, base = SBASE, end = SEND, perms = 7 }`.
+* Specifications for {base_isa_name}.
+****

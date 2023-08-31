@@ -1,19 +1,11 @@
 include::attributes.adoc[]
 
 = The {isa_name} Instruction Set Reference
-:author_1: Jason Zhijingcheng Yu
-:email_1: yu.zhi@comp.nus.edu.sg
-:author_2: Mingkai Li
-:email_2: mingkai@comp.nus.edu.sg
-:institution_1: National University of Singapore
-:institution_2: National University of Singapore
+:author: The CAPSTONE Team
+:email: https://capstone.kisp-lab.org/
 :reproducible:
 :toc: left
 :sectnums:
-
-<<<
-
-include::parts/contributors.adoc[leveloffset=+1]
 
 <<<
 
@@ -41,7 +33,7 @@ include::parts/ctrl-flow-insn.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/ctrl-state-insn.adoc[leveloffset=+1]
+include::parts/ctrl-status-insn.adoc[leveloffset=+1]
 
 <<<
 
@@ -51,13 +43,9 @@ include::parts/existing-insn.adoc[leveloffset=+1]
 
 include::parts/int-except.adoc[leveloffset=+1]
 
-<<<
+// <<<
 
-include::parts/mem-consistency.adoc[leveloffset=+1]
-
-<<<
-
-include::parts/debug-insn.adoc[leveloffset=+1]
+// include::parts/mem-consistency.adoc[leveloffset=+1]
 
 <<<
 
@@ -65,8 +53,12 @@ include::parts/insn-list.adoc[leveloffset=+1]
 
 <<<
 
-include::parts/asm-examples.adoc[leveloffset=+1]
+include::parts/cmp.adoc[leveloffset=+1]
 
-<<<
+// <<<
 
-include::parts/abi.adoc[leveloffset=+1]
+// include::parts/asm-examples.adoc[leveloffset=+1]
+
+// <<<
+
+// include::parts/abi.adoc[leveloffset=+1]

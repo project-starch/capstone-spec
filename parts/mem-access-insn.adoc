@@ -2,303 +2,201 @@
 
 = Memory Access Instructions
 
-{proj_name} provides instructions to load from and store to memory regions using capabilities as well as
-instructions to load and store
-capabilities.
-
-== Load/Store with Capabilities
-
-{proj_name} offers a set of instructions for loading and storing integers of various sizes
-using capabilities.
-
-[#load-with-cap]
-=== Load
-
-The LDD, LDW, LDH, LDB instructions load an integer in the size of doubleword, word, 
-halfword, and bste respectively.
-In {proj_name}, a doubleword is defined as `XLENBYTES` bytes, a word, halfword, and byte 
-are defined as `XLENBYTES/2`, `XLENBYTES/4`, and `XLENBYTES/8` bytes respectively.
-
-.LDD instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0010010' }
-]}
-....
-
-.LDW instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0010100' }
-]}
-....
-
-.LDH instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0010110' }
-]}
-....
-
-.LDB instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (I)' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0011000' }
-]}
-....
-
-*An exception is raised when any of the following conditions are met:*
-
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[rs1].valid` is `0` (invalid).
-* `4 \<=p x[rs1].perms` does not hold.
-* `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-size]`, where `size`
-is the size (in bytes) of the integer being loaded.
-* `x[rs1].cursor` is not aligned to the size of the integer being loaded.
-
-*If no exception is raised:* Load the content at the memory location `[x[rs1].cursor, x[rs1].cursor + size)` as an integer,
-where `size` is the size of the integer
-(i.e., `XLENBYTES`, `XLENBYTES/2`, `XLENBYTES/4`, or `XLENBYTES/8` bytes for LDD, LDW, LDH, and LDB respectively), to `x[rd]`.
-
-[#store-with-cap]
-=== Store
-
-The STD, STW, STH, STB instructions store an integer in the size of doubleword, word, halfword, and byte respectively.
-
-.STD instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: '0b0010011' }
-]}
-....
-
-.STW instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: '0b0010101' }
-]}
-....
-
-.STH instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: '0b0010111' }
-]}
-....
-
-.STB instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: 'rs2 (I)' },
-    {bits: 7, name: '0b0011001' }
-]}
-....
-
-*An exception is raised when any of the following conditions are met:*
-
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
-* `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-size]`, where `size`
-is the size (in bytes) of the integer being stored.
-* `x[rs1].cursor` is not aligned to the size of the scalar value being loaded.
-* `x[rs2]` is not an integer.
-
-*If no exception is raised:* Store the integer in `x[rs2]` to the memory location
-`[x[rs1].cursor, x[rs1].cursor + size)`, where `size` is the size of the integer
-(i.e., `XLENBYTES`, `XLENBYTES/2`, `XLENBYTES/4`, or `XLENBYTES/8` bytes for STD, STW, STH, and STB respectively).
-`x[rs1].cursor` is set to `x[rs1].cursor + size`. The data contained in the `CLEN`-bit aligned
-memory location `[cbase, cend)`, which alias with memory location `[cursor, cursor + size)`
-(i.e., `cbase = cursor & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`), will be interpreted as an integer type.
-
-== Load/Store Capabilities
-
-In {proj_name}, two specific instructions (i.e., LDC and LTC) are used to load and store capabilities.
+{isa_name} provides instructions to load and store capabilities from/to memory regions.
 
 [#load-cap]
-=== Load Capabilities
+== Load Capabilities
 
-The LDC instruction loads a capability from memory.
+github_ref:LDC[Sail definition]
 
-.LDC instruction format
+The LDC instruction loads a capability from the memory.
+
+=== Secure world or normal world capability encoding mode
+
+The LDC instruction loads a capability from the memory using a capability,
+when `cwrld` is `1` (secure world),
+or when `cwrld` is `0` (normal world) but `emode` is `1` (capability encoding mode).
+
+.LDC instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: 'rd (C)' },
-    {bits: 3, name: '0b001' },
+    {bits: 3, name: '0b011' },
     {bits: 5, name: 'rs1 (C)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0010000' }
+    {bits: 12, name: 'imm[11:0] (S)' }
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*An exception is raised when any of the following conditions is met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
-* `x[rs1].valid` is `0` (invalid).
-* `2 \<=p x[rs1].perms` does not hold.
-* `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
-* `x[rs1].cursor` is not aligned to `CLEN` bits.
-* The data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` is not a capability.
-* The capability being loaded is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`), and `x[rs1].perms`
-is not `3` or `4` (read-write or read-write-execute).
+****
+* `Unexpected operand type (24)`
+- `x[rs1]` is not a capability.
+* `Invalid capability (25)`
+- `x[rs1].valid` is `0` (invalid).
+* `Unexpected capability type (26)`
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
+* `Insufficient capability permissions (27)`
+- `x[rs1].type` is `0` (linear) or `1` (non-linear) and `4 \<=p x[rs1].perms` does not hold.
+* `Capability out of bound (28)`
+- `x[rs1].type` is `0` (linear) or `1` (non-linear), and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
+- `x[rs1].type` is `5` (sealed-return) or `6` (exit), and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
+* `Load address misaligned (4)`
+- `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
+* `Load access fault (5)`
+- The data contained in the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` is not a capability.
+* `Insufficient capability permissions (27)`
+- The capability being loaded is not a non-linear capability (i.e., `type != 1`),
+`x[rs1].type` is `0` (linear) or `1` (non-linear), and `2 \<=p x[rs1].perms` does not hold.
+****
 
-*If no exception is raised:* Load the capability at the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` into `x[rd]`. If the capability being loaded is not a non-linear
-capability (i.e., `type != 1`) or an exit
-capability (i.e., `type != 6`), the data contained in the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)` will be
-set to the content of `cnull`.
+*If no exception is raised:*
+
+====
+. Set `cap` to `x[rs1]`.
+. Load the capability at the memory location `cap.cursor + imm, cap.cursor + imm + CLENBYTES)` into `x[rd]`.
+. If `x[rd].type` is not `1` (non-linear),
+write `cnull` to the memory location `[cap.cursor + imm, cap.cursor + imm + CLENBYTES)`.
+====
+
+=== Normal world integer encoding mode
+
+When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
+the LDC instruction loads a capability from the normal memory using raw addresses.
+The raw addresses are interpreted as physical addresses or virtual addresses
+depending on the whether virtual memory is enabled.
+
+.LDC instruction format in normal world integer encoding mode
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd (C)' },
+    {bits: 3, name: '0b011' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 12, name: 'imm[11:0] (S)' }
+]}
+....
+
+*An exception is raised when any of the following conditions is met:*
+
+****
+* `Unexpected operand type (24)`
+- `x[rs1]` is not an integer.
+* `Load address misaligned (4)`
+- `x[rs1] + imm` is not aligned to `CLENBYTES` bytes.
+* `Load access fault (5)`
+- `x[rs1] + imm` is in the range `[SBASE, SEND)`.
+- The data contained in the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)` is not a capability.
+****
+
+*If no exception is raised:*
+
+====
+. Set `int` to `x[rs1]`.
+. Load the capability at the memory location `[int + imm, int + imm + CLENBYTES)` into `x[rd]`.
+. If `x[rd].type` is not `1` (non-linear),
+write `cnull` to the memory location `[int + imm, int + imm + CLENBYTES)`.
+====
 
 [#store-cap]
-=== Store Capabilities
+== Store Capabilities
 
-The STC instruction stores a capability to memory.
+github_ref:STC[Sail definition]
 
-.STC instruction format
+The STC instruction stores a capability to the memory.
+
+=== Secure world or normal world capability encoding mode
+
+The STC instruction stores a capability to the memory using a capability,
+when `cwrld` is `1` (secure world),
+or when `cwrld` is `0` (normal world) but `emode` is `1` (capability encoding mode).
+
+.STC instruction format in secure world or normal world capability encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
-    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'imm[4:0] (S)' },
+    {bits: 3, name: '0b100' },
     {bits: 5, name: 'rs1 (C)' },
     {bits: 5, name: 'rs2 (C)' },
-    {bits: 7, name: '0b0010001' }
+    {bits: 7, name: 'imm[11:5] (S)' }
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*An exception is raised when any of the following conditions is met:*
 
-* `x[rs1]` is not a capability.
-* `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialized).
-* `x[rs1].valid` is `0` (invalid).
-* `x[rs1].perms` is neither `6` (read-write) nor `7` (read-write-execute).
-* `x[rs1].cursor` is
-not in the range `[x[rs1].base, x[rs1].end-CLENBYTES]`.
-* `x[rs1].cursor` is not aligned to `CLEN` bits.
-* `x[rs2]` is not a capability.
+****
+* `Unexpected operand type (24)`
+- `x[rs1]` is not a capability.
+- `x[rs2]` is not a capability.
+* `Invalid capability (25)`
+- `x[rs1].valid` is `0` (invalid).
+* `Unexpected capability type (26)`
+- `x[rs1].type` is not `0` (linear), `1` (non-linear), `3` (uninitialised), `5` (sealed-return), or `6` (exit).
+- `x[rs1].type` is `5` (sealed-return) and `x[rs1].async` is not `0` (synchronous).
+* `Insufficient capability permissions (27)`
+- `x[rs1].type` is `0` or `1`, and `2 \<=p x[rs1].perms` does not hold.
+* `Illegal operand value (29)`
+- `x[rs1].type` is `3` (uninitialised) and `imm` is not `0`.
+* `Capability out of bound (28)`
+- `x[rs1].type` is `0`, `1`, or `3`, and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
+- `x[rs1].type` is `5` or `6`, and `x[rs1].cursor + imm` is
+not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
+* `Store/AMO address misaligned (6)`
+- `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
+****
 
 *If no exception is raised:*
-Store `x[rs2]` to the memory location `[x[rs1].cursor, x[rs1].cursor + CLENBYTES)`. `x[rs1].cursor`
-is set to `x[rs1].cursor + CLENBYTES`. If `x[rs2]` is not a non-linear capability (i.e., `type != 1`) or an exit capability (i.e., `type != 6`),
-`x[rs2]` will be set to the content of `cnull`.
 
-== _{isa_var_hybrid}_ Added Instructions
+====
+. Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)`.
+. If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + CLENBYTES`.
+. If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
+====
 
-In _{isa_var_hybrid}_, besides the LDC and STC instructions, two additional instructions (i.e., LDCR and STCR)
-are added to load and store capabilities from/to the normal memory using raw addresses. These 2 instructions
-are only available in _{isa_var_hybrid}_ and an exception will be raised if they are executed in _{isa_var_pure}_.
+=== Normal world integer encoding mode
 
-[#load-cap-raw]
-=== Load with Raw Addresses
+When `cwrld` is `0` (normal world) and `emode` is `0` (integer encoding mode),
+the STC instruction stores a capability to the normal memory using raw addresses.
+The raw addresses are interpreted as physical addresses or virtual addresses
+depending on the whether virtual memory is enabled.
 
-The LDCR instruction loads a capability from the normal memory using raw addresses.
-
-.LDCR instruction format
+.STC instruction format in normal world integer encoding mode
 [wavedrom,,svg]
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: 'rd (C)' },
-    {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (I)' },
-    {bits: 5, name: '*' },
-    {bits: 7, name: '0b0011010' }
-]}
-....
-
-*An exception is raised when any of the following conditions are met:*
-
-* `x[rs1]` is not an integer.
-* `x[rs1]` is not aligned to `CLEN` bits.
-* `x[rs1]` is in the range `[SBASE, SEND)`.
-* The data contained in the memory location `[x[rs1], x[rs1] + CLENBYTES)` is not a capability.
-
-*If no exception is raised:* Load the capability at the memory location `[x[rs1], x[rs1] + CLENBYTES)` into `rd`.
-If the capability being loaded is a non-linear capability (i.e. `type != 1`) or an exit capability (i.e., `type != 6`), the data contained in the
-memory location `[x[rs1], x[rs1] + CLENBYTES)` will be set to the content of `cnull`.
-
-[#store-cap-raw]
-=== Store with Raw Addresses
-
-The STCR instruction stores a capability to the normal memory using raw addresses.
-
-.STCR instruction format
-[wavedrom,,svg]
-....
-{reg: [
-    {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
-    {bits: 3, name: '0b001' },
+    {bits: 5, name: 'imm[4:0] (S)' },
+    {bits: 3, name: '0b100' },
     {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (C)' },
-    {bits: 7, name: '0b0011011' }
+    {bits: 7, name: 'imm[11:5] (S)' }
 ]}
 ....
 
-*An exception is raised when any of the following conditions are met:*
+*An exception is raised when any of the following conditions is met:*
 
-* `x[rs1]` is not an integer.
-* `x[rs1]` is not aligned to `CLEN` bits.
-* `x[rs1]` is in the range `[SBASE, SEND)`.
-* `x[rs2]` is not a capability.
+****
+* `Unexpected operand type (24)`
+- `x[rs1]` is not an integer.
+- `x[rs2]` is not a capability.
+* `Store/AMO address misaligned (6)`
+- `x[rs1] + imm` is not aligned to `CLENBYTES` bytes.
+* `Store/AMO access fault (7)`
+- `x[rs1] + imm` is in the range `[SBASE, SEND)`.
+****
 
 *If no exception is raised:*
-Store `x[rs2]` to the memory location `[x[rs1], x[rs1] + CLENBYTES)`.
-If `x[rs2]` is not a non-linear capability (i.e., `type != 1`) or
-an exit capability (i.e., `type != 6`), `x[rs2]` will be set to the
-content of `cnull`.
 
+====
+. Store `x[rs2]` to the memory location `[x[rs1] + imm, x[rs1] + imm + CLENBYTES)`.
+. If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
+====

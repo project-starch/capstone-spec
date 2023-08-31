@@ -1,3 +1,9 @@
 :reproducible:
 
-*Version Information:* Draft version. Refer to the commit hash.
+*Version Information:* Version 1.0
+
+ifdef::backend-html5[]
+*Other formats:* This document is also available in the following formats:
+
+* link:main.pdf[PDF]
+endif::backend-html5[]

@@ -1,0 +1,115 @@
+:reproducible:
+
+[appendix]
+= Comparison with Other Capability-Based ISA Extensions to RISC-V
+
+Similar to {isa_name}, {cheri_isa_name} <<cheri>> and
+{cheriot_isa_name} <<cheriot>> are also capability-based ISA extension
+to RISC-V, both derived from the CHERI architecture.
+{cheri_isa_name} is designed for general-purpose computing,
+whereas {cheriot_isa_name} builds on RV32E and
+specialises in low-cost embedded systems such as IoT devices.
+
+We discuss the commonalities and differences between
+{isa_name}, {cheri_isa_name}, and {cheriot_isa_name} in this appendix,
+in the hope to shed light on how to allow {isa_name} to coexist
+with the other two ISA extensions
+in the RISC-V ecosystem.
+
+== Commonalities
+
+{isa_name}, {cheri_isa_name}, and {cheriot_isa_name} all use architectural
+capabilities to allow capabilities to be stored in either
+registers or memory, with hardware-enforced provenance and
+monotonicity guarantees as well as bounds checks on
+capability dereferences.
+As a result, some of the instructions in the three ISAs
+have obvious and direct correspondence, as summarised
+in the following table.
+
+.Correspondence between {isa_name}, {cheri_isa_name}, and {cheriot_isa_name} instructions
+[%header,%autowidth.stretch]
+|===
+|{isa_name} instruction(s) |{cheri_isa_name} instruction(s) | {cheriot_isa_name} instruction(s)
+|DROP | CClearTag | CClearTag
+|CJALR | CJALR | CJALR
+|CALL | CInvoke | -
+|SEAL | CSealEntry | -
+|CIncOffset | CIncOffset | CIncAddr
+|CIncOffsetImm | CIncOffsetImm | CIncAddrImm
+|LCC  | CGetAddr, CGetBase, CGetType, CGetPerm | CGetAddr, CGetBase, CGetTop, CGetType, CGetPerm
+|SCC  | CSetAddr | CSetAddr
+|TIGHTEN | CAndPerm | CAndPerm
+|SHRINK | CSetBounds, CSetBoundsExact | CSetBounds, CSetBoundsExact
+|MOVC | CMove | CMove
+|LDC  | LC.CAP, LC.DDC, CLC | CLC
+|STC  | SC.CAP, LC.DDC, CSC | CSC
+|L[BHWD] | L[BHWD][U].CAP | L[BHWD][U]
+|S[BHWD] | S[BHWD][U].CAP | S[BHWD][U]
+|CCSRRW | CSpecialRW | CSpecialRW
+|===
+
+Most of the shared instructions are the ones for
+capability manipulations, as a result of having
+similar capability fields across the three ISA extensions.
+The basic use of capabilities, namely, explicit
+capability-based memory accesses, is also common in
+all three ISA extensions.
+
+== Differences
+
+The differences stem from the different sets of extra
+features and capability types supported by the ISA
+extensions.
+For example, {isa_name} supports linear capabilities
+and revocation through revocation capabilities that
+are found in
+neither {cheri_isa_name} nor {cheriot_isa_name}.
+Moreover, {cheriot_isa_name} does not support
+hybrid-mode memory accesses that use raw addresses
+in place of explicit capabilities, or
+domain switches that involve atomic swapping of sealed
+execution contexts, and hence lacks the relevant instructions. 
+
+While {isa_name} and {cheri_isa_name} both have
+hybrid mode support, they adopt different models,
+with {isa_name}
+using a two-world model that aligns with its high-level
+goal of isolating pure capability code from privileged
+legacy code.
+Sealed capabilities in {isa_name} are also different
+from those in {cheri_isa_name} and {cheriot_isa_name}.
+{isa_name} uses sealed capabilities exclusively for
+protecting domain execution contexts, allowing
+unsealing only upon domain switching,
+whereas the other two ISA extensions find more
+generic use for them and allow software to
+unseal them explicitly through an instruction.
+
+The feature sets of the three ISA extensions
+are summarised in the table below.
+
+.Feature sets of {isa_name}, {cheri_isa_name}, and {cheriot_isa_name}
+[cols="1h,2,2,2"]
+[%header,%autowidth.stretch]
+|===
+| Feature | {isa_name} | {cheri_isa_name} | {cheriot_isa_name}
+| Linear capabilities | Y | - | -
+| Revocation | Revocation capabilities with tracked derivation | Local capabilities | Local capabilities, revocation bits bound to object memory locations, local capabilities
+| Capability load | Anyone can load capabilities | `Permit_Load_Capability` required | `Permit_Load_Capability` required
+| Capability store | Anyone can store capabilities | `Permit_Store_Capability` or `Permit_Store_Local_Capability` required | `Permit_Store_Capability` or `Permit_Store_Local_Capability` required
+| Memory zeroing | Uninitialised capabilities | - | -
+| Software-defined fields | - | Y | Y
+| Hybrid mode | Separate normal and secure worlds, with MMU for integer address accesses in normal world | Default data capability for integer address accesses | -
+| Explicit sealing | Anyone can seal | `Permit_Seal` required | `Permit_Seal` required
+| Implicit sealing upon domain switching | Y | - | -
+| Explicit unsealing | - | Matching `otype` and `Permit_Unseal` required | Matching `otype` and `Permit_Unseal` required
+| Implicit unsealing upon domain switching | Anyone can perform domain switching | Matching `otype` and `Permit_CInvoke` sealed entry capabilities for code and data required | -
+|===
+
+[bibliography]
+== Bibliography
+
+* [[[cheri,1]]] Robert N M Watson, Peter G Neumann, Jonathan Woodruff, Michael Roe, Hesham Almatary, Jonathan Anderson, John Baldwin, Graeme Barnes, David Chisnall, Jessica Clarke, Brooks Davis, Lee Eisen, Nathaniel Wesley Filardo, Richard Grisenthwaite, Alexandre Joannou, Ben Laurie, A Theodore Markettos, Simon W Moore, Steven J Murdoch, Kyndylan Nienhuis, Robert Norton, Alexander Richardson, Peter Rugg, Peter Sewell, Stacey Son, and Hongyan Xia. Capability Hardware Enhanced RISC Instructions: CHERI Instruction-Set Architecture (Version 8). 
+* [[[cheriot,2]]] Saar Amar, Tony Chen, David Chisnall, Felix Domke, Nathaniel Wesley Filardo, Kunyan Liu, Robert M Norton, Yucong Tao, Robert N M Watson, and Hongyan Xia. CHERIoT: Rethinking security for low-cost embedded systems. 
+

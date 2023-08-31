@@ -2,39 +2,41 @@
 
 = Interrupts and Exceptions
 
-TODO: add support for nesting
+// TODO: add support for nesting
+// TODO: specify what happens if any of the involved memory accesses fails
 
 == Exception and Exit Codes
 
-.Note
+.*Note: where are the exception codes relevant?*
+[%collapsible]
+====
 ****
-For {isa_var_pure}, there is only one place where exception codes are relevant,
-which is the argument to pass to the exception handler domain.
-For {isa_var_hybrid}, however, there are three places where we need to consider
-some form of exception codes:
+For {isa_name}, there are three places where exception codes are relevant:
 
-. (Handleable Exception) The argument to pass to the exception handler domain.
-. (Unhandleable Exception) The value returned to the CAPENTER instruction in the user process.
-. (Interrupt) The exception code that the OS sees.
+. *Handleable Exception:* The argument to pass to the _exception handler domain_.
+. *Unhandleable Exception:* The value returned to the CAPENTER instruction in the user process.
+. *Interrupt:* The exception code that the OS sees.
 
-The argument to pass to the exception handler
-domain will be in the register `a1`, and the `rd` operand of CAPENTER will be the
-exit code the user process receives.
+The argument passed to the _exception handler domain_ will be in the register `cra` and `a0`,
+and the exit code the user process receives will be in the register specified by `exit_reg`.
 ****
+====
 
-The _exception code_ is what the exception handler domain receives as an argument
-when an exception occurs on {isa_var_pure} or in {isa_var_hybrid} secure world.
+The _exception code_ is what the _exception handler domain_ receives as an argument
+when an exception occurs in the secure world.
 It is an integer value that indicates what the type of the exception is.
-{isa_var_hybrid} also has _exit codes_, which are the values returned to the CAPENTER
+
+{isa_name} also has _exit codes_, which are the values returned to the CAPENTER
 instruction in case the exception cannot be handled in the secure world.
+
 We define the exception code and the exit code for each type of exception below.
 It aligns with the exception codes defined in {base_isa_name}, where applicable, for ease of
 implementation and interoperability.
 
-.Exception codes and exit codes for {isa_var_pure} and {isa_var_hybrid} secure world
+.Exception codes and exit codes
 [%header%autowidth.stretch]
 |===
-| Exception | Exception code | {isa_var_hybrid} exit code
+| Exception | Exception code | Exit code
 | Instruction address misaligned | 0 | 1
 | Instruction access fault | 1 | 1
 | Illegal instruction | 2 | 1
@@ -43,214 +45,267 @@ implementation and interoperability.
 | Load access fault | 5 | 1
 | Store/AMO address misaligned | 6 | 1
 | Store/AMO access fault | 7 | 1
-| Unexpected operand type | 8 | 1
-| Invalid capability | 9 | 1
+| Unexpected operand type | 24 | 1
+| Invalid capability | 25 | 1
+| Unexpected capability type | 26 | 1
+| Insufficient capability permissions | 27 | 1
+| Capability out of bound | 28 | 1
+| Illegal operand value | 29 | 1
+| Insufficient system resources | 30 | 1
 |===
 
-.Note
+For interrupts, the same encodings as in {base_isa_name} are used.
+
+.*Note: exit code*
+[%collapsible]
+====
 ****
 Currently, we use the same exit code `1` for all exception types to
 protect the confidentiality of the secure world execution.
 ****
+====
 
-== {isa_var_pure}
+.*Note: implementation specified exception*
+[%collapsible]
+====
+****
+For some of the exception code, where the corresponding exception is raised is not
+specified as part of the ISA specification.
+Instead, it is up to the implementation to decide where to raise the exception.
+These exceptions include:
 
-For {isa_var_pure}, the handling of interrupts and exceptions is relatively
-straightforward. Regardless of whether the event is an interrupt or an
-exception, or what the type of the interrupt or exception is, the processor
-core will always transfer the control flow to the corresponding handler domain
-(specified in the `ceh` register for exceptions and
-the `cih` register for interrupts).
-The current
-context is saved and sealed in a sealed-return capability which
-is then supplied to the
-exception handler domain as an argument. When exception handling is complete,
-the exception handler domain can use the RETURN instruction to resume the
-execution of the excepted domain. This process resembles that of a CALL-RETURN
-pair, except that it is asynchronous, rather than synchronous,
-to the execution of the original domain.
+* `Insufficient system resources (30)`
+****
+====
 
-TODO: specify what "panics" means here
+== Exception Data
 
-TODO: specify what happens if any of the involved memory accesses fails
+For the secure world, the exception-related data is stored in the `tval` CSR,
+similar to {base_isa_name}. The exception handler
+can use the value to decide how to handle the exception.
+However, such data is available _only_ for in-domain exception handling, where the
+exception handling process does not involve a domain switch.
 
-=== Handling of Interrupts
+.*Note: `tval` is only available in in-domain exception handling*
+[%collapsible]
+====
+****
+For exception handling that crosses domain (i.e., when `ceh` is a valid sealed capability)
+or world boundaries (i.e., when the normal world ends up handling the exception),
+the exception data (i.e., the data in `tval`) is not available.
+This is to protect the confidentiality of domain execution.
+Note that this design does not stop the excepted domain from selectively
+trusting a different domain with such data.
+****
+====
 
-TODO: need to specify how to record cause of the interrupt
+For exceptions defined in {base_isa_name}, the same data as in it is written to `tval`.
+For the added exceptions, the following data is written to `tval`:
 
-TODO: interrupt masking
+.Exception data for the added exceptions in the secure world
+[%header%autowidth.stretch]
+|===
+| Exception |  Data 
+| `Unexpected operand type (24)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Invalid capability (25)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Unexpected capability type (26)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Insufficient capability permissions (27)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Capability out of bound (28)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+| `Illegal operand value (29)` | The instruction itself (or the lowest XLEN bits if it is wider than XLEN)
+|===
 
-TODO: record the pending interrupts
+== Handling of Secure-World Interrupts
 
-*The interrupt is ignored if any of the following conditions is met:*
-
-* `cih` is not a capability.
-* `cih.valid = 0` (invalid).
-* `cih.type != 4` (sealed capability).
-
-*Otherwise:*
-
-. Load the program counter `pc` from memory location `[cih.base, cih.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
-memory location `[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
-. Store the original program counter `pc` to the memory location
-`[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]`
-to memory location
-`[cih.base + i * CLENBYTES, cih.base + (i + 1) * CLENBYTES)`.
-. Set `cih.type` to `5` (sealed-return), `cih.reg` to `0` (asynchronous), and `cih.async` to `1` (asynchronous).
-. Write `cih` to the register `c1`.
-. Write the exception code to the register `x10`.
-
-
-=== Handling of Exceptions
-
-// Having unhandleable exceptions is bad
-
-*The CPU core panics if any of the following conditions is met:*
-
-* The `ceh` register does not contain a capability.
-* The capability in `ceh` is invalid (`valid = 0`).
-* The capability in `ceh` is not a sealed capability (`type != 4`).
-
-*Otherwise:*
-
-. Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
-memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Store the original program counter `pc` to the memory location
-`[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
-`[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Set `ceh.type` to `5` (sealed-return), `ceh.reg` to `0` (asynchronous), and `ceh.async` to `1` (asynchronous).
-. Write the content of `ceh` to the register `c1`.
-. Write the exception code to the register `x10`.
-
-== {isa_var_hybrid}
-
-{isa_var_hybrid} retains the same interrupt and exception handling mechanims for
-the normal world as in {base_isa_name}.
-
-For the secure world in {isa_var_hybrid},
-the handling of interrupts and exceptions is more complex,
-and it becomes relevant whether the event is an interrupt or an exception.
-
+.*Note: overview of interrupt handling in the secure world*
+[%collapsible]
+====
+****
 For interrupts, in order to prevent denial-of-service attacks by the secure
-world, the processor core needs to transfer the control back to the normal
-world safely. The interrupt will be translated to one in the normal world
+world (e.g. a timer interrupt), the processor core needs to always transfer
+the control back to the normal world safely.
+
+The interrupt will be translated to one in the normal world
 that occurs at the CAPENTER instruction used to enter the secure world.
+
 Since interrupts are typically relevant only to the
 management of system resources, the interrupt should be transparent to both
-the secure world and the user process.
+the secure world and the user process in the normal world.
 In other words, the secure world will simply resume execution
 from where it was interrupted after the interrupt is handled by the normal-world
 OS.
-
-For exceptions, we want to give the secure world the chance handle
-them first. If the secure world manages to handle the exception, the
-normal world will not be involved. The end result is that the whole
-exception or its handling is not even visible to the normal world.
-If the secure world fails to handle an exeption (i.e., when
-it would end up panicking in the case of {isa_var_pure}, such as when
-`ceh` is not a valid sealed capability), however,
-the normal world will take over. The exception will not be translated into
-an exception in the normal world, but instead indicated in the exit code
-that the CAPENTER instruction in the user process receives.
-The user process can then decide what to do based on the exit code (e.g.,
-terminate the domain in the secure world).
-
-Below we discuss the details of the handling of interrupts and exceptions
-generated in the secure world.
-
-=== Handling of Secure-World Interrupts
+****
+====
 
 When an interrupt occurs in the secure world, the processor core directly
 saves the full context, scrubs it, and exits to the normal world. It then
-generates a corresponding interrupt in the normal world, and and follows
+generates a corresponding interrupt in the normal world, and follows
 the normal-world interrupt handling process thereafter.
 
-*If the content in `switch_reg` is a valid sealed capability:*
+The figure below shows the overview of interrupt handling in {isa_name}.
 
-. Store the current value of the program counter (`pc`) to the memory location
+.Overview of interrupt handling in {isa_name}
+image::trans-int.svg[trans-interrupt]
+
+*If the content in `switch_cap` satisfies the following conditions:*
+
+****
+* `switch_cap.valid` is 1 (valid).
+* `switch_cap.type` is 0 (linear) or 3 (uninitialised).
+* `switch_cap.base` is aligned to `CLENBYTES`.
+* `6 \<=p switch_cap.perms` holds.
+* `switch_cap.end - switch_cap.base >= CLENBYTES * 33` holds.
+****
+
+====
+. Store `pc` to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
+. Store `ceh` to the memory location
+`[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)`, and write `cnull` to `ceh`.
 . For `i = 1, 2, ..., 31`, store the content of `x[i]`
-to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set `switch_cap.aync` to `1` (asynchronous).
-. Write the content of `switch_cap` to the register `x[switch_reg]`.
+to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Scrub the other general-purpose registers.
+. Set `switch_cap.type` to `4` (sealed), `switch_cap.async` to `2` (upon interrupt).
+// in case that switch_reg is sp
+. Write `switch_cap` to the register `x[switch_reg]`, and `cnull` to `switch_cap`.
+. Scrub the other general-purpose registers
+(i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).
 . Set the `cwrld` register to `0` (normal world).
 . Trigger an interrupt in the normal world.
+====
 
 *Otherwise:*
 
-. Write the content of `cnull` to `x[switch_reg]`.
+====
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
-. Scrub the other general-purpose registers.
+// in case switch_reg is sp
+. Write `cnull` to `x[switch_reg]`.
+. Scrub the other general-purpose registers
+(i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).
 . Set the `cwrld` register to `0` (normal world).
 . Trigger an interrupt in the normal world.
+====
 
 Note that in this case, there will be another exception in the normal world
 when the user process resumes execution after the interrupt has been handled
 by the OS, due to the invalid `switch_cap` value written to the CAPENTER
 operand.
 
-=== Handling of Secure-World Exceptions
+== Handling of Secure-World Exceptions
+
+.*Note: overview of exception handling in the secure world*
+[%collapsible]
+====
+****
+For exceptions, we want to give the secure world the chance to handle
+them first.
+If the secure world manages to handle the exception, the
+normal world will not be involved. The end result is that the whole
+exception or its handling is not even visible to the normal world.
+
+If the secure world fails to handle an exception, such as when
+`ceh` is not a valid sealed capability), however,
+the normal world will take over.
+
+The exception will *not* be translated into
+an exception in the normal world, but instead indicated in the _exit code_
+that the CAPENTER instruction in the user process receives.
+The user process can then decide what to do based on the exit code (e.g.,
+terminate the domain in the secure world).
+****
+====
 
 When an exception occurs, the processor core first attempts to handle the
-exception in the secure world, in the similar way as in {isa_var_pure}.
-If this fails (`ceh` is not valid), the processor core saves
-the full context if it can and exits to the normal
-world with a proper error code.
+exception in the secure world.
+If this fails, the processor core saves the full context if it can
+and exits to the normal world with a proper error code.
 
-*If the content in `ceh` is a valid sealed capability:*
+The figure below shows the overview of exception handling in {isa_name}.
 
-. Load the program counter `pc` from memory location `[ceh.base, ceh.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, load the content of `x[i]` from
-memory location `[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Store the original program counter `pc` to the memory location
-`[ceh.base + CLENBYTES, ceh.base + 2 * CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the _original_ content of `x[i]` to memory location
-`[ceh.base + i * CLENBYTES, ceh.base + (i + 1) * CLENBYTES)`.
-. Set the `ceh.type` to `5` (sealed-return), and `ceh.async` to `0` (asynchronous).
-. Write the content of `ceh` to the register `c1`.
-. Write the exception code to the register `x10`.
+.Overview of exception handling in {isa_name}
+image::trans-exc.svg[trans-exception]
 
-Note that this is exactly the same as the handling of exceptions in {isa_var_pure}.
+*If the content in `ceh` satisfies the following conditions:*
+
+****
+* `ceh.type` is `4` (sealed).
+* `ceh.valid` is `1` (valid).
+* `ceh.async` is `0` (synchronous)
+****
+
+====
+. Swap `pc` with the content at memory location `[ceh.base, ceh.base + CLENBYTES)`.
+. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the
+memory location `[ceh.base + (i + 1) * CLENBYTES, ceh.base + (i + 2) * CLENBYTES)`.
+. Set the `ceh.type` to `5` (sealed-return), `ceh.cursor` to `ceh.base`, and `ceh.async` to `1` (upon exception).
+. Write `ceh` to the register `cra`, and `cnull` to the register `ceh`.
+. Swap `ceh` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
+. Write the exception code to the register `a0`.
+====
+
+*If the content is `ceh` is a valid _executable_ non-linear capability or linear capability:*
+
+====
+. Write `pc` to `epc`.
+. Write `ceh` to `pc`.
+If `ceh.type != 1`, write `cnull` to `ceh`.
+. Write the exception code to `cause`.
+. Write extra exception data to `tval`.
+====
 
 *Otherwise:*
 
-*If the content in `switch_reg` is a valid sealed capability:*
+*If the content in `switch_cap` satisfies the following conditions:*
 
+****
+* `switch_cap.valid` is 1 (valid).
+* `switch_cap.type` is 0 (linear) or 3 (uninitialised).
+* `switch_cap.base` is aligned to `CLENBYTES`.
+* `6 \<=p switch_cap.perms` holds.
+* `switch_cap.end - switch_cap.base >= CLENBYTES * 33` holds.
+****
+
+====
 . Store the current value of the program counter (`pc`) to the memory location
 `[switch_cap.base, switch_cap.base + CLENBYTES)`.
-. For `i = 1, 2, ..., 31`, store the content of the `i`-th general purpose
-to the memory location `[switch_cap.base + i * CLENBYTES, switch_cap.base + (i + 1) * CLENBYTES)`.
-. Set `switch_cap.async` to `1` (asynchronous).
-. Write the content of `switch_cap` to `x[switch_reg]`.
+. Store `ceh` to the memory location `[switch_cap.base + CLENBYTES, switch_cap.base + 2 * CLENBYTES)`,
+and write `cnull` to `ceh`.
+. For `i = 1, 2, ..., 31`, store the content of `x[i]`
+to the memory location `[switch_cap.base + (i + 1) * CLENBYTES, switch_cap.base + (i + 2) * CLENBYTES)`.
 . Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
 `normal_sp` respectively.
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
+. Set `switch_cap.type` to `4` (sealed), `switch_cap.async` to `1` (upon exception).
+. Write the content of `switch_cap` to `x[switch_reg]`, and `cnull` to `switch_cap`.
+// Scrub is needed for linearity
+. Scrub the other general-purpose registers
+(i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).
 . Write the exit code to `x[exit_reg]`.
 . Set the `cwrld` register to `0` (normal world).
+====
 
 // Something similar to try-catch can be considered
 
 *Otherwise:*
 
-. Write the content of `cnull` to `x[switch_reg]`.
-. Load the program counter `pc` and the stack pointer `sp` from `normal_pc` and
-`normal_sp` respectively.
+====
+. Write `normal_pc + 4` and `normal_sp` to `pc` and `sp` respectively.
+. Write `cnull` to `x[switch_reg]`.
+. Scrub the other general-purpose registers
+(i.e., write `zero` to `x[i]` where `i != 2` and `i != switch_reg`).
 . Write the exit code to `x[exit_reg]`.
 . Set the `cwrld` register to `0` (normal world).
+====
 
-
-.Note
+.*Note: comparison between synchronous and asynchronous exit*
+[%collapsible]
+====
 ****
-Compare this with link:#world-switch[CAPEXIT]. We require that CAPEXIT be provided
+Compare this with <<world-exit,CAPEXIT>>. We require that CAPEXIT be provided
 with a valid sealed-return capability rather than use the latent capability in
 `switch_cap`. This allows us to enforce containment of domains in the secure world, so
 that a domain is prevented from escaping
 from the secure world when such a behaviour is undesired.
 ****
+====
