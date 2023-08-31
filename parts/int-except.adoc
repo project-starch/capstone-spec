@@ -149,7 +149,6 @@ image::trans-int.svg[trans-interrupt]
 *If the content in `switch_cap` satisfies the following conditions:*
 
 ****
-* `switch_cap` is a capability.
 * `switch_cap.valid` is 1 (valid).
 * `switch_cap.type` is 0 (linear) or 3 (uninitialised).
 * `switch_cap.base` is aligned to `CLENBYTES`.
@@ -260,7 +259,6 @@ If `ceh.type != 1`, write `cnull` to `ceh`.
 *If the content in `switch_cap` satisfies the following conditions:*
 
 ****
-* `switch_cap` is a capability.
 * `switch_cap.valid` is 1 (valid).
 * `switch_cap.type` is 0 (linear) or 3 (uninitialised).
 * `switch_cap.base` is aligned to `CLENBYTES`.
