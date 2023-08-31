@@ -266,21 +266,6 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 
 ====
 . Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)` as an integer.
-. The content in the `CLENBYTES`-byte aligned memory location `[cbase, cend)`, which aliases with
-the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + size)`, is set to integer type,
-where `cbase = (x[rs1].cursor + imm) & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
-. If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + size`.
-====
-
-.*Note: undefined behaviour*
-[%collapsible]
-====
-****
-The following load results are _undefined_:
-
-* Load an integer from a memory location when the last capability store to its `CLENBYTES`-byte aligned memory location is
-more recent than the last integer store to the memory location itself.
-****
 ====
 
 == Control Flow Instructions

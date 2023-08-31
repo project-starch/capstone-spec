@@ -241,7 +241,6 @@ bottom-up, while exception handling should be delegated top-down.
 *Follow the interrupt handling procedure with exception code `unhandleable exception (63)` if any of the following conditions is met:*
 
 ****
-* The `ceh` register does not contain a capability.
 * The capability in `ceh` is invalid (`valid = 0`).
 * The capability in `ceh` is not a sealed (`type != 4`),
 linear (`type != 0`), or non-linear capability (`type != 1`).
