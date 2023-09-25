@@ -37,15 +37,15 @@ in the following table.
 |SEAL | CSealEntry | -
 |CIncOffset | CIncOffset | CIncAddr
 |CIncOffsetImm | CIncOffsetImm | CIncAddrImm
-|LCC  | CGetAddr, CGetBase, CGetType, CGetPerm | CGetAddr, CGetBase, CGetTop, CGetType, CGetPerm
+|LCC  | CGetAddr, CGetBase, CGetOffset, CGetType, CGetPerm | CGetAddr, CGetBase, CGetTop, CGetType, CGetPerm
 |SCC  | CSetAddr | CSetAddr
 |TIGHTEN | CAndPerm | CAndPerm
 |SHRINK | CSetBounds, CSetBoundsExact | CSetBounds, CSetBoundsExact
 |MOVC | CMove | CMove
 |LDC  | LC.CAP, LC.DDC, CLC | CLC
-|STC  | SC.CAP, LC.DDC, CSC | CSC
-|L[BHWD] | L[BHWD][U].CAP | L[BHWD][U]
-|S[BHWD] | S[BHWD][U].CAP | S[BHWD][U]
+|STC  | SC.CAP, SC.DDC, CSC | CSC
+|L[BHWD][U] | L[BHWD][U].CAP, L[BHWD][U].DDC | L[BHWD][U]
+|S[BHWD][U] | S[BHWD][U].CAP, S[BHWD][U].DDC | S[BHWD][U]
 |CCSRRW | CSpecialRW | CSpecialRW
 |===
 

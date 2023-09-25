@@ -287,7 +287,7 @@ github_ref:SPLIT[Sail definition]
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is neither `0` (linear) nor `1` (non-linear).
+- `x[rs1].type` is not `0` (linear), `1` (non-linear) or `3` (uninitialised).
 * `Illegal operand value (29)`
 - `x[rs2] \<= x[rs1].base` or `x[rs2] >= x[rs1].end`.
 ****
@@ -299,8 +299,9 @@ github_ref:SPLIT[Sail definition]
 // in case rs2 = rd
 . Set `val` to `x[rs2]`.
 . Write `x[rs1]` to `x[rd]`.
-. Set `x[rs1].end` to `val`, `x[rs1].cursor` to `x[rs1].base`.
-. Set `x[rd].base` to `val`, `x[rd].cursor` to `val`.
+. Set `x[rs1].end` to `val`, and `x[rd].base` to `val`.
+. If `x[rs1].cursor < val`, set `x[rd].cursor` to `val`.
+. If `x[rs1].cursor >= val`, set `x[rs1].cursor` to `val`.
 ====
 
 [#tighten]
