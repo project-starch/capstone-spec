@@ -1,6 +1,6 @@
 :reproducible:
 
-*Version Information:* Version 1.0
+*Version Information:* Version 1.01
 
 ifdef::backend-html5[]
 *Other formats:* This document is also available in the following formats:
