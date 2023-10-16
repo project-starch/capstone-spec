@@ -322,8 +322,8 @@ The TIGHTEN instruction tightens the permissions (`perms` field) of a capability
 
 ====
 . `MOVC rd, rs1`.
-. If `imm > 7`, set `x[rs1].perms` to `0`.
-Otherwise, set `x[rs1].perms` to `imm`.
+. If `imm > 7`, set `x[rd].perms` to `0`.
+Otherwise, set `x[rd].perms` to `imm`.
 ====
 
 == Type Manipulation
