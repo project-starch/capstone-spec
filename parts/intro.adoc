@@ -9,6 +9,9 @@ goals, thus liberating software developers from the burden of working with
 the distinct fundamental primitives exposed by numerous security extensions
 that often do not interoperate easily.
 
+This version includes design elements
+that enable {proj_name} to
+support guest machines with traditional access control abstractions.
 
 == Properties to Support
 

@@ -6,6 +6,32 @@ The {isa_name} ISA has extended part of the machine state,
 including both some registers and the memory, to
 enable the storage and handling of capabilities.
 
+== Modes
+
+At any point in time, a hart operates in one of the following modes (mode ID in parentheses):
+
+* U mode (0)
+* S mode (1)
+* M mode (3)
+* C mode (3)
+
+The U, S, and M modes already exist in the base {base_isa_name} ISA.
+When operating in those modes, the hart follows the same behaviours as defined
+in {base_isa_name}, e.g., using physical addresses for memory accesses in the
+M mode and virtual addresses for memory accesses if the virtual memory is enabled
+in the S mode and the U mode.
+
+The C mode (capability mode) is an added mode that replaces the M mode when `CAPSTONE_EN=1`.
+When operating in the C mode, the hart is required to use capabilities for
+accessing the memory (including fetching instructions).
+In order to maintain the support for the S mode and the U mode, proper design elements
+are included in {isa_name} to allow the C mode to expose the same set of interfaces
+to them.
+For example, the C mode can handle undelegated interrupts and exceptions from the S mode
+and the U mode.
+Whether `CAPSTONE_EN=1` is therefore transparent to the S mode and the U mode, which
+can interact with the C mode in the same way as with the M mode.
+
 == Capabilities
 
 === Width
@@ -232,23 +258,49 @@ The program counter (`pc`) is changed to contain a capability only.
 . Set `pc.cursor` to `pc.cursor + 4` at the end of the instruction.
 ====
 
+== M-Mode Registers in C Mode
+
+The following M-mode CSRs are available in the C mode without any changes:
+
+* `mstatus`
+* `medeleg`
+* `mideleg`
+* `mip`
+* `mie`
+* `mcause`
+* `mtval`
+* `mtval2`
+* `mtinst`
+
+We also refer to the above CSRs using their aliases (with the `m`- prefix replaced `c`-)
+in the C-mode context.
+
+The M-mode CSRs `mtvec`, `mscratch`, and `mepc` have their corresponding
+capability-extended replacements available in the C mode, as described in the
+following section.
+
 [#additional-regs]
 == Added Registers
 
 The {isa_name} ISA adds the following registers.
+The +h sign indicates that the register is available in the hypervisor extension.
 
 .Additional Registers in the {isa_name} ISA
 [#add-reg-list]
 [%header%autowidth.stretch]
 |===
 | Mnemonic | CCSR encoding | CSR encoding | Description
-| `ceh`  | `0x000` | - | The sealed capability or PC entry for the exception handler
+| `ctvec`  | `0x000` | - | The sealed capability or PC entry for the exception handler (replacing `mtvec`)
 | `cih`  | `0x001` | - | The sealed capability for the interrupt handler
 | `cinit` | `0x002` | - | The initial capability covering the entire address space of the memory
-| `epc` | `0x003` | - | The exception program counter register
+| `cepc` | `0x003` | - | The exception program counter register (replacing `mepc`)
+| `cmmu`| `0x004` | - | Capability for use with MMU-based memory accesses
+| `csavedpc` | `0x005` | - |
+| `cscratch` | `0x006` | Replacing `mscratch` |
 | `cis` | - | `0x800` | The interrupt status register
-| `tval` | - | `0x801` | The exception data (trap value) register
-| `cause` | - | `0x802` | The exception cause register
+| `tval` | - | `0x801` | The exception data (trap value) register TODO: remove this
+| `cause` | - | `0x802` | The exception cause register (TODO: remove this)
+| `offsetmmu` | - | `0x803` | Offset to add to the logical address to obtain the physical address
 |===
 
 Some of the registers only allow capability values and have special semantics
@@ -265,7 +317,7 @@ The manipulation constraints for each CCSR are indicated below.
 |Mnemonic | Read | Write
 |`ceh` | No constraint | No constraint
 |`cih` | Not allowed | The original content must not be a capability
-|`cinit` | Oone-time only | Not allowed
+|`cinit` | One-time only | Not allowed
 |`epc` | No constraint | No constraint
 |===
 
