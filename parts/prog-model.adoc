@@ -483,8 +483,12 @@ which is called _register-immediate_ (RI) type for convenience in this document.
 .RI-type instruction format
 include::ri-type-format.adoc[]
 
-The so-called RI-type instructions are actually _derivatives_ of R-type instructions.
-They receive up to two register operands and a 5-bit-wide immediate operand.
+The RI-type instruction format is derived from the R-type instruction format.
+An RI-type instruction receives up to two register operands and a 5-bit-wide immediate operand.
+
+Unless otherwise specified, the instructions introduced in {isa_name} on top of
+the base {base_isa_name} instruction set are available in the C mode only.
+Attempts to execute them in other modes trigger `Illegal instruction (2)` exceptions.
 
 [#reset]
 == System Reset

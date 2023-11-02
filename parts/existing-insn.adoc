@@ -19,7 +19,9 @@ The following instructions in {base_isa_name} are adjusted in {proj_name}:
 In {base_isa_name}, memory access instructions include load instructions
 (i.e., `lb`, `lh`, `ld`, `lw`, `lbu`, `lhu`, `lwu`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`).
 These instructions take an integer as a raw address, and load or store a value from/to this address.
-In {proj_name}, these instructions are extended to take a capability as an address.
+In {proj_name}, these instructions are extended to take a capability as an address
+_when executed in the C mode_. In non-C modes, the behaviours of those instructions
+are unchanged.
 
 [#load]
 === Load Instructions
@@ -272,7 +274,8 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - s
 
 In {base_isa_name}, conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
 and unconditional jump instructions (i.e., `jal` and `jalr`) are used to control the flow of execution.
-In {proj_name}, these instructions are adjusted to support the situation where the program counter is a capability.
+In {proj_name}, these instructions are adjusted to support the situation where the program counter is a capability _when executed in the C mode_.
+In non-C modes, the behaviours of those instructions are unchanged.
 
 === Branch Instructions
 
