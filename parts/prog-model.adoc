@@ -32,6 +32,32 @@ and the U mode.
 Whether `CAPSTONE_EN=1` is therefore transparent to the S mode and the U mode, which
 can interact with the C mode in the same way as with the M mode.
 
+
+== Domains
+
+When `CAPSTONE_EN=1`, the run-time state of the system is organised in individual compartments
+called domains.
+Each domain includes the execution context of a logical thread.
+A hart at any point in time executes in exactly one domain.
+
+When a domain is running on a hart, the following events are notable:
+
+* Execution of `CALL` and `RETURN` instructions: Those instructions receive arguments that specify
+another domain and trigger a synchronous domain switch.
+* Exceptions: An exception is triggered by the execution of a specific instruction in the current
+domain. Since the event is local to the domain itself, it does not trigger a domain switch.
+Instead, exceptions are handled within the same domain that triggers them.
+* Interrupts: Unlike exceptions, interrupts are triggered by external factors rather than
+by specific instructions executed in the domain. We distinguish two types of interrupts which
+are handled differently:
+- H-interrupts (hardware interrupts): Those are interrupts the hart receives from interrupt
+controllers (either core-local or platform-wide). Since such interrupts are not intended for
+specific domains (interrupt controllers and the I/O devices behind them are not aware of
+domains), a switch to a dedicated interrupt handler domain is required to handle them.
+- V-interrupts (virtual interrupts): Those are asynchronous events sent between domains. Unlike
+H-interrupts, a V-interrupt targets a specific domain and therefore does not trigger a domain
+switch, but is instead handled within the domain itself. 
+
 == Capabilities
 
 === Width
@@ -290,13 +316,13 @@ The +h sign indicates that the register is available in the hypervisor extension
 [%header%autowidth.stretch]
 |===
 | Mnemonic | CCSR encoding | CSR encoding | Description
-| `ctvec`  | `0x000` | - | The sealed capability or PC entry for the exception handler (replacing `mtvec`)
-| `cih`  | `0x001` | - | The sealed capability for the interrupt handler
+| `ctvec`  | `0x000` | - | The PC entry for the exception and V-interrupt handler (replacing `mtvec`)
+| `cih`  | `0x001` | - | The sealed capability for the H-interrupt handler
 | `cinit` | `0x002` | - | The initial capability covering the entire address space of the memory
 | `cepc` | `0x003` | - | The exception program counter register (replacing `mepc`)
 | `cmmu`| `0x004` | - | Capability for use with MMU-based memory accesses
 | `csavedpc` | `0x005` | - |
-| `cscratch` | `0x006` | Replacing `mscratch` |
+| `cscratch` | `0x006` | - | Replacing `mscratch`
 | `cis` | - | `0x800` | The interrupt status register
 | `tval` | - | `0x801` | The exception data (trap value) register TODO: remove this
 | `cause` | - | `0x802` | The exception cause register (TODO: remove this)
