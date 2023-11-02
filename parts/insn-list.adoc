@@ -60,6 +60,7 @@ include::ri-type-format.adoc[]
 |===
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm[11:0]
 |<<ctrl-status,CCSRRW>> |I |`111`    | - | C | - | C | Z
+|<<ctrl-status,CAPENTER>> |R |`001`    | `0001101` | - | - | - | -
 |===
 
 == Adjusted {base_isa_name} Memory Access Instructions

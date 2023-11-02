@@ -393,17 +393,26 @@ In {proj_name}, these instructions are adjusted to support the situation where t
 
 == Illegal Instructions
 
-Some instructions in {base_isa_name} now raise `illegal instruction (2)` exceptions
-when executed in the {isa_name} ISA, under all or some circumstances.
+The C mode can execute the following M-mode privileged instructions defined in
+{base_isa_csr_ext}:
 
-These instructions are:
+* ECALL
+* EBREAK
+* MRET (also referred to as CRET in the C-mode context)
 
-****
-* All instructions defined in the https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf[privileged ISA] of {base_isa_name}.
-* All instructions defined in the https://riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf[{base_isa_csr_ext} extension],
-namely instructions that directly access CSRs, when the CSR specified is not
-<<additional-regs,one defined in the {isa_name} ISA>>,
-or when the <<csr-man-constr,read/write constraints>> are not satisfied.
-* `ecall`.
-* `ebreak`.
-****
+When a CSR that is available in the M mode but not
+<<additional-regs,available>> in the C mode is accessed
+in the C mode, an `illegal instruction (2)` exception is raised.
+ 
+// Some instructions in {base_isa_name} now raise `illegal instruction (2)` exceptions
+// when executed in the {isa_name} ISA, under all or some circumstances.
+
+// These instructions are:
+
+// ****
+// * All instructions defined in the https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf[privileged ISA] of {base_isa_name}.
+// * All instructions defined in the https://riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf[{base_isa_csr_ext} extension],
+// namely instructions that directly access CSRs, when the CSR specified is not
+// <<additional-regs,one defined in the {isa_name} ISA>>,
+// or when the <<csr-man-constr,read/write constraints>> are not satisfied.
+// ****

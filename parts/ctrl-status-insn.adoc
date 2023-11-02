@@ -39,3 +39,49 @@ _<<add-reg-list,capability control and status registers>>_ (CCSRs).
 - If `x[rs1].type` is not `1` (non-linear), write `cnull` to `x[rs1]`.
 . Otherwise, preserve the current content of the CCSR specified by `imm`.
 ====
+
+The CAPENTER instruction enables the C mode. Unlike the other added
+instructions which are for the C mode only, CAPENTER can be used
+in the M mode.
+
+When the C mode is enabled, the CAPENTER instruction also initialises
+the genesis capabilities and create the initial execution context
+of the genesis domain.
+
+TODO: Optimise the efficiency of
+instruction encodings.
+
+
+.CAPENTER instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: '*' },
+    {bits: 3, name: '0b001' },
+    {bits: 5, name: '*' },
+    {bits: 5, name: '*' },
+    {bits: 7, name: '0b0001101' }
+]}
+....
+
+*An exception is raised when the following condition is met:*
+
+****
+* `Illegal instruction (2)`
+- `CAPSTONE_EN=1`
+****
+
+*If no exception is raised:*
+
+====
+* Set `pc = { valid = 1, type = 1, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`.
+* Set `x10 = { valid = 1, type = 1, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`.
+* Set `x11 = { valid = 1, type = 2, cursor = 0, base = 0, end = 2^XLEN, perms = 7 }`,
+which, once revoked, will invalidate the initial capabilities in `pc` and `x10` as
+defined above. TODO: Need to support `end = 2^XLEN`.
+* Set `CAPSTONE_EN` to `1`.
+====
+
+`INIT_CODE_BASE`, `INIT_CODE_END`, `INIT_DATA_BASE`, and `INIT_DATA_END` are
+implementation-defined.

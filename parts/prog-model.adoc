@@ -56,7 +56,11 @@ specific domains (interrupt controllers and the I/O devices behind them are not 
 domains), a switch to a dedicated interrupt handler domain is required to handle them.
 - V-interrupts (virtual interrupts): Those are asynchronous events sent between domains. Unlike
 H-interrupts, a V-interrupt targets a specific domain and therefore does not trigger a domain
-switch, but is instead handled within the domain itself. 
+switch, but is instead handled within the domain itself.
+
+
+We call the first domain that runs on a hart after its reset the _genesis domain_ of
+the hart.
 
 == Capabilities
 
@@ -318,15 +322,12 @@ The +h sign indicates that the register is available in the hypervisor extension
 | Mnemonic | CCSR encoding | CSR encoding | Description
 | `ctvec`  | `0x000` | - | The PC entry for the exception and V-interrupt handler (replacing `mtvec`)
 | `cih`  | `0x001` | - | The sealed capability for the H-interrupt handler
-| `cinit` | `0x002` | - | The initial capability covering the entire address space of the memory
-| `cepc` | `0x003` | - | The exception program counter register (replacing `mepc`)
-| `cmmu`| `0x004` | - | Capability for use with MMU-based memory accesses
-| `csavedpc` | `0x005` | - |
-| `cscratch` | `0x006` | - | Replacing `mscratch`
+| `cepc` | `0x002` | - | The exception program counter register (replacing `mepc`)
+| `cmmu`| `0x003` | - | Capability for use with MMU-based memory accesses
+| `csavedpc` | `0x004` | - |
+| `cscratch` | `0x005` | - | Replacing `mscratch`
 | `cis` | - | `0x800` | The interrupt status register
-| `tval` | - | `0x801` | The exception data (trap value) register TODO: remove this
-| `cause` | - | `0x802` | The exception cause register (TODO: remove this)
-| `offsetmmu` | - | `0x803` | Offset to add to the logical address to obtain the physical address
+| `offsetmmu` | - | `0x801` | Offset to add to the logical address to obtain the physical address
 |===
 
 Some of the registers only allow capability values and have special semantics
@@ -341,10 +342,9 @@ The manipulation constraints for each CCSR are indicated below.
 [%header%autowidth.stretch]
 |===
 |Mnemonic | Read | Write
-|`ceh` | No constraint | No constraint
+|`ctvec` | No constraint | No constraint
 |`cih` | Not allowed | The original content must not be a capability
-|`cinit` | One-time only | Not allowed
-|`epc` | No constraint | No constraint
+|`cepc` | No constraint | No constraint
 |===
 
 Some of the registers are added as _control and status registers_ (CSRs).
@@ -361,18 +361,17 @@ The manipulation constraints for each additional CSR are indicated below.
 |===
 |Mnemonic | Read | Write
 |`cis`| No constraint | No constraint
-|`tval`| No constraint | No constraint
-|`cause`| No constraint | No constraint
+|`offsetmmu`| No constraint | No constraint
 |===
 
-.*Note: `ceh` and `cih`*
+.*Note: `ctvec` and `cih`*
 [%collapsible]
 ====
 ****
-`ceh` and `cih` should be handled differently.
+`ctvec` and `cih` should be handled differently.
 
-`ceh` is about the functionality of a domain only.
-A domain should be allowed to set `ceh` for itself.
+`ctvec` is about the functionality of a domain only.
+A domain should be allowed to set `ctvec` for itself.
 That also means it needs to be switched when switching domains.
 
 `cih` is about the functionality of the system,
@@ -382,19 +381,19 @@ To prevent any domain from setting `cih`, we require the original content of
 ****
 ====
 
-.*Note: `cinit`*
-[%collapsible]
-====
-****
-`cinit` is a CCSR that is used to
-bootstrap capabilities after a <<reset,system reset>>.
-<<ctrl-status,control and status instructions>> can be used to read the initial
-capability in `cinit` and write it to a general-purpose register.
-This operation can only be performed once after each reset.
-Any attempt to write `cinit` will be silently ignored,
-and any attempt to read it after the first time will return the content of `cnull`.
-****
-====
+// .*Note: `cinit`*
+// [%collapsible]
+// ====
+// ****
+// `cinit` is a CCSR that is used to
+// bootstrap capabilities after a <<reset,system reset>>.
+// <<ctrl-status,control and status instructions>> can be used to read the initial
+// capability in `cinit` and write it to a general-purpose register.
+// This operation can only be performed once after each reset.
+// Any attempt to write `cinit` will be silently ignored,
+// and any attempt to read it after the first time will return the content of `cnull`.
+// ****
+// ====
 
 [#mem-extension]
 == Extension to Memory
@@ -496,9 +495,10 @@ specifications.
 ****
 * Each general-purpose register either contains an integer, or a capability with `valid = 0` (invalid).
 * No addressable memory location can contain a capability.
-* `ceh`, `cih`, and `epc` contain either integers or
+* `ctvec`, `cih`, and `cepc` contain either integers or
 capabilities with `valid = 0` (invalid).
 * `cis = 0`.
-* `cinit = { valid = 1, type = 0, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`,
-and `pc = { valid = 1, type = 0, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`, where `INIT_DATA_BASE`, `INIT_DATA_END`, `INIT_CODE_BASE`, and `INIT_CODE_END` are implementation-defined, and `[INIT_CODE_BASE, INIT_CODE_END)` does not overlap with `[INIT_DATA_BASE, INIT_DATA_END)`.
+* `pc` does not contain a capability.
+// *  `cinit = { valid = 1, type = 0, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`,
+// * `pc = { valid = 1, type = 0, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`, where `INIT_DATA_BASE`, `INIT_DATA_END`, `INIT_CODE_BASE`, and `INIT_CODE_END` are implementation-defined, and `[INIT_CODE_BASE, INIT_CODE_END)` does not overlap with `[INIT_DATA_BASE, INIT_DATA_END)`.
 ****

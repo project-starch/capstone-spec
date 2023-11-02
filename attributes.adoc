@@ -1,4 +1,4 @@
-:isa_name: Capstone-RISC-V Academic Version
+:isa_name: TransCapstone-RISC-V
 :proj_name: Capstone
 :base_isa_name: RV64IZicsr
 :base_isa_csr_ext: Zicsr
