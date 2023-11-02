@@ -321,11 +321,11 @@ The +h sign indicates that the register is available in the hypervisor extension
 |===
 | Mnemonic | CCSR encoding | CSR encoding | Description
 | `ctvec`  | `0x000` | - | The PC entry for the exception and V-interrupt handler (replacing `mtvec`)
+TODO: If `ctvec` is a linear capability, what will happen?
 | `cih`  | `0x001` | - | The sealed capability for the H-interrupt handler
 | `cepc` | `0x002` | - | The exception program counter register (replacing `mepc`)
 | `cmmu`| `0x003` | - | Capability for use with MMU-based memory accesses
-| `csavedpc` | `0x004` | - |
-| `cscratch` | `0x005` | - | Replacing `mscratch`
+| `cscratch` | `0x004` | - | Replacing `mscratch`
 | `cis` | - | `0x800` | The interrupt status register
 | `offsetmmu` | - | `0x801` | Offset to add to the logical address to obtain the physical address
 |===
