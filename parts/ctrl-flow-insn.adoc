@@ -140,25 +140,15 @@ and `cra.async` to `0` (synchronous).
 
 ****
 * `Unexpected operand type (24)`
-- `rs1 != 0` and `x[rs1]` is not a capability.
+- `x[rs1]` is not a capability.
 - `x[rs2]` is not an integer.
 * `Invalid capability (25)`
-- `rs1 != 0` and `x[rs1].valid` is `0` (invalid).
+- `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `rs1 != 0` and `x[rs1].type` is not `5` (sealed-return).
+- `x[rs1].type` is not `5` (sealed-return).
 ****
 
 *If no exception is raised:*
-
-*If `rs1 = 0`:*
-
-====
-. Set `pc.cursor` to `x[rs2]`.
-. Write `pc` to `ctvec`, and `cepc` to `pc`.
-. If `cepc.type != 1`, write `cnull` to `cepc`.
-====
-
-*Otherwise:*
 
 *When `x[rs1].async = 0` (synchronous):*
 
@@ -172,20 +162,7 @@ the content at the memory location `[cap.base, cap.base + CLENBYTES)`.
 . Write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to `4` (sealed).
 ====
 
-*When `x[rs1].async = 1` (upon exception):*
-
-====
-. Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
-the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
-// ctvec is going to be overwritten, no need for a swap
-. Store `ctvec` to the memory location `[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
-. Set `x[rs1].type` to `4` (sealed), `x[rs1].async` to `0` (synchronous).
-. Write the resulting `x[rs1]` to `ctvec`, and `cnull` to `x[rs1]`.
-. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
-`[ctvec.base + (i + 1) * CLENBYTES, ctvec.base + (i + 2) * CLENBYTES)`.
-====
-
-*When `x[rs1].async = 2` (upon interrupt):*
+*When `x[rs1].async = 1` (asynchronous):*
 
 ====
 . Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
