@@ -69,7 +69,7 @@ instruction encodings.
 
 ****
 * `Illegal instruction (2)`
-- `CAPSTONE_EN=1`
+- `CAPSTONE = 1`
 ****
 
 *If no exception is raised:*

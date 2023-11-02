@@ -21,7 +21,7 @@ in {base_isa_name}, e.g., using physical addresses for memory accesses in the
 M mode and virtual addresses for memory accesses if the virtual memory is enabled
 in the S mode and the U mode.
 
-The C mode (capability mode) is an added mode that replaces the M mode when `CAPSTONE_EN=1`.
+The C mode (capability mode) is an added mode that replaces the M mode when `CAPSTONE = 1` (`CAPSTONE_EN` is a single-bit hart-local state).
 When operating in the C mode, the hart is required to use capabilities for
 accessing the memory (including fetching instructions).
 In order to maintain the support for the S mode and the U mode, proper design elements
@@ -29,20 +29,20 @@ are included in {isa_name} to allow the C mode to expose the same set of interfa
 to them.
 For example, the C mode can handle undelegated interrupts and exceptions from the S mode
 and the U mode.
-Whether `CAPSTONE_EN=1` is therefore transparent to the S mode and the U mode, which
+Whether `CAPSTONE = 1` is therefore transparent to the S mode and the U mode, which
 can interact with the C mode in the same way as with the M mode.
 
 
 == Domains
 
-When `CAPSTONE_EN=1`, the run-time state of the system is organised in individual compartments
+When `CAPSTONE_EN = 1`, the run-time state of the system is organised in individual compartments
 called domains.
 Each domain includes the execution context of a logical thread.
 A hart at any point in time executes in exactly one domain.
 
 When a domain is running on a hart, the following events are notable:
 
-* Execution of `CALL` and `RETURN` instructions: Those instructions receive arguments that specify
+* Execution of CALL and RETURN instructions: Those instructions receive arguments that specify
 another domain and trigger a synchronous domain switch.
 * Exceptions: An exception is triggered by the execution of a specific instruction in the current
 domain. Since the event is local to the domain itself, it does not trigger a domain switch.
@@ -503,6 +503,7 @@ specifications.
 capabilities with `valid = 0` (invalid).
 * `cis = 0`.
 * `pc` does not contain a capability.
+* `CAPSTONE_EN = 0`
 // *  `cinit = { valid = 1, type = 0, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`,
 // * `pc = { valid = 1, type = 0, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`, where `INIT_DATA_BASE`, `INIT_DATA_END`, `INIT_CODE_BASE`, and `INIT_CODE_END` are implementation-defined, and `[INIT_CODE_BASE, INIT_CODE_END)` does not overlap with `[INIT_DATA_BASE, INIT_DATA_END)`.
 ****
