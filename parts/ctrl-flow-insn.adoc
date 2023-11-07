@@ -128,9 +128,9 @@ and `cra.async` to `0` (synchronous).
 ....
 {reg: [
     {bits: 7, name: '0b1011011'},
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rd (C)' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: 'rs1 (C)' },
+    {bits: 5, name: 'rs1 (I)' },
     {bits: 5, name: 'rs2 (I)' },
     {bits: 7, name: '0b0100001' }
 ]}
@@ -140,37 +140,38 @@ and `cra.async` to `0` (synchronous).
 
 ****
 * `Unexpected operand type (24)`
-- `x[rs1]` is not a capability.
-- `x[rs2]` is not an integer.
+- `x[rd]` is not a capability.
+- `x[rs1]` is not an integer.
 * `Invalid capability (25)`
-- `x[rs1].valid` is `0` (invalid).
+- `x[rd].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is not `5` (sealed-return).
+- `x[rd].type` is not `5` (sealed-return).
 ****
 
 *If no exception is raised:*
 
-*When `x[rs1].async = 0` (synchronous):*
+*When `x[rd].async = 0` (synchronous):*
 
 ====
-. Write `x[rs1]` to `cap` and `cnull` to `x[rs1]`.
-// Use swap here in case rs2 is the register sp
-. Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
+. Write `x[rd]` to `cap` and `cnull` to `x[rd]`.
+// Use swap here in case rs1 is the register sp
+. Set `pc.cursor` to `x[rs1]`, and swap the program counter (`pc`) with
 the content at the memory location `[cap.base, cap.base + CLENBYTES)`.
 . Swap `ctvec` with the content at the memory location `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)`.
 . Swap `csp` with the content at the memory location `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)`.
 . Write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to `4` (sealed).
 ====
 
-*When `x[rs1].async = 1` (asynchronous):*
+*When `x[rd].async = 1` (asynchronous):*
 
 ====
-. Set `pc.cursor` to `x[rs2]`, and swap the program counter (`pc`) with
-the content at the memory location `[x[rs1].base, x[rs1].base + CLENBYTES)`.
+. Set `mip` to `mip | x[rs2]`.
+. Set `pc.cursor` to `x[rs1]`, and swap the program counter (`pc`) with
+the content at the memory location `[x[rd].base, x[rd].base + CLENBYTES)`.
 . Swap `ctvec` with the content at the memory location
-`[x[rs1].base + CLENBYTES, x[rs1].base + 2 * CLENBYTES)`.
-. Set `x[rs1].type` to `4` (sealed), `x[rs1].async` to `0` (synchronous).
-. Write the resulting `x[rs1]` to `cih`, and `cnull` to `x[rs1]`.
+`[x[rd].base + CLENBYTES, x[rd].base + 2 * CLENBYTES)`.
+. Set `x[rd].type` to `4` (sealed), `x[rd].async` to `0` (synchronous).
+. Write the resulting `x[rd]` to `cih`, and `cnull` to `x[rd]`.
 . For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
 `[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
 ====
