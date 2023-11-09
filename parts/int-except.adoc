@@ -116,40 +116,97 @@ The diagram below shows its layout.
 [wavedrom,,svg]
 ....
 {reg: [
-    {bits: 1, name: 'EIP'},
-    {bits: 1, name: 'EIE' },
-    {bits: 1, name: 'TIP' },
-    {bits: 1, name: 'TIE' },
-    {bits: 1, name: 'SIP' },
-    {bits: 1, name: 'SIE' },
-    {bits: 10, name: 'reserved (WPRI)'}
+    { bits: 1, name: '0'},
+    { bits: 1, name: 'SSIP'},
+    { bits: 1, name: '0'},
+    { bits: 1, name: 'MSIP'},
+    { bits: 1, name: '0'},
+    { bits: 1, name: 'STIP'},
+    { bits: 1, name: '0'},
+    { bits: 1, name: 'MTIP'},
+    { bits: 1, name: '0'},
+    { bits: 1, name: 'SEIP'},
+    { bits: 1, name: '0'},
+    { bits: 1, name: 'MEIP'},
+    { bits: 4, name: '0'}
 ]}
 ....
 
-Each pair of `xIP` and `xIE` fields describes the status of
-the H-interrupt type `x`. 
-The H-interrupt type `x` is pending if the `xIP` field is set to
-`1`, and enabled if the `xIE` field is set to `1`.
-Currently, three types of H-interrupts
-are supported: external H-interrupts (`E`), timer H-interrupts (`T`),
-and software H-interrupts (`S`).
-The definitions for those H-interrupt types mirror the
-interrupt type definitions in {base_isa_name}.
+
+// [wavedrom,,svg]
+// ....
+// {reg: [
+//     {bits: 1, name: 'EIP'},
+//     {bits: 1, name: 'EIE' },
+//     {bits: 1, name: 'TIP' },
+//     {bits: 1, name: 'TIE' },
+//     {bits: 1, name: 'SIP' },
+//     {bits: 1, name: 'SIE' },
+//     {bits: 10, name: 'reserved (WPRI)'}
+// ]}
+// ....
+
+The layout of `cis` follows that of `mip` in {base_isa_name}.
+When a bit is set, the corresponding
+H-interrupt is pending.
+
+// Each pair of `xIP` and `xIE` fields describes the status of
+// the H-interrupt type `x`. 
+// The H-interrupt type `x` is pending if the `xIP` field is set to
+// `1`, and enabled if the `xIE` field is set to `1`.
+// Currently, three types of H-interrupts
+// are supported: external H-interrupts (`E`), timer H-interrupts (`T`),
+// and software H-interrupts (`S`).
+// The definitions for those H-interrupt types mirror the
+// interrupt type definitions in {base_isa_name}.
 
 All the fields are read-write.
+
+
+== H-Interrupt Delegation
+
+The `cid` CSR specifies types of H-interrupts to delegate as V-interrupts
+to the running domain. The layout of `cid` is identical to that of `cis`.
+When a bit is set in `cid`, the corresponding H-interrupt is not taken to
+the interrupt handling domain defined in `cih`, but handled within the currently
+running domain as a corresponding M-mode V-interrupt.
+
+
+TODO: define what happens if the domain does not have proper handling vectors
+set up. The interrupt handling domain must somehow get back control.
+
+
+== Interaction with the Interrupt Controller
+
+When the interrupt controller attempts to change the pending status of
+an interrupt line for a hart, either `mip` or  `cis` is affected.
+Assuming the interrupt corresponds to bit `x` in `mip` and `cis`,
+the following is the criteria for deciding which of the two to operate
+on:
+
+* If `CAPSTONE_EN = 0`, `mip` is affected
+* If `CAPSTONE_EN = 1`,
+- If `x` is clear in `cid`, `cis` is affected
+- If `x` is set in `cid`, `mip` is affected
+
+
+For example, if the interrupt controller wishes to clear the
+machine timer interrupt pending bit (MTIP) when `CAPSTONE_EN = 1`
+and the `MTIP` bit in `cid` is set, the `MTIP` bit in `mip` will
+be cleared.
 
 == H-Interrupt Delivery
 
 The H-interrupt delivery process starts with a certain event
-typically asynchronous to the execution of the hardware thread.
+typically asynchronous to the execution of the hart.
 The sources of such events include the external interrupt controller,
 the timer, and other CPU cores, which correspond to the external,
 timer, and software H-interrupt types (i.e., `x = E`, `T`, and `S`).
 When such an event occurs, the `xIP` field in the `cis` register
 is set to `1` to indicate that the H-interrupt is pending.
 
-At any point during the execution of a hardware thread,
-if any pair of `xIP` and `xIE` fields are both `1` and at the same
+At any point during the execution of a hart,
+if any `xIP` field is set and at the same
 time the `cih` register contains
 a capability, the H-interrupt is delivered to the H-interrupt handler
 domain. 
@@ -185,7 +242,7 @@ a mechanism for saving and restoring a more complete execution context.
 `[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
 . Set `cih.type` to `5` (sealed-return), `cih.cursor` to `cih.base`, `cih.reg` to `0`, and `cih.async` to `1` (upon interrupt).
 . Write `cih` to the register `cra`, and `cnull` to the register `cih`.
-. Write the exception code to the register `a0`.
+. Write the interrupt code to the register `a0`.
 ====
 
 // == Handling of Exceptions

@@ -329,8 +329,7 @@ TODO: If `ctvec` is a linear capability, what will happen?
 | `cis` | - | `0x800` | The H-interrupt status register
 | `cid` | - | `0x801` | The H-interrupt delegation register. If a bit is set, 
 the H-interrupt is transformed into the corresponding V-interrupt directly
-| `cic` | - | `0x802` | The H-interrupt cause register
-| `offsetmmu` | - | `0x803` | Offset to add to the logical address to obtain the physical address
+| `offsetmmu` | - | `0x802` | Offset to add to the logical address to obtain the physical address
 |===
 
 Some of the registers only allow capability values and have special semantics
