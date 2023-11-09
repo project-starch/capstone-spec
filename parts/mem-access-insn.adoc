@@ -37,7 +37,7 @@ The LDC instruction loads a capability from the memory.
 - `x[rs1].type` is `0` (linear) or `1` (non-linear), and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
 - `x[rs1].type` is `5` (sealed-return), and `x[rs1].cursor + imm` is
-not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
+not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + {sealed_cap_size_clen} * CLENBYTES - CLENBYTES]`.
 * `Load address misaligned (4)`
 - `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
 * `Load access fault (5)`
@@ -93,7 +93,7 @@ The STC instruction stores a capability to the memory.
 - `x[rs1].type` is `0`, `1`, or `3`, and `x[rs1].cursor + imm` is
 not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
 - `x[rs1].type` is `5` or `6`, and `x[rs1].cursor + imm` is
-not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + 33 * CLENBYTES - CLENBYTES]`.
+not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + {sealed_cap_size_clen} * CLENBYTES - CLENBYTES]`.
 * `Store/AMO address misaligned (6)`
 - `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
 ****

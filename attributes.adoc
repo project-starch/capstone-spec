@@ -5,3 +5,4 @@
 :cheri_isa_name: CHERI-RISC-V
 :cheriot_isa_name: CHERIoT
 :imagesdir: images
+:sealed_cap_size_clen: 64

@@ -114,9 +114,8 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 
 ====
 . `MOVC cra, rs1`.
-. Swap the program counter (`pc`) with the content at the memory location `[cra.base, cra.base + CLENBYTES)`.
-. Swap `ctvec` with the content at the memory location `[cra.base + CLENBYTES, cra.base + 2 * CLENBYTES)`.
-. Swap `csp` with the content at the memory location `[cra.base + 2 * CLENBYTES, cra.base + 3 * CLENBYTES)`.
+. <<context-mem,Swap>> <<reg-effects,C-effective registers>> with the memory content
+at address `cra.base`.
 . Set `cra.type` to `5` (sealed-return), `cra.cursor` to `cra.base`, `cra.reg` to `rd`,
 and `cra.async` to `0` (synchronous).
 ====
@@ -155,23 +154,20 @@ and `cra.async` to `0` (synchronous).
 ====
 . Write `x[rd]` to `cap` and `cnull` to `x[rd]`.
 // Use swap here in case rs1 is the register sp
-. Set `pc.cursor` to `x[rs1]`, and swap the program counter (`pc`) with
-the content at the memory location `[cap.base, cap.base + CLENBYTES)`.
-. Swap `ctvec` with the content at the memory location `[cap.base + CLENBYTES, cap.base + 2 * CLENBYTES)`.
-. Swap `csp` with the content at the memory location `[cap.base + 2 * CLENBYTES, cap.base + 3 * CLENBYTES)`.
+. Set `pc.cursor` to `x[rs1]`.
+. <<context-mem,Swap>> <<reg-effects,C-effective registers>> with the memory content
+at address `cap.base`.
 . Write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to `4` (sealed).
 ====
 
 *When `x[rd].async = 1` (asynchronous):*
 
 ====
-. Set `mip` to `mip | x[rs2]`.
-. Set `pc.cursor` to `x[rs1]`, and swap the program counter (`pc`) with
-the content at the memory location `[x[rd].base, x[rd].base + CLENBYTES)`.
-. Swap `ctvec` with the content at the memory location
-`[x[rd].base + CLENBYTES, x[rd].base + 2 * CLENBYTES)`.
+. Write `x[rs2]` to `posted_ints`.
 . Set `x[rd].type` to `4` (sealed), `x[rd].async` to `0` (synchronous).
 . Write the resulting `x[rd]` to `cih`, and `cnull` to `x[rd]`.
-. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at the memory location
-`[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
+. Set `pc.cursor` to `x[rs1]`.
+. <<context-mem,Swap>> <<dom-regs,domain-scoped registers>> with the memory content
+at address `cih.base`.
+. Set `mip` to `mip | posted_ints`.
 ====

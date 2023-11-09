@@ -235,11 +235,8 @@ disabled globally.
 *Otherwise:*
 
 ====
-. Swap `pc` with the content at the memory location `[cih.base, cih.base + CLENBYTES)`.
-. Swap `ctvec` with the content at the memory location `[cih.base + CLENBYTES, cih.base + 2 * CLENBYTES)`. TODO: We will need
-a mechanism for saving and restoring a more complete execution context.
-. For `i = 1, 2, ..., 31`, swap `x[i]` with the content at memory location
-`[cih.base + (i + 1) * CLENBYTES, cih.base + (i + 2) * CLENBYTES)`.
+. <<context-mem,Swap>> <<dom-regs,domain-scoped registers>> with the memory content
+at address `cih.base`.
 . Set `cih.type` to `5` (sealed-return), `cih.cursor` to `cih.base`, `cih.reg` to `0`, and `cih.async` to `1` (upon interrupt).
 . Write `cih` to the register `cra`, and `cnull` to the register `cih`.
 . Write the interrupt code to the register `a0`.

@@ -187,11 +187,13 @@ some memory accesses are granted by this capability.
 The following table shows the memory accesses granted in such scenarios,
 where `size` is the size of the memory access in bytes.
 
+TODO: revise this
+
 .Memory accesses granted by sealed-return
 [%header%autowidth.stretch]
 |===
 | Capability type | `async` | Read | Write | Execute
-| Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + 33 * CLENBYTES - size]` | No
+| Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, base + {sealed_cap_size_clen} * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + {sealed_cap_size_clen} * CLENBYTES - size]` | No
 |===
 
 In other scenarios and for other capability types without the `perms` field, no read/write/execute
@@ -396,6 +398,45 @@ To prevent any domain from setting `cih`, we require the original content of
 // and any attempt to read it after the first time will return the content of `cnull`.
 // ****
 // ====
+
+
+== Register Scopes
+
+Each register has a scope that is either of the following:
+
+* Domain: the register is specific to a domain
+* Hart: the register is specific not to a domain, but to a hart
+
+[#dom-regs]
+=== Domain-Scoped Registers
+
+* PC: `pc`
+* GPRs: `x1`, `x2`, ..., `x31`
+* CCSRs: `ctvec`, `cepc`, `cmmu`, `cscratch`
+* 64-bit CSRs: `mstatus`, `mideleg`, `medeleg`, `mip`, `mie`,
+`mcause`, `mtval`, `mtval2`, `mtinst`, `stvec`, `scause`,
+`stval`, `sepc`, `sscratch`, `satp`, `offsetmmu`
+
+=== Hart-Scoped Registers
+
+Registers `cis`, `cid`, and `cih` are hart-scoped.
+
+[#reg-effects]
+== Register Effects
+
+Domain-scoped registers that can immediately affect the behaviours of a domain in the C mode include
+`pc`, `ctvec`, `cscratch`, `mstatus`, `mideleg`, `medeleg`, `mip`, `mie`.
+We call such registers _C-effective registers_.
+
+[#context-mem]
+== Context Layout in Memory
+
+Under certain circumstances, a set of registers need to be mapped to
+memory locations in an architecturally-defined layout.
+For example, some registers need to be saved or restored
+upon context switches.
+In such cases, unless otherwise specified, the layout follows the order
+in which the registers are listed without any padding.
 
 [#mem-extension]
 == Extension to Memory
