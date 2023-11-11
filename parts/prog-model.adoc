@@ -417,6 +417,13 @@ Each register has a scope that is either of the following:
 `mcause`, `mtval`, `mtval2`, `mtinst`, `stvec`, `scause`,
 `stval`, `sepc`, `sscratch`, `satp`, `offsetmmu`
 
+
+Note that the complete domain-scope state also includes the privilege
+level, which is not reflected in any of the registers above.
+Hence, we propose a modified `mstatus` register that includes
+the current privilege level (0 -- 3) in bits 38 and 39, but only in the context of
+saving or restoring domain-scoped registers.
+
 === Hart-Scoped Registers
 
 Registers `cis`, `cid`, and `cih` are hart-scoped.
