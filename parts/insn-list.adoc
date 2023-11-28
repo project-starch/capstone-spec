@@ -23,6 +23,7 @@ include::ri-type-format.adoc[]
 |Mnemonic |Format |Func3  |Func7 | rs1 | rs2 | rd | imm [4:0] | imm[11:0]
 |<<rev-operation,REVOKE>>      |R |`001`    |`0000000` | C | - | - | - | -
 |<<shrink,SHRINK>>      |R |`001`    |`0000001` | I | I | C | - | -
+|<<shrink,SHRINKTO>>    | I | `000`  | - | C | - | C | - | Z
 |<<tighten,TIGHTEN>>     |RI |`001`    |`0000010` | C | - | C | Z | -
 |<<delin,DELIN>>       |R |`001`    |`0000011` | - | - | C | - | -
 |<<field-query,LCC>>         |RI |`001`    |`0000100` | C | - | I | Z | -

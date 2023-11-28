@@ -244,6 +244,39 @@ The bounds (`base` and `end` fields) of a capability can be shrunk with the SHRI
 . If `x[rd].cursor > x[rs2]`, set `x[rd].cursor` to `x[rs2]`.
 ====
 
+Another instruction, SHRINKTO, provides more convenience for certain common special cases of shrinking.
+
+.SHRINKTO instruction format
+[wavedrom,,svg]
+....
+{reg: [
+    {bits: 7, name: '0b1011011'},
+    {bits: 5, name: 'rd' },
+    {bits: 3, name: '0b000' },
+    {bits: 5, name: 'rs1' },
+    {bits: 12, name: 'imm[11:0]' }
+]}
+....
+
+*An exception is raised when any of the following conditions is met:*
+
+****
+* `Unexpected operand type (24)`
+- `x[rd]` is not a capability.
+- `x[rs1]` is not a capability.
+* `Unexpected capability type (26)`
+- `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
+* `Illegal operand value (29)`
+- `x[rs1].cursor < x[rs1].base` or `x[rs1].cursor + imm > x[rs1].end`
+****
+
+*If no exception is raised:*
+
+====
+. `MOVC rd, rs1`
+. Set `x[rd].base` to `x[rd].cursor` and `x[rd].end` to `x[rd].cursor + imm`.
+====
+
 [#split]
 === Bounds Splitting
 
