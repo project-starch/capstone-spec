@@ -7,7 +7,8 @@
 [#load-cap]
 == Load Capabilities
 
-The LDC instruction loads a capability from the memory.
+The LDC instruction loads a capability or an integer scalar from the memory
+depending on the type of data at the specified memory location.
 
 .LDC instruction format
 [wavedrom,,svg]
@@ -40,10 +41,8 @@ not in the range `[x[rs1].base, x[rs1].end - CLENBYTES]`.
 not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + {sealed_cap_size_clen} * CLENBYTES - CLENBYTES]`.
 * `Load address misaligned (4)`
 - `x[rs1].cursor + imm` is not aligned to `CLENBYTES` bytes.
-* `Load access fault (5)`
-- The data contained in the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)` is not a capability.
 * `Insufficient capability permissions (27)`
-- The capability being loaded is not a non-linear capability (i.e., `type != 1`),
+- The data  being loaded is not a scalar or a non-linear capability (i.e., `type != 1`),
 `x[rs1].type` is `0` (linear) or `1` (non-linear), and `2 \<=p x[rs1].perms` does not hold.
 ****
 
@@ -59,7 +58,8 @@ write `cnull` to the memory location `[cap.cursor + imm, cap.cursor + imm + CLEN
 [#store-cap]
 == Store Capabilities
 
-The STC instruction stores a capability to the memory.
+The STC instruction stores a capability or an integer scalar to the memory,
+depending on the type of data contained in the specified source register.
 
 .STC instruction format
 [wavedrom,,svg]
@@ -79,7 +79,6 @@ The STC instruction stores a capability to the memory.
 ****
 * `Unexpected operand type (24)`
 - `x[rs1]` is not a capability.
-- `x[rs2]` is not a capability.
 * `Invalid capability (25)`
 - `x[rs1].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
@@ -103,5 +102,5 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + {sealed_cap_size_c
 ====
 . Store `x[rs2]` to the memory location `[x[rs1].cursor + imm, x[rs1].cursor + imm + CLENBYTES)`.
 . If `x[rs1].type` is `3` (uninitialised), set `x[rs1].cursor` to `x[rs1].cursor + CLENBYTES`.
-. If `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
+. If `x[rs2]` is a capability and `x[rs2].type` is not `1` (non-linear), write `cnull` to `x[rs2]`.
 ====
