@@ -329,9 +329,10 @@ TODO: If `ctvec` is a linear capability, what will happen?
 | `cmmu`| `0x003` | - | Capability for use with MMU-based memory accesses
 | `cscratch` | `0x004` | - | Replacing `mscratch`
 | `cis` | - | `0x800` | The H-interrupt status register
-| `cid` | - | `0x801` | The H-interrupt delegation register. If a bit is set, 
+| `cid` | - | `0x801` | The H-interrupt delegation register. If a bit is set,
 the H-interrupt is transformed into the corresponding V-interrupt directly
-| `offsetmmu` | - | `0x802` | Offset to add to the logical address to obtain the physical address
+| `cic` | - | `0x802` | The H-interrupt number register. Indicates the type of the H-interrupt
+| `offsetmmu` | - | `0x803` | Offset to add to the logical address to obtain the physical address
 |===
 
 Some of the registers only allow capability values and have special semantics

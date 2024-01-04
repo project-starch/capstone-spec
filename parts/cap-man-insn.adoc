@@ -28,14 +28,7 @@ Capabilities can be moved between registers with the MOVC instruction.
 ]}
 ....
 
-*An exception is raised when any of the following conditions is met:*
-
-****
-* `Unexpected operand type (24)`
-- `x[rs1]` is not a capability
-****
-
-*If no exception is raised:*
+*No exception could be raised for MOVC.*
 
 ====
 * If `rs1 = rd`, the instruction is a no-op.
