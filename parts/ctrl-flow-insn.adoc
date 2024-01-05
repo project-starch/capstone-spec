@@ -98,25 +98,32 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ]}
 ....
 
+NOTE: `rd` is currently unused.
+
+We define `d` as the following:
+
+* If `rs1 != 0`, then `d` is the content of `x[rs1]`.
+* Otherwise, then `d` is the content of `cih`.
+
 *An exception is raised when any of the following conditions is met:*
 
 ****
 * `Unexpected operand type (24)`
-- `x[rs1]` is not a capability.
+- `d` is not a capability.
 * `Invalid capability (25)`
-- `x[rs1].valid` is `0` (invalid).
+- `d.valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rs1].type` is not `4` (sealed).
-- `x[rs1].async` is not `0` (synchronous).
+- `d.type` is not `4` (sealed).
+- `d.async` is not `0` (synchronous).
 ****
 
 *If no exception is raised:*
 
 ====
-. `MOVC cra, rs1`.
+. If `rs1 != 0`, `MOVC cra, rs1`, or otherwise `CSRRW cra, cih, c0`.
 . <<context-mem,Swap>> <<reg-effects,C-effective registers>> with the memory content
 at address `cra.base`.
-. Set `cra.type` to `5` (sealed-return), `cra.cursor` to `cra.base`, `cra.reg` to `rd`,
+. Set `cra.type` to `5` (sealed-return), `cra.cursor` to `cra.base`, `cra.reg` to `rs1`,
 and `cra.async` to `0` (synchronous).
 ====
 
@@ -157,7 +164,8 @@ and `cra.async` to `0` (synchronous).
 . Set `pc.cursor` to `x[rs1]`.
 . <<context-mem,Swap>> <<reg-effects,C-effective registers>> with the memory content
 at address `cap.base`.
-. Write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to `4` (sealed).
+. If `cap.reg != 0`, write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to
+`4` (sealed). Otherwise, write `cap` to `cih` and set `cih.type` to `4` (sealed).
 ====
 
 *When `x[rd].async = 1` (asynchronous):*
