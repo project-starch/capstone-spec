@@ -443,8 +443,23 @@ Under certain circumstances, a set of registers need to be mapped to
 memory locations in an architecturally-defined layout.
 For example, some registers need to be saved or restored
 upon context switches.
-In such cases, unless otherwise specified, the layout follows the order
-in which the registers are listed without any padding.
+In such cases, unless otherwise specified, the layout for both
+domain-scoped registers and C-effective registers follows the following
+order without any padding:
+
+* C-effective registers (PC and CCSRs, 16 bytes): `pc`, `ctvec`, `cscratch`
+* C-effective registers (CSRs, 8 bytes): `mstatus`, `mideleg`, `medeleg`, `mip`,
+`mie`
+* `offsetmmu` (8 bytes)
+* `cmmu`, `cepc` (16 bytes)
+* `x1`, `x2`, ..., `x31` (16 bytes)
+* `mcause`, `mtval`, `mtval2`, `mtinst`, `stvec`, `scause`, `stval`, `sepc`,
+`sscratch`, `satp` (8 bytes)
+
+NOTE: The layout described above takes care of the alignment
+maintains the same register offsets for
+domain-scoped contexts and C-effective contexts, making it possible to use
+a domain-scoped context as a C-effective context.
 
 [#mem-extension]
 == Extension to Memory
