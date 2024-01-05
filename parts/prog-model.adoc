@@ -187,7 +187,11 @@ some memory accesses are granted by this capability.
 The following table shows the memory accesses granted in such scenarios,
 where `size` is the size of the memory access in bytes.
 
-TODO: revise this
+TODO: How does one specify the `async` field of a sealed capability upon
+sealing?
+
+TODO: We can potentially merge the sealed and sealed-return types of
+capabilities as the distinction between the two has been encoded in `async` and `reg`.
 
 .Memory accesses granted by sealed-return
 [%header%autowidth.stretch]
@@ -459,7 +463,10 @@ order without any padding:
 NOTE: The layout described above takes care of the alignment
 maintains the same register offsets for
 domain-scoped contexts and C-effective contexts, making it possible to use
-a domain-scoped context as a C-effective context.
+a domain-scoped context as a C-effective context. When a C-effective context
+swapped in (loaded into the CPU state), and a domain-scoped context is swapped
+out (offloaded from the CPU state into memory), registers that are
+domain-scoped but not C-effective are scrubbed.
 
 [#mem-extension]
 == Extension to Memory

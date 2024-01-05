@@ -151,7 +151,8 @@ and `cra.async` to `0` (synchronous).
 * `Invalid capability (25)`
 - `x[rd].valid` is `0` (invalid).
 * `Unexpected capability type (26)`
-- `x[rd].type` is not `5` (sealed-return).
+- `x[rd].type` is not `4` (sealed) or `5` (sealed-return).
+- `x[rd].type` is `4` (sealed) and `cih != cnull`.
 ****
 
 *If no exception is raised:*
@@ -164,7 +165,7 @@ and `cra.async` to `0` (synchronous).
 . Set `pc.cursor` to `x[rs1]`.
 . <<context-mem,Swap>> <<reg-effects,C-effective registers>> with the memory content
 at address `cap.base`.
-. If `cap.reg != 0`, write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to
+. If `cap.type = 5` and `cap.reg != 0`, write `cap` to `x[cap.reg]` and set `x[cap.reg].type` to
 `4` (sealed). Otherwise, write `cap` to `cih` and set `cih.type` to `4` (sealed).
 ====
 
@@ -175,7 +176,12 @@ at address `cap.base`.
 . Set `x[rd].type` to `4` (sealed), `x[rd].async` to `0` (synchronous).
 . Write the resulting `x[rd]` to `cih`, and `cnull` to `x[rd]`.
 . Set `pc.cursor` to `x[rs1]`.
-. <<context-mem,Swap>> <<dom-regs,domain-scoped registers>> with the memory content
-at address `cih.base`.
+. <<context-mem,Swap out>> the <<reg-effects,C-effective registers>>, and swap
+in <<dom-regs,domain-scoped registers>> from the memory content at address `cih.base`.
 . Set `mip` to `mip | posted_ints`.
 ====
+
+TODO: We currently assume that sealed capabilities all have `async = 0`, but
+allowing `async = 1` in sealed capabilities might enable more greater
+expressiveness.
+This would require having a way to indicate the `async` value after RETURN.

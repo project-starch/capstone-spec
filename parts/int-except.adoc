@@ -235,7 +235,8 @@ disabled globally.
 *Otherwise:*
 
 ====
-. <<context-mem,Swap>> <<dom-regs,domain-scoped registers>> with the memory content
+. <<context-mem,Swap out>> the <<dom-regs,domain-scoped registers>>, and swap in
+<<reg-effects,C-effective registers>> from the memory content
 at address `cih.base`.
 . Set `cih.type` to `5` (sealed-return), `cih.cursor` to `cih.base`, `cih.reg` to `0`, and `cih.async` to `1` (upon interrupt).
 . Write `cih` to the register `cra`, and `cnull` to the register `cih`.
