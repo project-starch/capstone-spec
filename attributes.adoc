@@ -1,5 +1,5 @@
-:isa_name: TransCapstone-RISC-V
-:proj_name: Capstone
+:isa_name: Captainer-RISC-V
+:proj_name: Captainer
 :base_isa_name: RV64IZicsr
 :base_isa_csr_ext: Zicsr
 :cheri_isa_name: CHERI-RISC-V

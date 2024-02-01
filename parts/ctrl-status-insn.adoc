@@ -59,8 +59,8 @@ instruction encodings.
     {bits: 7, name: '0b1011011'},
     {bits: 5, name: '*' },
     {bits: 3, name: '0b001' },
-    {bits: 5, name: '*' },
-    {bits: 5, name: '*' },
+    {bits: 5, name: 'rs1 (I)' },
+    {bits: 5, name: 'rs2 (I)' },
     {bits: 7, name: '0b0001101' }
 ]}
 ....
@@ -75,11 +75,24 @@ instruction encodings.
 *If no exception is raised:*
 
 ====
-* Set `pc = { valid = 1, type = 1, cursor = INIT_CODE_BASE, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`.
+- If `rs1 == 0` and `rs2 == 0`
+* Set `pc = { valid = 1, type = 1, cursor = pc, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`.
 * Set `x10 = { valid = 1, type = 1, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`.
-* Set `x11 = { valid = 1, type = 2, cursor = 0, base = 0, end = 2^XLEN, perms = 7 }`,
+* Set `x11 = { valid = 1, type = 2, cursor = 0, base = 0, end = 2^XLEN, perms =
+7 }`,
 which, once revoked, will invalidate the initial capabilities in `pc` and `x10` as
 defined above. TODO: Need to support `end = 2^XLEN`.
+* Set `CAPSTONE_EN` to `1`.
+- Otherwise
+* Set `pc = { valid = 1, type = 1, cursor = pc, base = x[rs1], end = x[rs2],
+perms = 7 }`.
+* Set `x10 = { valid = 1, type = 1, cursor = 0, base = 0, end = x[rs1], perms =
+7 }`.
+* Set `x11 = { valid = 1, type = 1, cursor = x[rs2], base = x[rs2], end = 2^XLEN, perms =
+7 }`.
+// * Set `x12 = { valid = 1, type = 2, cursor = 0, base = 0, end = 2^XLEN, perms =
+// 7}`, which, once revoked, will invalidate the initial capabilities in `pc`,
+// `x10`, and `x11` as defined above.
 * Set `CAPSTONE_EN` to `1`.
 ====
 
