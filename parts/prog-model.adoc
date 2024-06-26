@@ -179,7 +179,7 @@ The table below summarises the fields used for each type of capabilities.
 |Revocation |`2` |Yes |Yes |Yes |Yes |Yes |- |-
 |Uninitialised |`3` |Yes |Yes |Yes |Yes |Yes |- |-
 |Sealed |`4` |Yes |- |Yes |- |- |Yes |-
-|Sealed-return |`5` |Yes |Yes |Yes |- |- |Yes |Yes
+|Sealed-return |`5` |Yes | |Yes |- |- |Yes |Yes
 |===
 
 When the `async` field of a sealed-return capability is `0` (synchronous),
@@ -191,14 +191,18 @@ TODO: How does one specify the `async` field of a sealed capability upon
 sealing?
 
 TODO: We can potentially merge the sealed and sealed-return types of
-capabilities as the distinction between the two has been encoded in `async` and `reg`.
+capabilities as the distinction between the two has been encoded in `async` and
+`reg`.
 
-.Memory accesses granted by sealed-return
-[%header%autowidth.stretch]
-|===
-| Capability type | `async` | Read | Write | Execute
-| Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, base + {sealed_cap_size_clen} * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + {sealed_cap_size_clen} * CLENBYTES - size]` | No
-|===
+NOTE: In an earlier version a sealed-return capability has a cursor and grants
+direct load/store accesses. This is no more the case.
+
+// .Memory accesses granted by sealed-return
+// [%header%autowidth.stretch]
+// |===
+// | Capability type | `async` | Read | Write | Execute
+// | Sealed-return | `0` | `cursor in [base + 3 * CLENBYTES, base + {sealed_cap_size_clen} * CLENBYTES - size]` | `cursor in [base + 3 * CLENBYTES, base + {sealed_cap_size_clen} * CLENBYTES - size]` | No
+// |===
 
 In other scenarios and for other capability types without the `perms` field, no read/write/execute
 memory accesses are granted by the capability.

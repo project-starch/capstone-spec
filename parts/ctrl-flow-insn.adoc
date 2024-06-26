@@ -98,8 +98,6 @@ The CALL instruction is used to call a sealed capability, i.e., to switch to ano
 ]}
 ....
 
-NOTE: `rd` is currently unused.
-
 We define `d` as the following:
 
 * If `rs1 != 0`, then `d` is the content of `x[rs1]`.
@@ -123,7 +121,7 @@ We define `d` as the following:
 . If `rs1 != 0`, `MOVC cra, rs1`, or otherwise `CSRRW cra, cih, c0`.
 . <<context-mem,Swap>> <<reg-effects,C-effective registers>> with the memory content
 at address `cra.base`.
-. Set `cra.type` to `5` (sealed-return), `cra.cursor` to `cra.base`, `cra.reg` to `rs1`,
+. Set `cra.type` to `5` (sealed-return), `cra.cursor` to `cra.base`, `cra.reg` to `rd`,
 and `cra.async` to `0` (synchronous).
 ====
 
