@@ -189,12 +189,12 @@ some memory accesses are granted by this capability.
 The following table shows the memory accesses granted in such scenarios,
 where `size` is the size of the memory access in bytes.
 
-TODO: How does one specify the `async` field of a sealed capability upon
-sealing?
+// TODO: How does one specify the `async` field of a sealed capability upon
+// sealing?
 
-TODO: We can potentially merge the sealed and sealed-return types of
-capabilities as the distinction between the two has been encoded in `async` and
-`reg`.
+// TODO: We can potentially merge the sealed and sealed-return types of
+// capabilities as the distinction between the two has been encoded in `async` and
+// `reg`.
 
 NOTE: In an earlier version a sealed-return capability has a cursor and grants
 direct load/store accesses. This is no more the case.
@@ -333,7 +333,7 @@ The +h sign indicates that the register is available in the hypervisor extension
 |===
 | Mnemonic | CCSR encoding | CSR encoding | Description
 | `ctvec`  | `0x000` | - | The PC entry for the exception and V-interrupt handler (replacing `mtvec`)
-TODO: If `ctvec` is a linear capability, what will happen?
+// TODO: If `ctvec` is a linear capability, what will happen?
 | `cih`  | `0x001` | - | The sealed capability for the H-interrupt handler
 | `cepc` | `0x002` | - | The exception program counter register (replacing `mepc`)
 | `cscratch` | `0x004` | - | Replacing `mscratch`

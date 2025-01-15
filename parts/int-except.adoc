@@ -81,6 +81,14 @@ for exception and interrupt handling in {base_isa_name}, with the following mino
 
 * C-mode replaces M-mode.
 * `ctvec` does not support the vectored mode, and should be a capability.
+* When the CPU traps into C-mode, `ctvec` and `pc` must not both be
+integers. If `ctvec` is a capability, `pc` is written into `cepc` and
+replaced with `ctvec`, and if `ctvec` is linear, `ctvec` is replaced with `ctvec.cursor`. If `ctvec` is not a capability and
+`pc` is a capability, then the `pc.cursor` is written into `cepc` and
+replaced with `ctvec`. Upon `mret`, if `ctvec` is not a capability, it is replaced with `pc` with `ctvec.cursor`
+set to the original `ctvec` value.
+// * `ctvec` must contain a capability in S-mode and U-mode, and must
+// contain an integer in C-mode. When the CPU traps into C-mode.
 * `cepc` can contain a capability.
 * Extra exception and interrupt types are defined.
 

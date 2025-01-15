@@ -179,7 +179,7 @@ in <<dom-regs,domain-scoped registers>> from the memory content at address `cih.
 . Set `mip` to `mip | posted_ints`.
 ====
 
-TODO: We currently assume that sealed capabilities all have `async = 0`, but
-allowing `async = 1` in sealed capabilities might enable more greater
-expressiveness.
-This would require having a way to indicate the `async` value after RETURN.
+// TODO: We currently assume that sealed capabilities all have `async = 0`, but
+// allowing `async = 1` in sealed capabilities might enable more greater
+// expressiveness.
+// This would require having a way to indicate the `async` value after RETURN.
