@@ -1,5 +1,6 @@
-:isa_name: Caplifive
-:proj_name: Caplifive
+:ext_name: Caplifive
+:isa_name: Capstone-RISC-V
+:proj_name: Capstone
 :base_isa_name: RV64IZicsr
 :base_isa_csr_ext: Zicsr
 :cheri_isa_name: CHERI-RISC-V

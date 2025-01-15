@@ -3,17 +3,14 @@
 = Introduction
 
 
-{proj_name} is a novel CPU instruction set architecture (ISA) that creates
+{proj_name} is a CPU instruction set architecture (ISA) that creates
 a single unified architectural abstraction for achieving multiple security
 goals, thus liberating software developers from the burden of working with
 the distinct fundamental primitives exposed by numerous security extensions
 that often do not interoperate easily.
 
-This version includes design elements
-that enable {proj_name} to
-support guest machines with traditional access control abstractions.
 
-== Properties to Support
+== Supported Properties
 
 The ultimate goal of {proj_name} is to provide a unified architectural
 abstraction for multiple security goals.
@@ -50,7 +47,7 @@ ____
 The {proj_name} architecture design is based on the idea of capabilities,
 which are unforgeable tokens that represent authority to perform
 memory accesses and control flow transfers, among other operations.
-{proj_name} extends the traditional capability model with new capability
+{proj_name} extends the basic capability model with new capability
 types including the following.
 
 ____
@@ -65,9 +62,9 @@ Linear capabilities:: Linear capabilities are guaranteed not to
     They can hence enable safe
     exclusive access to memory regions. Capabilities that do
     not have this property are called _non-linear_ capabilities.
-Revocation capabilities:: 
+Revocation capabilities::
     Revocation capabilities cannot be used to perform memory accesses
-    or control flow transfers. Instead, they convey the authority to revoke other capabilities. 
+    or control flow transfers. Instead, they convey the authority to revoke other capabilities.
     Each revocation capability is derived from a linear
     capability and can later be used to revoke (i.e., invalidate) capabilities
     derived from it. This mechanism enables
@@ -97,6 +94,42 @@ types of changes to the base architecture:
 * New instructions for control flow transfers using capabilities are added.
 * Semantics of some existing instructions are adjusted to support capabilities.
 * Semantics of interrupts and exceptions are adjusted to support capabilities.
+
+
+== {ext_name} Extension
+
+This document describes a version of {isa_name} with the
+_{ext_name} extension_, which enables {proj_name} to
+support guest machines with traditional access control abstractions.
+This is achieved through the idea of _caplification_:
+it allows exposing capability-backed physical
+memory regions to lower privilege levels through
+a modified PMP (Physical Memory Protection) structure
+which requires valid capabilities in its entries instead
+of arbitrary ranges and permissions.
+
+Compared to vanilla {isa_name}, {isa_name} with {ext_name}
+defines domain _internal structures_ which can consist of
+privilege levels found in traditional architectures.
+The highest privilege level operates using capabilities in
+the same way as in vanilla {isa_name}, whereas lower privilege
+levels are exposed to an abstraction compatible with that on
+traditional architectures.
+In particular, {ext_name} allows software in lower privilege
+levels to access memory using raw addresses and potentially
+through virtual memory, as long as the access is allowed
+according to the capabilities configured in the modified PMP
+structure.
+Note that such details are internal to each domain itself.
+Across domains, software interacts using capabilities in the
+same way as in vanilla {isa_name}.
+
+The {ext_name} extension additionally includes the following
+changes:
+
+* Introduction of C-mode and a mechanism to enter it from M-mode.
+* Mechanism to post V-interrupts to a domain.
+* Mechanism to expose capabilities in C-mode to lower privilege levels.
 
 == Assembly Mnemonics
 

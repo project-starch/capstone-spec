@@ -10,33 +10,35 @@ enable the storage and handling of capabilities.
 
 At any point in time, a hart operates in one of the following modes (mode ID in parentheses):
 
-* U mode (0)
-* S mode (1)
-* M mode (3)
-* C mode (3)
+* U-mode (0)
+* S-mode (1)
+* M-mode (3)
+* C-mode (3)
 
-The U, S, and M modes already exist in the base {base_isa_name} ISA.
+U-, S-, and M-modes already exist in the base {base_isa_name} ISA.
 When operating in those modes, the hart follows the same behaviours as defined
-in {base_isa_name}, e.g., using physical addresses for memory accesses in the
-M mode and virtual addresses for memory accesses if the virtual memory is enabled
-in the S mode and the U mode.
+in {base_isa_name}, e.g., using physical addresses for memory accesses in
+M-mode and virtual addresses for memory accesses if the virtual memory is enabled
+in S-mode and U-mode.
 
-The C mode (capability mode) is an added mode that replaces the M mode when `CAPSTONE_EN = 1` (`CAPSTONE_EN` is a single-bit hart-local state).
-When operating in the C mode, the hart is required to use capabilities for
+C-mode (capability mode) is an extra privilege level
+introduced in the {ext_name} extension.
+It replaces M-mode when `CAPSTONE_EN = 1` (`CAPSTONE_EN` is a single-bit hart-local state).
+When operating in C-mode, the hart is required to use capabilities for
 accessing the memory (including fetching instructions).
-In order to maintain the support for the S mode and the U mode, proper design elements
-are included in {isa_name} to allow the C mode to expose the same set of interfaces
+In order to maintain the support for S-mode and U-mode, proper design elements
+are included in {isa_name} to allow C-mode to expose the same set of interfaces
 to them.
-For example, the C mode can handle undelegated interrupts and exceptions from the S mode
-and the U mode.
-Whether `CAPSTONE_EN = 1` is therefore transparent to the S mode and the U mode, which
-can interact with the C mode in the same way as with the M mode.
+For example, C-mode can handle undelegated interrupts and exceptions from S-mode
+and U-mode.
+Whether `CAPSTONE_EN = 1` is therefore transparent to S-mode and U-mode, which
+can interact with C-mode in the same way as with M-mode.
 
 
 == Domains
 
 When `CAPSTONE_EN = 1`, the run-time state of the system is organised in individual compartments
-called domains.
+called _domains_.
 Each domain includes the execution context of a logical thread.
 A hart at any point in time executes in exactly one domain.
 
@@ -159,7 +161,7 @@ a register and memory, the value of the capability is preserved.
 powerful than when the same operation is performed on a {isa_name}
 implementation without compression.
 - More specifically, if an execution trace is valid
-(i.e., without exceptions) on the compressed implementation, 
+(i.e., without exceptions) on the compressed implementation,
 then it must also be valid on the uncompressed implementation.
 // FIXME: double-check this claim
 For example, a trivial yet useless compression would be to store
@@ -227,7 +229,7 @@ in the following table.
 [%header%autowidth.stretch]
 |===
 | Index | `XLEN`-bit integer | Capability
-| 0 | `x0`/`zero` | `c0`/`cnull` 
+| 0 | `x0`/`zero` | `c0`/`cnull`
 | 1 | `x1`/`ra` | `c1`/`cra`
 | 2 | `x2`/`sp` | `c2`/`csp`
 | 3 | `x3`/`gp` | `c3`/`cgp`
@@ -298,9 +300,9 @@ The program counter (`pc`) is changed to contain a capability only.
 . Set `pc.cursor` to `pc.cursor + 4` at the end of the instruction.
 ====
 
-== M-Mode Registers in C Mode
+== M-Mode Registers in C-Mode
 
-The following M-mode CSRs are available in the C mode without any changes:
+The following M-mode CSRs are available in C-mode without any changes:
 
 * `mstatus`
 * `medeleg`
@@ -316,7 +318,7 @@ We also refer to the above CSRs using their aliases (with the `m`- prefix replac
 in the C-mode context.
 
 The M-mode CSRs `mtvec`, `mscratch`, and `mepc` have their corresponding
-capability-extended replacements available in the C mode, as described in the
+capability-extended replacements available in C-mode, as described in the
 following section.
 
 [#additional-regs]
@@ -440,7 +442,7 @@ Registers `cis`, `cid`, and `cih` are hart-scoped.
 [#reg-effects]
 == Register Effects
 
-Domain-scoped registers that can immediately affect the behaviours of a domain in the C mode include
+Domain-scoped registers that can immediately affect the behaviours of a domain in C-mode include
 `pc`, `ctvec`, `cscratch`, `mstatus`, `mideleg`, `medeleg`, `mip`, `mie`.
 We call such registers _C-effective registers_.
 
@@ -564,7 +566,7 @@ The RI-type instruction format is derived from the R-type instruction format.
 An RI-type instruction receives up to two register operands and a 5-bit-wide immediate operand.
 
 Unless otherwise specified, the instructions introduced in {isa_name} on top of
-the base {base_isa_name} instruction set are available in the C mode only.
+the base {base_isa_name} instruction set are available in C-mode only.
 Attempts to execute them in other modes trigger `Illegal instruction (2)` exceptions.
 
 [#reset]

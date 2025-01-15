@@ -20,7 +20,7 @@ In {base_isa_name}, memory access instructions include load instructions
 (i.e., `lb`, `lh`, `ld`, `lw`, `lbu`, `lhu`, `lwu`), and store instructions (i.e., `sb`, `sh`, `sw`, `sd`).
 These instructions take an integer as a raw address, and load or store a value from/to this address.
 In {proj_name}, these instructions are extended to take a capability as an address
-_when executed in the C mode_. In non-C modes, the behaviours of those instructions
+_when executed in C-mode_. In non-C modes, the behaviours of those instructions
 are unchanged.
 
 [#load]
@@ -274,7 +274,7 @@ not in the range `[x[rs1].base + 3 * CLENBYTES, x[rs1].base + {sealed_cap_size_c
 
 In {base_isa_name}, conditional branch instructions (i.e., `beq`, `bne`, `blt`, `bge`, `bltu`, and `bgeu`),
 and unconditional jump instructions (i.e., `jal` and `jalr`) are used to control the flow of execution.
-In {proj_name}, these instructions are adjusted to support the situation where the program counter is a capability _when executed in the C mode_.
+In {proj_name}, these instructions are adjusted to support the situation where the program counter is a capability _when executed in C-mode_.
 In non-C modes, the behaviours of those instructions are unchanged.
 
 === Branch Instructions
@@ -396,17 +396,17 @@ In non-C modes, the behaviours of those instructions are unchanged.
 
 == Illegal Instructions
 
-The C mode can execute the following M-mode privileged instructions defined in
+C-mode can execute the following M-mode privileged instructions defined in
 {base_isa_csr_ext}:
 
 * ECALL
 * EBREAK
 * MRET (also referred to as CRET in the C-mode context)
 
-When a CSR that is available in the M mode but not
-<<additional-regs,available>> in the C mode is accessed
-in the C mode, an `illegal instruction (2)` exception is raised.
- 
+When a CSR that is available in M-mode but not
+<<additional-regs,available>> in C-mode is accessed
+in C-mode, an `illegal instruction (2)` exception is raised.
+
 // Some instructions in {base_isa_name} now raise `illegal instruction (2)` exceptions
 // when executed in the {isa_name} ISA, under all or some circumstances.
 

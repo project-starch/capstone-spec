@@ -2,7 +2,7 @@
 
 = Interrupts and Exceptions
 
-The mechanisms described in this section only apply when the C mode is enabled,
+The mechanisms described in this section only apply when C-mode is enabled,
 i.e., when `CAPSTONE_EN = 1`.
 
 // TODO: add support for nesting
@@ -27,9 +27,9 @@ We extend {base_isa_name} with the following extra exception codes:
 | Insufficient system resources | 30
 |===
 
-Those extra exception codes are only visible to the C mode. In other words, only
+Those extra exception codes are only visible to C-mode. In other words, only
 C-mode software is allowed to handle those exceptions. They cannot be delegated to
-the S mode or the U mode.
+S-mode or U-mode.
 
 For interrupts, the same encodings as in {base_isa_name} are used.
 
@@ -53,7 +53,7 @@ information along with the exception code,
 {isa_name} follows the base {base_isa_name} and uses the CSRs `xepc`, `xtval`, `xtval2`,
 and `xtinst`.
 The only difference is that `cepc` will hold a capability if the excepting state has a capability
-`pc` as in the case of a horizontal trap in the C mode.
+`pc` as in the case of a horizontal trap in C-mode.
 
 For exceptions defined in {base_isa_name}, the data written to those CSRs remain unchanged.
 The data provided for the added exception types defined above are as follows:
@@ -79,7 +79,7 @@ they are defined in {base_isa_name}.
 With `CAPSTONE_EN = 1`, the handling of exceptions and V-interrupts uses the same mechanisms
 for exception and interrupt handling in {base_isa_name}, with the following minor changes:
 
-* The C mode replaces the M mode.
+* C-mode replaces M-mode.
 * `ctvec` does not support the vectored mode, and should be a capability.
 * `cepc` can contain a capability.
 * Extra exception and interrupt types are defined.
@@ -151,7 +151,7 @@ When a bit is set, the corresponding
 H-interrupt is pending.
 
 // Each pair of `xIP` and `xIE` fields describes the status of
-// the H-interrupt type `x`. 
+// the H-interrupt type `x`.
 // The H-interrupt type `x` is pending if the `xIP` field is set to
 // `1`, and enabled if the `xIE` field is set to `1`.
 // Currently, three types of H-interrupts
@@ -209,7 +209,7 @@ At any point during the execution of a hart,
 if any `xIP` field is set and at the same
 time the `cih` register contains
 a capability, the H-interrupt is delivered to the H-interrupt handler
-domain. 
+domain.
 
 .*Note: global H-interrupt enable/disable*
 [%collapsible]

@@ -40,11 +40,11 @@ _<<add-reg-list,capability control and status registers>>_ (CCSRs).
 . Otherwise, preserve the current content of the CCSR specified by `imm`.
 ====
 
-The CAPENTER instruction enables the C mode. Unlike the other added
-instructions which are for the C mode only, CAPENTER can be used
-in the M mode.
+The CAPENTER instruction enables C-mode. Unlike the other added
+instructions which are for C-mode only, CAPENTER can be used
+in M-mode.
 
-When the C mode is enabled, the CAPENTER instruction also initialises
+When C-mode is enabled, the CAPENTER instruction also initialises
 the genesis capabilities and create the initial execution context
 of the genesis domain.
 
