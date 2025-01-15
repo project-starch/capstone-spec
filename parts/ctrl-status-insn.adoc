@@ -48,8 +48,8 @@ When C-mode is enabled, the CAPENTER instruction also initialises
 the genesis capabilities and create the initial execution context
 of the genesis domain.
 
-TODO: Optimise the efficiency of
-instruction encodings.
+// TODO: Optimise the efficiency of
+// instruction encodings.
 
 
 .CAPENTER instruction format
@@ -76,19 +76,19 @@ instruction encodings.
 
 ====
 - If `rs1 == 0` and `rs2 == 0`
-* Set `pc = { valid = 1, type = 1, cursor = pc, base = INIT_CODE_BASE, end = INIT_CODE_END, perms = 7 }`.
-* Set `x10 = { valid = 1, type = 1, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END, perms = 7 }`.
-* Set `x11 = { valid = 1, type = 2, cursor = 0, base = 0, end = 2^XLEN, perms =
+* Set `pc = { valid = 1, type = 1, cursor = pc, base = INIT_CODE_BASE, end = INIT_CODE_END - 1, perms = 7 }`.
+* Set `x10 = { valid = 1, type = 1, cursor = INIT_DATA_BASE, base = INIT_DATA_BASE, end = INIT_DATA_END - 1, perms = 7 }`.
+* Set `x11 = { valid = 1, type = 2, cursor = 0, base = 0, end = 2^XLEN - 1, perms =
 7 }`,
 which, once revoked, will invalidate the initial capabilities in `pc` and `x10` as
-defined above. TODO: Need to support `end = 2^XLEN`.
+defined above.
 * Set `CAPSTONE_EN` to `1`.
 - Otherwise
-* Set `pc = { valid = 1, type = 1, cursor = pc, base = x[rs1], end = x[rs2],
+* Set `pc = { valid = 1, type = 1, cursor = pc, base = x[rs1], end = x[rs2] - 1,
 perms = 7 }`.
-* Set `x10 = { valid = 1, type = 1, cursor = 0, base = 0, end = x[rs1], perms =
+* Set `x10 = { valid = 1, type = 1, cursor = 0, base = 0, end = x[rs1] - 1, perms =
 7 }`.
-* Set `x11 = { valid = 1, type = 1, cursor = x[rs2], base = x[rs2], end = 2^XLEN, perms =
+* Set `x11 = { valid = 1, type = 1, cursor = x[rs2], base = x[rs2], end = 2^XLEN - 1, perms =
 7 }`.
 // * Set `x12 = { valid = 1, type = 2, cursor = 0, base = 0, end = 2^XLEN, perms =
 // 7}`, which, once revoked, will invalidate the initial capabilities in `pc`,

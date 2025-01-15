@@ -117,7 +117,7 @@ The range of the `perms` field has a partial order `\<=p` defined as follows:
 
 [#alias-definition]
 We say a capability `c` _aliases_ with a capability `d` if and only if the intersection
-between `[c.base, c.end)` and `[d.base, d.end)` is non-empty.
+between `[c.base, c.end]` and `[d.base, d.end]` is non-empty.
 
 [#smaller-t-definition]
 For two revocation capabilities `c` and `d` (i.e., `c.type = d.type = 2`),
@@ -288,7 +288,7 @@ The program counter (`pc`) is changed to contain a capability only.
 - `pc.valid` is `0` (invalid).
 - `pc.type` is neither `0` (linear) nor `1` (non-linear).
 - `pc.perms` is not executable (i.e., `1 \<=p pc.perms` does not hold).
-- `pc.cursor` is not in the range `[pc.base, pc.end - 4]`.
+- `pc.cursor` is not in the range `[pc.base, pc.end - 3]`.
 * `Instruction address misaligned (0)`
 - `pc.cursor` is not aligned to `4`.
 ****
@@ -333,7 +333,6 @@ The +h sign indicates that the register is available in the hypervisor extension
 |===
 | Mnemonic | CCSR encoding | CSR encoding | Description
 | `ctvec`  | `0x000` | - | The PC entry for the exception and V-interrupt handler (replacing `mtvec`)
-// TODO: If `ctvec` is a linear capability, what will happen?
 | `cih`  | `0x001` | - | The sealed capability for the H-interrupt handler
 | `cepc` | `0x002` | - | The exception program counter register (replacing `mepc`)
 | `cscratch` | `0x004` | - | Replacing `mscratch`
@@ -491,6 +490,7 @@ confusion of the type is not allowed.
 ****
 For a store operation that accesses the memory location `[addr, addr + size)`,
 the type of data contained in the memory location is maintained as follows:
+
 * If a capability is stored to the memory location `[addr, addr + CLENBYTES)`,
 the type of data contained in the memory location will become a capability,
 where `addr` is `CLENBYTES`-byte aligned.
@@ -504,6 +504,7 @@ where `cbase = addr & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
 ****
 In this document, when we say the memory location `[addr, addr + CLENBYTES]`,
 we mean that the following content will be loaded from or stored to the memory location:
+
 * Depending on the type of data contained in the memory location,
 the content being loaded from the memory location is either a capability at
 the memory location `[addr, addr + CLENBYTES]`,
