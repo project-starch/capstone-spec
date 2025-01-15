@@ -177,11 +177,7 @@ The `cid` CSR specifies types of H-interrupts to delegate as V-interrupts
 to the running domain. The layout of `cid` is identical to that of `cis`.
 When a bit is set in `cid`, the corresponding H-interrupt is not taken to
 the interrupt handling domain defined in `cih`, but handled within the currently
-running domain as a corresponding M-mode V-interrupt.
-
-
-TODO: define what happens if the domain does not have proper handling vectors
-set up. The interrupt handling domain must somehow get back control.
+running domain as a corresponding C-mode V-interrupt.
 
 
 == Interaction with the Interrupt Controller
