@@ -33,7 +33,7 @@ Capabilities can be moved between registers with the MOVC instruction.
 ====
 * If `rs1 = rd`, the instruction is a no-op.
 * Otherwise
-. Write `x[rs1]` to `x[rd]`
+. Write `x[rs1]` to `x[rd]`.
 . If `x[rs1]` is not a non-linear capability (i.e., `type != 1`),
 write `cnull` to `x[rs1]`.
 ====
@@ -259,13 +259,13 @@ Another instruction, SHRINKTO, provides more convenience for certain common spec
 * `Unexpected capability type (26)`
 - `x[rs1].type` is not `0`, `1`, or `3` (linear, non-linear, or uninitialised).
 * `Illegal operand value (29)`
-- `x[rs1].cursor < x[rs1].base` or `x[rs1].cursor + imm > x[rs1].end`
+- `x[rs1].cursor < x[rs1].base` or `x[rs1].cursor + imm > x[rs1].end`.
 ****
 
 *If no exception is raised:*
 
 ====
-. `MOVC rd, rs1`
+. `MOVC rd, rs1`.
 . Set `x[rd].base` to `x[rd].cursor` and `x[rd].end` to `x[rd].cursor + imm - 1`.
 ====
 

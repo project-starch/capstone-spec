@@ -26,9 +26,8 @@ introduced in the {ext_name} extension.
 It replaces M-mode when `CAPSTONE_EN = 1` (`CAPSTONE_EN` is a single-bit hart-local state).
 When operating in C-mode, the hart is required to use capabilities for
 accessing the memory (including fetching instructions).
-In order to maintain the support for S-mode and U-mode, proper design elements
-are included in {isa_name} to allow C-mode to expose the same set of interfaces
-to them.
+C-mode exposes the same set of interfaces to S-mode and
+U-mode as M-mode does.
 For example, C-mode can handle undelegated interrupts and exceptions from S-mode
 and U-mode.
 Whether `CAPSTONE_EN = 1` is therefore transparent to S-mode and U-mode, which
@@ -53,7 +52,7 @@ Instead, exceptions are handled within the same domain that triggers them.
 by specific instructions executed in the domain. We distinguish two types of interrupts which
 are handled differently:
 - H-interrupts (hardware interrupts): Those are interrupts the hart receives from interrupt
-controllers (either core-local or platform-wide). Since such interrupts are not intended for
+controllers (either hart-local or platform-wide). Since such interrupts are not intended for
 specific domains (interrupt controllers and the I/O devices behind them are not aware of
 domains), a switch to a dedicated interrupt handler domain is required to handle them.
 - V-interrupts (virtual interrupts): Those are asynchronous events sent between domains. Unlike
@@ -220,8 +219,7 @@ image::pure-types.svg[pure-types]
 The {isa_name} ISA extends each of the 32 general-purpose
 registers, so it contains either a capability or a raw `XLEN`-bit
 integer.
-The type of data contained in a register is maintained and confusion
-of the type is not allowed, except for `x0`/`c0` as discussed below.
+The type of data contained in a register is maintained and type confusion is not allowed, except for `x0`/`c0` as discussed below.
 In assembly code, the type of data expected in a register operand
 is indicated by the alias used for the register, as summarised
 in the following table.
@@ -502,16 +500,16 @@ where `cbase = addr & ~(CLENBYTES - 1)` and `cend = cbase + CLENBYTES`.
 
 .Note
 ****
-In this document, when we say the memory location `[addr, addr + CLENBYTES]`,
+In this document, when we say the memory location `[addr, addr + CLENBYTES)`,
 we mean that the following content will be loaded from or stored to the memory location:
 
 * Depending on the type of data contained in the memory location,
 the content being loaded from the memory location is either a capability at
-the memory location `[addr, addr + CLENBYTES]`,
-or an integer at the memory location `[addr, addr + XLENBYTES]`.
+the memory location `[addr, addr + CLENBYTES)`,
+or an integer at the memory location `[addr, addr + XLENBYTES)`.
 * Depending on the type of data being stored to the memory location,
 the data is either stored as a capability at the memory location `[addr, addr + CLENBYTES]`,
-or an integer at the memory location `[addr, addr + XLENBYTES]`.
+or an integer at the memory location `[addr, addr + XLENBYTES)`.
 ****
 
 The physical memory can _only_ be accessed through capabilities.

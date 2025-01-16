@@ -188,10 +188,10 @@ Assuming the interrupt corresponds to bit `x` in `mip` and `cis`,
 the following is the criteria for deciding which of the two to operate
 on:
 
-* If `CAPSTONE_EN = 0`, `mip` is affected
+* If `CAPSTONE_EN = 0`, `mip` is affected.
 * If `CAPSTONE_EN = 1`,
-- If `x` is clear in `cid`, `cis` is affected
-- If `x` is set in `cid`, `mip` is affected
+- If `x` is clear in `cid`, `cis` is affected.
+- If `x` is set in `cid`, `mip` is affected.
 
 
 For example, if the interrupt controller wishes to clear the
